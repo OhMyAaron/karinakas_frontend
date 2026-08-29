@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(Get-ChildItem -Path \"d:\\\\KULIAH\\\\Sems 7\\\\SKRIPSI\\\\TUGAS AKHIR\\\\Project TA\\\\frontend_karinakas\" -Recurse)",
+      "Bash(Select-Object FullName)",
+      "PowerShell(\\(Get-Content \"d:\\\\KULIAH\\\\Sems 7\\\\SKRIPSI\\\\TUGAS AKHIR\\\\Project TA\\\\frontend_karinakas\\\\src\\\\index.css\" | Measure-Object -Line\\).Lines)",
+      "Bash(node generate-doc.mjs)",
+      "Bash(ls -lh Laporan-Progres-Frontend-Karinakas.docx)",
+      "Bash(dir \"Laporan-Progres-Frontend-Karinakas.docx\")",
+      "Bash(npx vite *)"
+    ]
+  }
+}

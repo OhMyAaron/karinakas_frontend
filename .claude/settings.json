@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -)",
+      "Bash(node -e ' *)",
+      "PowerShell($o = & \"C:\\\\Users\\\\Lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--KULIAH-Sems-7-SKRIPSI-TUGAS-AKHIR-Project-TA-frontend-karinakas\\\\bc2e10b0-4272-4827-904c-daea96502457\\\\scratchpad\\\\drawio2png.ps1\" 2>&1 | Out-String; if \\($o -match \"SELESAI\"\\) { \\($o -split \"`n\" | Where-Object { $_ -match \"SELESAI\" }\\) } else { \\($o -split \"`n\" | Select-Object -First 12\\) -join \"`n\" })",
+      "PowerShell($o = & \"C:\\\\Users\\\\Lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--KULIAH-Sems-7-SKRIPSI-TUGAS-AKHIR-Project-TA-frontend-karinakas\\\\bc2e10b0-4272-4827-904c-daea96502457\\\\scratchpad\\\\drawio2png.ps1\" 2>&1 | Out-String; \\($o -split \"`n\" | Where-Object { $_ -match \"SELESAI|Error|error\" }\\) -join \"`n\")",
+      "PowerShell($d=\"d:\\\\KULIAH\\\\Sems 7\\\\SKRIPSI\\\\TUGAS AKHIR\\\\Project TA\\\\frontend_karinakas\\\\docs\\\\skpl\"; $s=\"C:\\\\Users\\\\Lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--KULIAH-Sems-7-SKRIPSI-TUGAS-AKHIR-Project-TA-frontend-karinakas\\\\bc2e10b0-4272-4827-904c-daea96502457\\\\scratchpad\\\\drawio2png.ps1\"; $o1 = & $s -In \"$d\\\\erd-diagram.drawio\" -Out \"$d\\\\erd-diagram.png\" 2>&1 | Out-String; \"ERD : \" + \\(\\($o1 -split \"`n\" | Where-Object {$_ -match 'SELESAI'}\\) -join ''\\); $o2 = & $s 2>&1 | Out-String; \"UC  : \" + \\(\\($o2 -split \"`n\" | Where-Object {$_ -match 'SELESAI'}\\) -join ''\\); if \\($o1 -notmatch 'SELESAI'\\) { \\($o1 -split \"`n\" | Select-Object -First 8\\) -join \"`n\" })",
+      "PowerShell($d=\"d:\\\\KULIAH\\\\Sems 7\\\\SKRIPSI\\\\TUGAS AKHIR\\\\Project TA\\\\frontend_karinakas\\\\docs\\\\skpl\"; $s=\"C:\\\\Users\\\\Lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--KULIAH-Sems-7-SKRIPSI-TUGAS-AKHIR-Project-TA-frontend-karinakas\\\\bc2e10b0-4272-4827-904c-daea96502457\\\\scratchpad\\\\drawio2png.ps1\"; $o = & $s -In \"$d\\\\erd-diagram.drawio\" -Out \"$d\\\\erd-diagram.png\" -Caption \"Gambar 3.2  Entity Relationship Diagram Sistem Informasi Yayasan Karinakas\" 2>&1 | Out-String; \\($o -split \"`n\" | Where-Object {$_ -match 'SELESAI'}\\) -join '')",
+      "PowerShell(Get-ChildItem \"d:\\\\KULIAH\\\\Sems 7\\\\SKRIPSI\\\\TUGAS AKHIR\\\\Project TA\\\\frontend_karinakas\\\\docs\\\\skpl\" | Select-Object Name, @{n='KB';e={[math]::Round\\($_.Length/1KB,1\\)}}, LastWriteTime | Format-Table -AutoSize)",
+      "Bash(node gen-erd.js \"d:/KULIAH/Sems 7/SKRIPSI/TUGAS AKHIR/Project TA/frontend_karinakas/docs/skpl/erd-diagram.drawio\")",
+      "PowerShell($o = & \"C:\\\\Users\\\\Lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--KULIAH-Sems-7-SKRIPSI-TUGAS-AKHIR-Project-TA-frontend-karinakas\\\\bc2e10b0-4272-4827-904c-daea96502457\\\\scratchpad\\\\erd2png.ps1\" 2>&1 | Out-String; if \\($o -match 'SELESAI'\\) { \\($o -split \"`n\" | Where-Object {$_ -match 'SELESAI'}\\) -join '' } else { \\($o -split \"`n\" | Select-Object -First 12\\) -join \"`n\" })",
+      "PowerShell($o = & \"C:\\\\Users\\\\Lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--KULIAH-Sems-7-SKRIPSI-TUGAS-AKHIR-Project-TA-frontend-karinakas\\\\bc2e10b0-4272-4827-904c-daea96502457\\\\scratchpad\\\\erd2png.ps1\" 2>&1 | Out-String; \\($o -split \"`n\" | Where-Object {$_ -match 'SELESAI'}\\) -join '')"
+    ]
+  }
+}
