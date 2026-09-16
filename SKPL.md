@@ -61,13 +61,13 @@ Selain itu, dokumen ini menyediakan penelusuran kebutuhan secara berjenjang, yai
 
 Perangkat lunak yang dihasilkan pada penelitian ini diberi nama **Sistem Informasi Yayasan Karinakas (SIKAS)**, yaitu sistem informasi berbasis web bagi lembaga sosial Yayasan Karinakas. SIKAS dibangun dengan arsitektur terpisah antara antarmuka dan layanan data. Antarmuka pengguna berupa aplikasi web satu halaman (*Single Page Application*) yang dikembangkan menggunakan React dan Vite, sedangkan layanan data disediakan melalui REST API yang dikembangkan menggunakan kerangka kerja Laravel dengan mekanisme autentikasi berbasis token (Laravel Sanctum). Seluruh data transaksional disimpan pada DBMS **MySQL**, sementara berkas gambar dokumentasi kegiatan dan bukti pembayaran donasi disimpan pada penyimpanan berkas server. Sistem ini juga dilengkapi modul pembangkit laporan (*report generator*) yang menghasilkan berkas rekapitulasi donasi, rekapitulasi relawan, dan laporan keseluruhan dalam format lembar kerja Excel. Perancangan antarmuka SIKAS menerapkan pendekatan *Human-Centered Design* dengan memperhatikan karakteristik pengguna lembaga yang sebagian besar berusia lanjut.
 
-SIKAS melayani empat kategori pengguna, yaitu pengunjung umum, pengguna terdaftar, admin, dan super admin. Bagi **pengunjung umum**, sistem menyajikan profil lembaga, informasi kegiatan sosial, berita dan kampanye, galeri dokumentasi yang dikelompokkan per album kegiatan, serta informasi kontak lembaga. Bagi **pengguna terdaftar**, sistem menyediakan pendaftaran dan pengelolaan akun, pendaftaran relawan pada kegiatan tertentu sesuai opsi jenis relawan dan bidang minat yang ditetapkan pengelola, pengajuan donasi yang terikat pada kegiatan yang membuka donasi dengan metode QRIS atau transfer bank disertai unggah bukti pembayaran, serta pemantauan riwayat donasi, keikutsertaan relawan, dan notifikasi melalui halaman profil. Bagi **admin dan super admin**, sistem menyediakan pengelolaan data kegiatan, berita, dan galeri; verifikasi status pendaftaran relawan dan status pembayaran donasi; dasbor statistik lembaga; pengunduhan berkas rekapitulasi; pengelolaan akun dan peran pengguna; serta pencatatan otomatis jejak audit dan riwayat notifikasi. Sistem turut mengirimkan notifikasi surel otomatis kepada calon relawan yang pendaftarannya diterima.
+SIKAS melayani empat kategori pengguna, yaitu pengunjung umum, pengguna terdaftar, admin, dan super admin. Bagi **pengunjung umum**, sistem menyajikan profil lembaga, informasi kegiatan sosial, berita dan kampanye, galeri dokumentasi yang dikelompokkan per album kegiatan, serta informasi kontak lembaga. Bagi **pengguna terdaftar**, sistem menyediakan pendaftaran dan pengelolaan akun, pendaftaran relawan pada kegiatan tertentu sesuai opsi jenis relawan dan bidang minat yang ditetapkan pengelola, pengajuan donasi yang terikat pada kegiatan yang membuka donasi dengan metode QRIS atau transfer bank disertai unggah bukti pembayaran, serta pemantauan riwayat donasi, keikutsertaan relawan, dan notifikasi melalui halaman profil. Bagi **admin dan super admin**, sistem menyediakan pengelolaan data kegiatan, berita, dan galeri; verifikasi status pendaftaran relawan, sedangkan verifikasi status pembayaran donasi khusus bagi super admin; dasbor statistik lembaga; pengunduhan berkas rekapitulasi; pengelolaan akun dan peran pengguna; serta pencatatan otomatis jejak audit dan riwayat notifikasi. Sistem turut mengirimkan notifikasi surel otomatis kepada calon relawan yang pendaftarannya diterima.
 
 Sebaliknya, terdapat sejumlah hal yang **tidak dilakukan** oleh SIKAS, yaitu:
 
 1. Sistem tidak memproses pembayaran secara otomatis. SIKAS tidak terhubung dengan *payment gateway*, tidak melakukan rekonsiliasi transaksi secara otomatis, dan tidak menyimpan data kartu atau kredensial pembayaran. Kode QRIS yang digunakan bersifat statis sehingga nominal diisi sendiri oleh donatur, dan keabsahan pembayaran ditentukan melalui verifikasi bukti transfer oleh pengelola.
 2. Sistem tidak menangani pembukuan dan akuntansi keuangan lembaga, seperti penjurnalan, penyusunan neraca, maupun pelaporan pajak.
-3. Sistem tidak mengirimkan notifikasi WhatsApp secara otomatis; kebutuhan tersebut berada di luar lingkup pengembangan karena memerlukan layanan pihak ketiga berbayar.
+3. Sistem tidak mengirimkan notifikasi WhatsApp secara otomatis. Seluruh pemberitahuan otomatis — penerimaan relawan, ucapan terima kasih donasi, dan tautan penyetelan ulang kata sandi — dikirimkan melalui surel. Pengiriman WhatsApp berada di luar lingkup pengembangan karena memerlukan layanan pihak ketiga berbayar.
 4. Sistem tidak dikembangkan sebagai aplikasi bergerak (*mobile native*), melainkan sebagai aplikasi web responsif yang dapat diakses melalui peramban pada perangkat komputer maupun telepon pintar.
 5. Sistem tidak melakukan seleksi atau penilaian otomatis terhadap pendaftar relawan. Keputusan penerimaan sepenuhnya berada pada pengelola lembaga, sedangkan sistem hanya memfasilitasi pencatatan dan verifikasinya.
 6. Sistem tidak mengelola logistik dan inventaris bantuan, penjadwalan tugas harian relawan, serta administrasi kepegawaian internal lembaga.
@@ -120,7 +120,7 @@ Seluruh lingkup yang diuraikan pada subbab ini konsisten dengan spesifikasi kebu
 | **WCAG** | *Web Content Accessibility Guidelines*; pedoman aksesibilitas konten web |
 | **Pengunjung Umum** | Pengguna tanpa akun yang hanya dapat menelusuri informasi publik |
 | **Pengguna Terdaftar** | Pengguna berakun yang dapat berdonasi dan mendaftar sebagai relawan |
-| **Admin** | Pengelola lembaga yang mengelola konten dan memverifikasi pengajuan, tanpa akses data nominal |
+| **Admin** | Pengelola lembaga yang mengelola konten dan memverifikasi pendaftaran relawan, tanpa akses data keuangan donasi maupun verifikasi pembayarannya |
 | **Super Admin** | Penanggung jawab lembaga dengan kewenangan penuh, termasuk data keuangan dan akun pengguna |
 
 ## 1.4 Referensi
@@ -321,8 +321,8 @@ Sistem Informasi Yayasan Karinakas (SIKAS) memiliki fungsi utama yang dikelompok
 
 | | | |
 |---|---|---|
-| **Deskripsi** | : | Menyediakan penelaahan data donasi beserta bukti pembayaran yang diunggah donatur, penetapan status pembayaran, serta perubahan dan penghapusan data donasi oleh pengguna yang berwenang. |
-| **Rasional** | : | Karena sistem tidak memperoleh konfirmasi pembayaran secara otomatis, keabsahan setiap donasi harus ditetapkan oleh pengelola. Pencatatan status pada sistem memastikan riwayat verifikasi terekam dan dapat ditelusuri kembali. |
+| **Deskripsi** | : | Menyediakan penelaahan data donasi beserta bukti pembayaran yang diunggah donatur, penetapan status pembayaran, serta perubahan dan penghapusan data donasi, seluruhnya khusus bagi super admin. |
+| **Rasional** | : | Karena sistem tidak memperoleh konfirmasi pembayaran secara otomatis, keabsahan setiap donasi harus ditetapkan oleh super admin selaku pemegang akses rekening lembaga. Pencatatan status pada sistem memastikan riwayat verifikasi terekam dan dapat ditelusuri kembali. |
 
 **F-16 Penyajian Dasbor Statistik**
 
@@ -349,7 +349,7 @@ Sistem Informasi Yayasan Karinakas (SIKAS) memiliki fungsi utama yang dikelompok
 
 | | | |
 |---|---|---|
-| **Deskripsi** | : | Menyembunyikan nominal donasi dan detail keuangan dari admin biasa, baik pada tampilan antarmuka maupun pada data yang dikirim layanan, serta membatasi fungsi manajemen pengguna, jejak audit, dan ekspor rekapitulasi hanya bagi super admin. |
+| **Deskripsi** | : | Menyembunyikan nominal donasi dan detail keuangan dari admin biasa, baik pada tampilan antarmuka maupun pada data yang dikirim layanan, serta membatasi fungsi verifikasi pembayaran donasi, manajemen pengguna, jejak audit, dan ekspor rekapitulasi hanya bagi super admin. |
 | **Rasional** | : | Data keuangan bersifat sensitif dan hanya boleh diketahui pemegang kewenangan tertinggi di lembaga. Pembatasan diterapkan pada sisi layanan, bukan sekadar penyembunyian pada tampilan, agar data tetap terlindungi meskipun antarmuka dimanipulasi. |
 
 **F-20 Pencatatan Jejak Audit**
@@ -376,7 +376,8 @@ Sistem Informasi Yayasan Karinakas (SIKAS) memiliki fungsi utama yang dikelompok
 | F-08 | Pendaftaran relawan | | ✔ | ✔ | ✔ |
 | F-09 – F-10 | Pengajuan donasi dan unggah bukti | | ✔ | ✔ | ✔ |
 | F-11 – F-13 | Pengelolaan kegiatan, berita, galeri | | | ✔ | ✔ |
-| F-14 – F-15 | Verifikasi relawan dan donasi | | | ✔ | ✔ |
+| F-14 | Verifikasi pendaftaran relawan | | | ✔ | ✔ |
+| F-15 | Verifikasi pembayaran donasi | | | | ✔ |
 | F-16 | Dasbor statistik | | | ✔ | ✔ |
 | F-17 | Rekapitulasi dan ekspor laporan | | | | ✔ |
 | F-18 – F-19 | Manajemen pengguna dan pembatasan data keuangan | | | | ✔ |
@@ -397,8 +398,8 @@ Pengguna Sistem Informasi Yayasan Karinakas (SIKAS) terbagi menjadi empat katego
 |---|---|---|---|---|
 | **Pengunjung Umum** | Menelusuri profil lembaga, kegiatan, berita, dan galeri dokumentasi | Beragam, mulai dari pendidikan dasar hingga perguruan tinggi | Terbiasa menggunakan telepon pintar dan media sosial, namun sebagian belum terbiasa mengisi formulir daring | Kemampuan dasar mengoperasikan peramban web; tidak diperlukan keahlian teknis khusus |
 | **Pengguna Terdaftar** (calon relawan dan donatur) | Mendaftar akun, mendaftar sebagai relawan, mengajukan donasi, mengunggah bukti pembayaran, memantau riwayat | Umumnya menengah atas hingga perguruan tinggi | Terbiasa melakukan transaksi daring sederhana seperti transfer melalui *mobile banking* atau pembayaran QRIS | Kemampuan dasar mengisi formulir daring, memilih berkas, serta menggunakan aplikasi pembayaran berlogo QRIS |
-| **Admin** | Mengelola kegiatan, berita, dan galeri; memverifikasi pendaftaran relawan dan pembayaran donasi | Menengah atas hingga perguruan tinggi | Berpengalaman menangani administrasi dan dokumentasi kegiatan lembaga | Kemampuan mengoperasikan aplikasi perkantoran, mengunggah berkas gambar, serta memahami alur verifikasi data; tidak diperlukan kemampuan pemrograman |
-| **Super Admin** | Seluruh kewenangan admin, ditambah pengelolaan akun dan peran, akses data nominal donasi, penelusuran jejak audit, dan pengunduhan rekapitulasi | Perguruan tinggi | Menduduki posisi pengurus atau penanggung jawab lembaga dan memahami tata kelola data keuangan serta pelaporan lembaga | Kemampuan mengoperasikan aplikasi lembar kerja untuk mengolah berkas rekapitulasi, serta pemahaman atas kerahasiaan data pribadi dan keuangan |
+| **Admin** | Mengelola kegiatan, berita, dan galeri; memverifikasi pendaftaran relawan; memantau daftar donasi tanpa data keuangan | Menengah atas hingga perguruan tinggi | Berpengalaman menangani administrasi dan dokumentasi kegiatan lembaga | Kemampuan mengoperasikan aplikasi perkantoran, mengunggah berkas gambar, serta memahami alur verifikasi data; tidak diperlukan kemampuan pemrograman |
+| **Super Admin** | Seluruh kewenangan admin, ditambah verifikasi pembayaran donasi, pengelolaan akun dan peran, akses data keuangan donasi, penelusuran jejak audit, dan pengunduhan rekapitulasi | Perguruan tinggi | Menduduki posisi pengurus atau penanggung jawab lembaga dan memahami tata kelola data keuangan serta pelaporan lembaga | Kemampuan mengoperasikan aplikasi lembar kerja untuk mengolah berkas rekapitulasi, serta pemahaman atas kerahasiaan data pribadi dan keuangan |
 
 Berdasarkan karakteristik tersebut, terdapat dua hal yang menjadi pertimbangan utama dalam perancangan sistem. Pertama, sebagian pengguna, khususnya penerima layanan lembaga dan sebagian pengurus, tergolong lanjut usia dengan penurunan ketajaman penglihatan dan tingkat literasi digital yang terbatas. Oleh karena itu, sesuai pendekatan *Human-Centered Design* yang digunakan, antarmuka dirancang dengan ukuran huruf yang diperbesar, kontras warna yang ditingkatkan, penggunaan istilah berbahasa Indonesia yang lazim, serta alur interaksi yang dipecah menjadi tahapan pendek agar tidak membebani pengguna. Kedua, tidak satu pun kategori pengguna dituntut memiliki kemampuan pemrograman, pengetahuan basis data, maupun keahlian teknis lanjut. Seluruh fungsi pengelolaan disediakan melalui antarmuka berbasis formulir sehingga pengelola lembaga dapat mengoperasikan sistem secara mandiri setelah memperoleh pengenalan singkat, tanpa bergantung pada pengembang sistem.
 
@@ -476,7 +477,7 @@ Subbab ini memuat faktor-faktor yang diasumsikan berlaku selama pengembangan dan
 
 **A-03** Identitas *merchant* QRIS dan nomor rekening lembaga diasumsikan tidak berubah selama masa operasional sistem. Apabila terjadi perubahan, diperlukan pemutakhiran data pembayaran sekaligus pembangunan ulang aplikasi antarmuka sebagaimana konsekuensi kekangan K-07.
 
-**A-04** Pengelola lembaga diasumsikan memeriksa dan memverifikasi bukti pembayaran serta pendaftaran relawan secara berkala. Asumsi ini penting karena keabsahan donasi ditentukan oleh manusia, bukan oleh sistem. Apabila pemeriksaan tidak dilakukan secara rutin, status donasi dan pendaftaran relawan akan tertahan pada keadaan menunggu, sehingga kebutuhan verifikasi perlu dilengkapi mekanisme pengingat otomatis bagi pengelola.
+**A-04** Super admin diasumsikan memeriksa dan memverifikasi bukti pembayaran, dan admin memverifikasi pendaftaran relawan, secara berkala. Asumsi ini penting karena keabsahan donasi ditentukan oleh manusia, bukan oleh sistem. Apabila pemeriksaan tidak dilakukan secara rutin, status donasi dan pendaftaran relawan akan tertahan pada keadaan menunggu, sehingga kebutuhan verifikasi perlu dilengkapi mekanisme pengingat otomatis bagi pengelola.
 
 **A-05** Setiap pengguna diasumsikan memiliki alamat surel aktif yang dapat menerima pemberitahuan dari sistem. Apabila tidak terpenuhi, notifikasi tidak sampai kepada penerima meskipun tercatat pada sistem, sehingga diperlukan kebutuhan baru berupa kanal pemberitahuan alternatif.
 
@@ -513,7 +514,7 @@ Lampiran ini memuat informasi pendukung yang melengkapi dokumen SKPL. **Informas
 | Berkas | Isi | Kedudukan |
 |---|---|---|
 | `CONTEXT.md` | Arsitektur sistem, struktur berkas, daftar lengkap endpoint layanan, dan akun uji | Rujukan, bukan kebutuhan |
-| `TESTING.md` | 176 kasus uji black-box beserta rekapitulasi hasilnya | Rujukan; menelusuri kebutuhan pada Bab III |
+| `TESTING.md` | 179 kasus uji black-box beserta rekapitulasi hasilnya | Rujukan; menelusuri kebutuhan pada Bab III |
 | `DEPLOY.md` | Panduan penerapan ke peladen produksi beserta persyaratan teknisnya | Rujukan, bukan kebutuhan |
 | `PROGRESS.md` · `HANDOFF.md` | Catatan perkembangan dan status pengerjaan | Rujukan, bukan kebutuhan |
 
@@ -541,7 +542,7 @@ Seluruh pernyataan teknis pada dokumen ini diperiksa langsung terhadap kode sist
 | Bukti bayar maks. 4 MB (K-09) | `donasiController.php` → `'bukti' => 'required\|image\|max:4096'` | ✅ Sesuai |
 | Foto galeri maks. 5 MB (K-09) | `GaleriController.php` → `'gambar' => 'image\|max:5120'` | ✅ Sesuai |
 | Maks. 20 berkas per permintaan (K-10) | `resources.js` → `bulkUpload({ …, batchSize = 20 })` | ✅ Sesuai |
-| Pembatasan nominal di sisi layanan (K-15, F-19) | `donasiController.php` baris 222 → `unset($item->jumlah)` | ✅ Sesuai |
+| Pembatasan data keuangan di sisi layanan (K-15, F-19) | `DonasiController.php` → `sembunyikanKeuangan()` pada `index` dan `search`; `wajibSuperAdmin()` pada `updateStatus`, `update`, `destroy` | ✅ Sesuai — diperbaiki 14 September 2026; sebelumnya `search` tidak menyamarkan apa pun dan `update` tanpa pengecekan peran di sisi layanan |
 | Huruf diperbesar & kontras (K-18, F-01) | `index.css` → `font-size: 18.5px`, `--red: #C0392B` | ✅ Sesuai |
 | Antarmuka responsif (K-20) | 11 *media query* pada `index.css` | ✅ Sesuai |
 
@@ -559,8 +560,8 @@ Hal-hal berikut semula **sengaja tidak dicantumkan** pada Subbab 2.2 karena impl
 | Hal | Kondisi nyata pada kode | Pilihan |
 |---|---|---|
 | ~~**Formulir pesan pada halaman Kontak**~~ | **Diputuskan 23 Agustus 2026: formulirnya dihapus.** Kanal pertanyaan pengunjung memakai WhatsApp yang sudah aktif, sehingga tidak perlu kotak masuk kedua. `Kontak.jsx` kini berisi informasi kontak dan tombol WhatsApp saja | Tetap **tidak dicantumkan** sebagai fungsi — kini karena fiturnya memang tidak ada, bukan karena implementasinya menggantung |
-| ~~**Pemulihan kata sandi**~~ | **Selesai 23 Agustus 2026.** Semula antarmuka memakai `localStorage` dan layanannya hanya kerangka `TODO`. Kini OTP enam digit berlaku 10 menit, sekali pakai, token lama dicabut. Sudah diuji ujung ke ujung | Tercantum sebagai **FR SIKAS 213** dan form 12a pada Subbab 3.1.1 |
-| ~~**Panjang kata sandi & pembatasan laju**~~ | **Selesai 23 Agustus 2026.** `min:8` di seluruh jalur; `throttle:5,1` pada empat rute autentikasi | NFR 3.4.4.1 dan 3.4.4.5 berubah status menjadi terpenuhi |
+| ~~**Pemulihan kata sandi**~~ | **Selesai 23 Agustus 2026.** Semula antarmuka memakai `localStorage` dan layanannya hanya kerangka `TODO`. Kini pemulihan memakai tautan sekali pakai yang dikirim ke surel dan berlaku 60 menit, sekali pakai, token lama dicabut. Sudah diuji ujung ke ujung | Tercantum sebagai **FR SIKAS 213** dan form 12a pada Subbab 3.1.1 |
+| ~~**Panjang kata sandi & pembatasan laju**~~ | **Selesai 23 Agustus 2026.** `min:8` di seluruh jalur; pembatasan laju pada seluruh rute autentikasi; sejak 16 September 2026 memakai pembatas bernama agar jatah tiap kelompok rute terpisah | NFR 3.4.4.1 dan 3.4.4.5 berubah status menjadi terpenuhi |
 
 Hal lain yang perlu dipastikan: pernyataan "sebagian besar pengguna mengakses melalui perangkat seluler" pada Subbab 2.3 sebaiknya dirujuk ke hasil wawancara atau kuesioner pada tahap analisis HCD. Bila data pendukung belum ada, turunkan menjadi kecenderungan umum agar tidak dipertanyakan saat sidang.
 

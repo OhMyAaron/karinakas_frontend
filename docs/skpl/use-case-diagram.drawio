@@ -121,9 +121,7 @@
         <mxCell id="a14" edge="1" parent="1" source="AK3" style="endArrow=none;html=1;strokeColor=#555555;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="UC15">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="a15" edge="1" parent="1" source="AK3" style="endArrow=none;html=1;strokeColor=#555555;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="UC16">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
+        
         <mxCell id="a16" edge="1" parent="1" source="AK3" style="endArrow=none;html=1;strokeColor=#555555;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="UC17">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>

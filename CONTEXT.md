@@ -31,7 +31,7 @@ Browser (React SPA :5173)
 ```
 
 - Frontend & backend **terpisah**; frontend memanggil API → **backend wajib menyala**.
-- **URL API**: `frontend_karinakas/.env` → `VITE_API_URL` (default `http://127.0.0.1:8000/api/v1`). **Dibakar saat `npm run build`.**
+- **URL API**: `frontend_karinakas/.env` → `VITE_API_URL`. **Wajib berakhiran `/api/v1`** (prefix `/api` dari `bootstrap/app.php` + grup `v1` dari `routes/api.php`); akhiran itu juga dipakai `resources.js` untuk membentuk alamat `/storage`. Dev `http://127.0.0.1:8000/api/v1`; produksi satu domain `/api/v1`. **Dibakar saat `npm run build`.**
 - **DB**: MySQL, database `karinakas` (host/port di `tugas_akhir/.env`; dev via Laragon).
 
 ---
@@ -41,7 +41,7 @@ Browser (React SPA :5173)
 - **Login** pakai **email ATAU username** (frontend kirim `email` bila ada `@`, else `username`).
 - **3 peran**: `user`, `admin`, `super_admin`. Backend `super_admin` ↔ frontend `superadmin`.
 - **Ability**: `Gate::before` (AppServiceProvider) memberi semua ability ke admin & super_admin; pembatasan **super-admin-only** (Manajemen Pengguna, Audit Log) dicek manual di controller.
-- **Beda peran**: Super Admin lihat **nominal donasi**, **Manajemen Pengguna**, **Audit Log**. Admin biasa tidak.
+- **Beda peran**: Super Admin **memverifikasi pembayaran donasi** dan melihat **data keuangan donasi**, **Manajemen Pengguna**, **Audit Log**. Admin biasa tidak — di menu Donasi hanya memantau donatur, kegiatan, dan status (sejak 14 September 2026).
 
 ### Akun demo (seeder)
 | Peran | Email | Username | Password |
@@ -98,7 +98,7 @@ tugas_akhir/
 - **Middleware**: grup admin `middleware('role:admin,super_admin')`; alias `role` didaftarkan di `bootstrap/app.php`.
 
 ### Controller & method (ringkas fungsinya)
-- **AuthController**: `register, login, logout, me, updateProfile, changePassword, forgotPassword, resetPassword`.
+- **AuthController**: `register, login, logout, me, updateProfile, changePassword, forgotPassword, checkResetToken, resetPassword`.
 - **KegiatanController**: `index, show, store, update, destroy, search, availableForVolunteer, updateStatus`.
 - **KampanyeController**: `index, show, store, update, destroy, search, byKategori, recent`.
 - **GaleriController**: `index, byKegiatan, latest, store, bulkUpload, update, destroy, search`.
@@ -161,8 +161,8 @@ tugas_akhir/
 | POST/PUT/DELETE | `/admin/kampanye`, `/{id}` · GET `/search` | CRUD berita |
 | POST | `/admin/galeri/upload` | **bulk upload** foto |
 | POST/PUT/DELETE | `/admin/galeri`, `/{id}` · GET `/search` | CRUD galeri |
-| GET | `/admin/donasi` | daftar (nominal disembunyikan utk admin biasa) |
-| PUT/DELETE | `/admin/donasi/{id}` · PATCH `/{id}/status` · GET `/search`,`/report` | kelola donasi |
+| GET | `/admin/donasi` | daftar (data keuangan disembunyikan utk admin biasa) |
+| PUT/DELETE | `/admin/donasi/{id}` · PATCH `/{id}/status` · GET `/search`,`/report` | kelola donasi — ubah, hapus, dan status **khusus super admin** |
 | GET | `/admin/relawan`, `/pending`, `/kegiatan/{id}` · PATCH `/{id}/status` · DELETE `/{id}` | kelola relawan |
 | GET | `/admin/notifikasi` | riwayat notifikasi |
 | GET | `/admin/audit` | **audit log (super admin)** |
@@ -188,13 +188,14 @@ Urutan migrasi (di `database/migrations/`):
 ---
 
 ## 9. Logika bisnis penting
-- **Masking nominal**: `GET /admin/donasi` & dashboard menghapus `jumlah` untuk role `admin` (non-super).
+- **Kunci data keuangan donasi** (Opsi A, 14 September 2026): verifikasi, ubah, dan hapus donasi **khusus Super Admin** — `wajibSuperAdmin()` membalas 403. Bagi admin biasa, `GET /admin/donasi` dan `/admin/donasi/search` menyembunyikan `jumlah`, `biaya_transfer`, `kode_transaksi`, `rekening_pengirim`, `bukti_transfer` lewat `sembunyikanKeuangan()`; dashboard menghapus total nominal. Bukti ikut disembunyikan karena nominal terbaca pada gambarnya.
 - **Donasi wajib kegiatan**: `store` menolak bila tanpa `kegiatan_id` atau kegiatan tidak `butuh_donasi`/tidak aktif.
-- **Metode pembayaran**: **QRIS** (default) atau **Transfer BNI**; dikirim sebagai string `metode_pembayaran` (backend hanya validasi `string|max:50`, tak ada enum). Keduanya **manual** — donatur bayar lalu unggah bukti, admin memverifikasi. QRIS **statis**: nominal tidak tertanam di QR, diketik sendiri oleh donatur.
-- **Relawan → diterima**: otomatis `kegiatan.jumlah_relawan_terdaftar++` (event model), dan **kirim email** `RelawanDiterima` + catat `NotifikasiLog` (email & whatsapp).
+- **Metode pembayaran**: **QRIS** (default) atau **Transfer Mandiri**; dikirim sebagai string `metode_pembayaran` (backend hanya validasi `string|max:50`, tak ada enum). Keduanya **manual** — donatur bayar lalu unggah bukti, admin memverifikasi. QRIS **statis**: nominal tidak tertanam di QR, diketik sendiri oleh donatur.
+- **Relawan → diterima**: otomatis `kegiatan.jumlah_relawan_terdaftar++` (event model), dan **kirim email** `RelawanDiterima` + catat `NotifikasiLog` (surel saja — kanal WhatsApp ditiadakan 16 September 2026).
 - **Opsi relawan per kegiatan**: admin isi `jenis_relawan`/`bidang_minat`; form pendaftaran memakai opsi itu; backend memvalidasi pilihan user sesuai opsi (kalau ditentukan).
 - **Audit otomatis**: aksi admin (ubah status/hapus/kelola pengguna) dicatat ke `audit_logs` via `AuditLog::record()`.
 - **Galeri**: `judul` mengelompokkan foto jadi **album**; `bulkUpload` menyimpan banyak foto sekaligus (nama per foto); frontend **auto-batch 20/request** & **ambil semua halaman**.
+- **Penyaringan & ekspor admin** (Donasi dan Relawan): penyaringan dikerjakan **di peramban** atas data yang sudah dimuat, bukan lewat query baru ke API. Penyaring yang tersedia: pencarian, status, **kegiatan**, dan **bulan** (satu pilihan yang diisi dari bulan yang benar-benar ada pada data — menggantikan dua kotak rentang tanggal sejak 14 September 2026); khusus Relawan ditambah **jenis** yang pilihannya diambil dari data nyata sehingga jenis khusus per kegiatan ikut muncul. Isi berkas ekspor mengikuti penyaring aktif, dan penyaring tersebut dicatat pada kepala berkas. ✅ **Seluruh halaman dimuat** — `listAdmin` Donasi & Relawan memakai `ambilSemuaHalaman()` di `resources.js` (14 September 2026). Sebelumnya donasi terpotong di **20** baris karena `DonasiController::index` mengabaikan `per_page`; kini peladen menghormati `per_page` 1–100.
 - **Counter relawan**: `kegiatan.jumlah_relawan_terdaftar` dijaga oleh event model `Relawan` — `created` (dibuat langsung berstatus `diterima`), `updated` (status berubah ke/dari `diterima`), dan `deleted`. Invarian: counter = jumlah relawan berstatus `diterima` pada kegiatan itu.
 - **Halaman Kontak tanpa formulir**: pertanyaan pengunjung diarahkan ke **WhatsApp** (tombol chat + pilihan topik yang mengisi pesan awal) dan surel. Tidak ada tabel/endpoint pesan — memang disengaja, bukan fitur yang belum jadi.
 
@@ -208,11 +209,14 @@ Urutan migrasi (di `database/migrations/`):
 
 ## 11. Konvensi & data penting
 - **Warna brand**: merah lembut `#C0392B`; font dasar `18.5px`; kontras tinggi (ramah lansia).
-- **Kontak**: WhatsApp/telepon **+62 851-5621-7359**, IG `@yayasankarinakas`, YouTube `@karinakasofficial`.
+- **Kontak** (diperbarui 29 Agustus 2026): WhatsApp/telepon **+62 813-9277-7710** (`wa.me/6281392777710`), surel **karinakas.office@gmail.com**, IG `@yayasankarinakas`, YouTube `@karinakasofficial`. Dipakai di `components/Footer.jsx`, `pages/Kontak.jsx`, dan `pages/DaftarRelawan.jsx` — **belum dipusatkan ke satu konstanta**, jadi bila berubah lagi harus disunting di tiga berkas.
 - **Pembayaran donasi** (konstanta di `src/pages/Donasi.jsx`):
-  - **QRIS statis** — `QRIS`: YAYASAN KARINAKAS, NMID `ID2026479922646`, terminal `A01`; gambar di `public/qris-karinakas.png` (lihat `public/README-QRIS.txt`).
-  - **Transfer bank** — `BANK`: **BNI 725318271 a.n. Aaron Risang Panji Bharata**.
-- **Dokumen lain**: `HANDOFF.md` (progres detail), `PROGRESS.md` (checklist), `DEPLOY.md` (hosting), `TESTING.md` (176 kasus uji), `SKPL.md` (naskah SKPL Bab I & II), dan folder `docs/skpl/` (naskah SKPL Bab III + diagram use case & ERD dalam `.drawio` dan `.png`).
+  - **QRIS statis** — `QRIS`: YAYASAN KARINAKAS, NMID `ID2026479922646`, terminal `A01`; gambar **sudah tersedia** di `public/qris-karinakas.png` (lihat `public/README-QRIS.txt`).
+  - **Transfer bank** — `BANK`: **Mandiri 1370013862012 a.n. YAYASAN KARINAKAS** (diperbarui 29 Agustus 2026; sebelumnya rekening pribadi). Seluruh tampilan metode pembayaran, layar petunjuk transfer, tombol salin rekening, dan ringkasan donasi membaca konstanta ini, jadi cukup diubah di satu tempat.
+- **Logo**: `public/karinakas-logo.png`, dipakai lewat komponen `components/KarinakasLogo.jsx` (parameter `size` dan `bleed`). Dipasang di Navbar, Footer, IntroScreen, sidebar panel admin, serta Login, Register, dan ForgotPassword (sejak 14 September 2026, menggantikan ikon hati). **Favicon** = `public/favicon-karinakas.png` (64 px) + `apple-touch-icon.png` (180 px), dipotong dari logo yang sama — sebelumnya tab peramban masih menampilkan logo bawaan Vite. Ikon hati yang tersisa bersifat **makna** (tombol/penanda Donasi, nilai "Humanis"), bukan lambang merek, sehingga sengaja dipertahankan.
+- **Alamat & peta** (14 September 2026): **Jl. Empu Panuluh No.377A, Pringwulung, Condongcatur, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta**. **Sudah dipusatkan** di `src/data/lembaga.js` (`ALAMAT`, `ALAMAT_LENGKAP`, `PETA_SEMATAN`, `PETA_TAUTAN`) dan dibaca Footer serta Kontak. Peta memakai sematan Google Maps tanpa kunci API berbasis kueri alamat. Sebelumnya Footer menulis "Jl. Panuluh" dengan sematan peta palsu, sedangkan Kontak masih beralamat Semarang.
+- **Ikon Linktree** di Footer digambar sebagai SVG karena Bootstrap Icons tidak menyediakan `bi-linktree` (dulu tombolnya kosong). Tautannya `linktr.ee/prjct88`.
+- **Dokumen lain**: `HANDOFF.md` (progres detail), `PROGRESS.md` (checklist), `DEPLOY.md` (hosting), `TESTING.md` (179 kasus uji fungsional), `SKENARIO-TUGAS.md` (skenario uji kebergunaan + kuesioner SUS), `SKPL.md` + `docs/skpl/` (naskah SKPL), dan `DPPL.md` + `docs/dppl/` (naskah DPPL).
 
 ---
 
@@ -224,8 +228,8 @@ Diperiksa langsung ke kode saat penyusunan SKPL. **Fakta sistem yang mudah salah
 |---|---|---|
 | **Versi PHP** | `composer.json` mensyaratkan `^8.3`, **bukan** 8.2. `composer install` gagal di PHP 8.2 | `tugas_akhir/composer.json` |
 | **Panjang kata sandi** ✅ | Kini **`min:8` di seluruh jalur**: registrasi, ganti sandi, reset, dan tambah/reset akun oleh super admin | `AuthController`, `AdminController` |
-| **Pembatasan laju** ✅ | `throttle:5,1` pada `/register`, `/login`, `/forgot-password`, `/reset-password` — percobaan ke-6 dibalas `429` | `routes/api.php` |
-| **Pemulihan kata sandi** ✅ | Sudah nyata: OTP 6 digit disimpan di cache 10 menit, dikirim via surel, sekali pakai; token lama dicabut setelah sandi diganti | `AuthController.forgotPassword/resetPassword` |
+| **Pembatasan laju** ✅ | Pembatas laju **bernama** di `AppServiceProvider`: `masuk` (register, login) 5/menit, `lupa-sandi` (forgot-password) 5/menit, `reset-sandi` (reset-password dan /check) 20/menit — seluruhnya per alamat IP. Memakai nama itu penting: `throttle:5,1` polos berkunci "domain\|IP" sehingga semua rute autentikasi berbagi satu jatah | `routes/api.php`, `AppServiceProvider` |
+| **Pemulihan kata sandi** ✅ | Sudah nyata: **tautan sekali pakai** dikirim ke surel — token acak 64 karakter, yang disimpan di cache hanya sidik SHA-256-nya, berlaku 60 menit; token sesi lama dicabut setelah sandi diganti | `AuthController.forgotPassword/resetPassword` |
 | **`SESSION_DRIVER=file`** | Diubah dari `database` karena tabel `sessions` tidak pernah dibuat migrasinya. Sistem murni API bertoken sehingga tidak memakai session sama sekali | `tugas_akhir/.env` |
 | **CSS bersifat *desktop-first*** | 10 dari 11 *media query* memakai `max-width`. Sebut "responsif", **bukan** "mobile-first" | `src/index.css` |
 
@@ -235,7 +239,7 @@ sehingga tidak ada dua kotak masuk yang harus dipantau terpisah. `pages/Kontak.j
 Tidak ada lagi fitur yang tampil di UI tetapi menggantung tanpa server.
 
 **Cara kerja pemulihan kata sandi** (untuk penelusuran cepat):
-`POST /forgot-password {email}` → kode 6 digit disimpan pada cache kunci `otp_reset:{email}` (TTL 10 menit) + surel `KodeOtpReset` → `POST /reset-password {email, otp, new_password, new_password_confirmation}` → verifikasi `hash_equals`, ganti sandi, `Cache::forget`, cabut seluruh token, catat `notifikasi_logs`.
-Karena `MAIL_MAILER=log`, **kode OTP terbaca di `storage/logs/laravel.log`** selama SMTP belum diisi.
+`POST /forgot-password {email}` → token acak 64 karakter dibuat, sidik SHA-256-nya disimpan pada cache kunci `reset_sandi:{sidik}` (TTL 60 menit) beserta `reset_sandi_user:{id}` untuk membatalkan tautan lama → surel `TautanResetSandi` berisi `{FRONTEND_URL}/reset-password?token=...&email=...` → halaman memanggil `POST /reset-password/check {token, email}` lebih dulu → `POST /reset-password {token, email, new_password, new_password_confirmation}` → ganti sandi, `Cache::forget` kedua kunci, cabut seluruh token sesi, catat `notifikasi_logs`.
+Pengiriman surel memakai **Resend** (`MAIL_MAILER=resend`), sehingga `RESEND_API_KEY` dan `FRONTEND_URL` wajib terisi pada `.env` peladen agar tautan benar-benar sampai dan mengarah ke alamat situs yang benar.
 
 **Batas berkas yang berlaku** (dipakai sebagai acuan kebutuhan non-fungsional): bukti pembayaran maksimal **4 MB**, foto galeri maksimal **5 MB** per berkas, pengunggahan massal dipecah **20 berkas per permintaan**.

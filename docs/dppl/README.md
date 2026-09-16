@@ -13,7 +13,8 @@ Berkas induk: **[../../DPPL.md](../../DPPL.md)** (Bab 1, 2.1, dan penunjuk ke su
 |---|---|---|
 | — | [CHECKLIST.md](CHECKLIST.md) | Daftar periksa penyusunan dan titik lanjut pengerjaan |
 | 2.2 | [2.2-Perancangan-Rinci.md](2.2-Perancangan-Rinci.md) | Kelas diagram pola BCE (39 kelas) + deskripsi atribut dan fungsi 9 kelas kontroler |
-| 2.3 | [2.3-Perancangan-Data.md](2.3-Perancangan-Data.md) | Dekomposisi 9 tabel basis data + *Physical Data Model* beserta relasi dan aturan integritasnya |
+| 2.3 | [2.3-Perancangan-Data.md](2.3-Perancangan-Data.md) | Pengantar perancangan data + **2.3.1 Dekomposisi Data** (9 tabel, 116 medan) |
+| 2.3.2 | [2.3.2-Physical-Data-Model.md](2.3.2-Physical-Data-Model.md) | **Physical Data Model** — Gambar 2.6, relasi antartabel, Tabel 10 aturan `ON DELETE`, dan 4 aturan integritas |
 
 ## Berkas gambar
 

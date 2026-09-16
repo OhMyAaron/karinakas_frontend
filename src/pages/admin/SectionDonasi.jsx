@@ -16,8 +16,7 @@ function SectionDonasi() {
   const [search,        setSearch]        = useState('')
   const [filterStatus,  setFilterStatus]  = useState('')
   const [filterKegiatan, setFilterKegiatan] = useState('')
-  const [dariTanggal,   setDariTanggal]   = useState('')
-  const [sampaiTanggal, setSampaiTanggal] = useState('')
+  const [filterBulan,   setFilterBulan]   = useState('')   // 'YYYY-MM', kosong = semua
   const [modal,        setModal]        = useState(null)
   const [form,         setForm]         = useState({})
   const [saving,       setSaving]       = useState(false)
@@ -35,32 +34,40 @@ function SectionDonasi() {
   // Daftar kegiatan yang benar-benar muncul pada data, untuk isi dropdown penyaring
   const kegiatanTerpakai = [...new Set(items.map(d => d.kegiatan).filter(Boolean))].sort()
 
-  // Bandingkan hanya bagian tanggalnya (YYYY-MM-DD) agar jam tidak ikut memengaruhi
-  const hariSaja = (v) => {
+  // Bulan (YYYY-MM) menurut jam lokal peramban. Sengaja tidak memakai toISOString()
+  // karena itu mengubah ke UTC: data pukul 00.00–06.59 WIB akan tergeser ke hari —
+  // bahkan bulan — sebelumnya.
+  const bulanSaja = (v) => {
     if (!v) return ''
     const d = new Date(v)
-    return isNaN(d) ? '' : d.toISOString().slice(0, 10)
+    return isNaN(d) ? '' : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
   }
+  const namaBulan = (ym) => {
+    const [y, m] = ym.split('-').map(Number)
+    return new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+  }
+  // Pilihan bulan diambil dari data yang benar-benar ada, terbaru di atas
+  const bulanTersedia = [...new Set(items.map(x => bulanSaja(x.tanggal)).filter(Boolean))].sort().reverse()
 
   const filtered = items.filter(it => {
-    const tgl = hariSaja(it.tanggal)
     return (
       ((it.donatur || '').toLowerCase().includes(search.toLowerCase()) ||
        (it.tujuan || '').toLowerCase().includes(search.toLowerCase())) &&
       (!filterStatus   || it.status === filterStatus) &&
       (!filterKegiatan || (it.kegiatan || '') === filterKegiatan) &&
-      (!dariTanggal    || (tgl && tgl >= dariTanggal)) &&
-      (!sampaiTanggal  || (tgl && tgl <= sampaiTanggal))
+      (!filterBulan    || bulanSaja(it.tanggal) === filterBulan)
     )
   })
 
-  const adaPenyaring = Boolean(search || filterStatus || filterKegiatan || dariTanggal || sampaiTanggal)
+  const adaPenyaring = Boolean(search || filterStatus || filterKegiatan || filterBulan)
   const resetPenyaring = () => {
-    setSearch(''); setFilterStatus(''); setFilterKegiatan(''); setDariTanggal(''); setSampaiTanggal('')
+    setSearch(''); setFilterStatus(''); setFilterKegiatan(''); setFilterBulan('')
   }
 
   const totalBerhasil = items.filter(d => d.status === 'berhasil').reduce((s, d) => s + Number(d.nominal), 0)
   const countPending  = items.filter(d => d.status === 'pending').length
+  // Admin biasa tidak mendapat kolom Ubah Status, Detail, dan Aksi — verifikasi khusus Super Admin
+  const jumlahKolom = isSuper ? 8 : 6
 
   const changeStatus = async (it, status) => {
     try { await donasiService.updateStatus(it.id, status); await load() }
@@ -102,9 +109,7 @@ function SectionDonasi() {
         ['Diekspor oleh', `${user?.name || '-'} (Super Admin)`],
         ['Filter status', filterStatus ? STATUS_DONASI[filterStatus]?.label : 'Semua status'],
         ['Filter kegiatan', filterKegiatan || 'Semua kegiatan'],
-        ['Rentang tanggal', dariTanggal || sampaiTanggal
-          ? `${dariTanggal || 'awal'} s.d. ${sampaiTanggal || 'sekarang'}`
-          : 'Seluruh periode'],
+        ['Bulan donasi', filterBulan ? namaBulan(filterBulan) : 'Seluruh periode'],
         ['Kata kunci', search || '(tanpa pencarian)'],
         ['Jumlah baris', `${filtered.length} dari ${items.length} data`],
       ],
@@ -165,7 +170,7 @@ function SectionDonasi() {
           <p className="ad-section-sub">
             {isSuper
               ? 'Verifikasi pembayaran, lihat bukti transfer, dan rekapan keuangan.'
-              : 'Anda dapat verifikasi status donasi, namun nominal & detail pembayaran hanya untuk Super Admin.'}
+              : 'Anda dapat memantau donasi yang masuk. Verifikasi pembayaran, nominal, dan bukti transfer ditangani Super Admin.'}
           </p>
         </div>
         {isSuper && (
@@ -213,10 +218,11 @@ function SectionDonasi() {
           <option value="">Semua Kegiatan</option>
           {kegiatanTerpakai.map(k => <option key={k} value={k}>{k}</option>)}
         </select>
-        <input type="date" className="ad-filter-select" title="Donasi sejak tanggal"
-          value={dariTanggal} onChange={e => setDariTanggal(e.target.value)} />
-        <input type="date" className="ad-filter-select" title="Donasi sampai tanggal"
-          value={sampaiTanggal} onChange={e => setSampaiTanggal(e.target.value)} />
+        <select className="ad-filter-select" value={filterBulan} onChange={e => setFilterBulan(e.target.value)}
+          title="Saring menurut bulan donasi">
+          <option value="">Semua Bulan</option>
+          {bulanTersedia.map(b => <option key={b} value={b}>{namaBulan(b)}</option>)}
+        </select>
         {adaPenyaring && (
           <button className="ad-filter-select" onClick={resetPenyaring} title="Hapus semua penyaring"
             style={{ cursor: 'pointer' }}>
@@ -230,15 +236,18 @@ function SectionDonasi() {
         <div className="ad-table-wrap">
           <table className="ad-table">
             <thead><tr>
-              <th>Donatur</th><th>Tujuan</th><th>Nominal</th><th>Metode</th><th>Tanggal</th><th>Ubah Status</th><th>Detail</th><th>Aksi</th>
+              <th>Donatur</th><th>Tujuan</th><th>Nominal</th><th>Metode</th><th>Tanggal</th>
+              {isSuper
+                ? <><th>Ubah Status</th><th>Detail</th><th>Aksi</th></>
+                : <th>Status</th>}
             </tr></thead>
             <tbody>
               {loading
-                ? <tr><td colSpan={8} className="ad-empty-row">Memuat data dari server...</td></tr>
+                ? <tr><td colSpan={jumlahKolom} className="ad-empty-row">Memuat data dari server...</td></tr>
                 : error
-                ? <tr><td colSpan={8} className="ad-empty-row"><i className="bi bi-wifi-off me-2"></i>{error}</td></tr>
+                ? <tr><td colSpan={jumlahKolom} className="ad-empty-row"><i className="bi bi-wifi-off me-2"></i>{error}</td></tr>
                 : filtered.length === 0
-                ? <tr><td colSpan={8} className="ad-empty-row"><i className="bi bi-inbox me-2"></i>Belum ada donasi</td></tr>
+                ? <tr><td colSpan={jumlahKolom} className="ad-empty-row"><i className="bi bi-inbox me-2"></i>Belum ada donasi</td></tr>
                 : filtered.map(it => (
                   <tr key={it.id}>
                     <td>
@@ -255,21 +264,31 @@ function SectionDonasi() {
                     </td>
                     <td className="ad-td-muted">{it.metode}</td>
                     <td className="ad-td-muted">{fmtTanggal(it.tanggal)}</td>
-                    <td>
-                      <select className={`ad-status-select ${STATUS_DONASI[it.status]?.cls || 'gray'}`}
-                        value={it.status} onChange={e => changeStatus(it, e.target.value)}>
-                        {Object.entries(STATUS_DONASI).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-                      </select>
-                    </td>
-                    <td>
-                      <button className="ad-bukti-btn" onClick={() => setDetailTarget(it)}>
-                        <i className={`bi ${it.bukti ? 'bi-receipt-cutoff' : 'bi-eye-fill'} me-1`}></i>{it.bukti ? 'Bukti' : 'Lihat'}
-                      </button>
-                    </td>
-                    <td><div className="ad-actions">
-                      {isSuper && <button className="ad-action-btn edit" onClick={() => openEdit(it)} title="Edit"><i className="bi bi-pencil-fill"></i></button>}
-                      <button className="ad-action-btn delete" onClick={() => setDeleteTarget(it)} title="Hapus"><i className="bi bi-trash-fill"></i></button>
-                    </div></td>
+                    {isSuper ? (
+                      <>
+                        <td>
+                          <select className={`ad-status-select ${STATUS_DONASI[it.status]?.cls || 'gray'}`}
+                            value={it.status} onChange={e => changeStatus(it, e.target.value)}>
+                            {Object.entries(STATUS_DONASI).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                          </select>
+                        </td>
+                        <td>
+                          <button className="ad-bukti-btn" onClick={() => setDetailTarget(it)}>
+                            <i className={`bi ${it.bukti ? 'bi-receipt-cutoff' : 'bi-eye-fill'} me-1`}></i>{it.bukti ? 'Bukti' : 'Lihat'}
+                          </button>
+                        </td>
+                        <td><div className="ad-actions">
+                          <button className="ad-action-btn edit" onClick={() => openEdit(it)} title="Edit"><i className="bi bi-pencil-fill"></i></button>
+                          <button className="ad-action-btn delete" onClick={() => setDeleteTarget(it)} title="Hapus"><i className="bi bi-trash-fill"></i></button>
+                        </div></td>
+                      </>
+                    ) : (
+                      <td>
+                        <span className={`ad-badge ${STATUS_DONASI[it.status]?.cls || 'gray'}`}>
+                          {STATUS_DONASI[it.status]?.label || it.status}
+                        </span>
+                      </td>
+                    )}
                   </tr>
                 ))}
             </tbody>

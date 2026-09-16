@@ -170,7 +170,7 @@ Subbab ini memuat istilah yang diperlukan untuk membaca dokumen ini, disusun dal
 
 | Istilah | Penjelasan |
 |---|---|
-| **Admin** | Peran pengguna yang mengelola konten lembaga dan memverifikasi pengajuan relawan maupun donasi, tanpa kewenangan melihat nominal donasi, mengelola akun pengguna, dan membaca jejak audit |
+| **Admin** | Peran pengguna yang mengelola konten lembaga dan memverifikasi pendaftaran relawan, tanpa kewenangan atas data keuangan donasi dan verifikasi pembayarannya, mengelola akun pengguna, maupun membaca jejak audit |
 | **Album galeri** | Sekumpulan foto dokumentasi yang dihimpun di bawah satu judul kegiatan yang sama, dipakai sebagai satuan penyajian pada halaman galeri publik |
 | **Bidang minat** | Pilihan bidang kegiatan yang ditetapkan pengelola pada tiap kegiatan dan dipilih calon relawan pada saat mendaftar |
 | **Bukti transfer** | Berkas gambar yang diunggah donatur sebagai bukti pembayaran, menjadi dasar penetapan status pembayaran oleh pengelola |
@@ -191,7 +191,7 @@ Subbab ini memuat istilah yang diperlukan untuk membaca dokumen ini, disusun dal
 | **QRIS statis** | Kode QRIS yang tidak memuat nominal pembayaran, sehingga nominal diisi sendiri oleh pembayar |
 | **Relawan** | Pengguna terdaftar yang mengajukan diri untuk membantu pelaksanaan suatu kegiatan |
 | **Seeder** | Berkas yang mengisikan data awal ke basis data untuk keperluan pengembangan dan peragaan sistem |
-| **Super Admin** | Peran pengguna dengan kewenangan penuh, meliputi seluruh kewenangan admin ditambah melihat nominal donasi, mengelola akun pengguna, membaca jejak audit, dan mengunduh berkas rekapitulasi |
+| **Super Admin** | Peran pengguna dengan kewenangan penuh, meliputi seluruh kewenangan admin ditambah memverifikasi pembayaran donasi, melihat data keuangan donasi, mengelola akun pengguna, membaca jejak audit, dan mengunduh berkas rekapitulasi |
 | **Titik akhir** | Alamat layanan tertentu pada REST API yang menerima permintaan dengan metode HTTP baku |
 | **Token *bearer*** | Tanda pengenal sesi yang disertakan pada setiap permintaan menuju sumber daya terproteksi |
 | **Unggah massal** | Mekanisme pengunggahan banyak foto sekaligus yang dipecah menjadi beberapa permintaan berukuran tetap agar tidak melampaui batas unggahan peladen |
@@ -404,11 +404,11 @@ flowchart LR
 
 Untuk mempermudah pengembangan dan pemeliharaan, *business logic layer* Website Karinakas didekomposisi menjadi delapan paket utama berikut.
 
-- **Paket Autentikasi:** pendaftaran akun, masuk, keluar, pembacaan data akun, pembaruan profil, penggantian kata sandi, serta pemulihan kata sandi melalui kode OTP.
+- **Paket Autentikasi:** pendaftaran akun, masuk, keluar, pembacaan data akun, pembaruan profil, penggantian kata sandi, serta pemulihan kata sandi melalui tautan sekali pakai yang dikirimkan ke surel.
 - **Paket Kegiatan:** pengelolaan data kegiatan sosial, penetapan status, penetapan opsi jenis relawan dan bidang minat, serta penyajian kegiatan yang membuka pendaftaran relawan.
 - **Paket Kampanye:** pengelolaan berita dan kampanye lembaga beserta penyaringan menurut kategori.
 - **Paket Galeri:** pengelolaan album dokumentasi kegiatan, pengunggahan berkas tunggal, dan pengunggahan massal berukuran tetap.
-- **Paket Donasi:** pengajuan donasi yang terikat kegiatan, pengunggahan bukti pembayaran, verifikasi status pembayaran, serta penyembunyian nominal bagi admin.
+- **Paket Donasi:** pengajuan donasi yang terikat kegiatan, pengunggahan bukti pembayaran, verifikasi status pembayaran oleh super admin, serta penyembunyian data keuangan bagi admin.
 - **Paket Relawan:** pendaftaran relawan, pemeriksaan kesesuaian pilihan terhadap opsi kegiatan, verifikasi status, dan pemutakhiran jumlah relawan diterima.
 - **Paket Pengelolaan:** dasbor statistik sadar-peran, pengelolaan akun pengguna, serta pembacaan jejak audit yang seluruhnya khusus super admin.
 - **Paket Notifikasi:** pengiriman surel penerimaan relawan dan kode pemulihan kata sandi, serta pencatatan riwayat notifikasi.

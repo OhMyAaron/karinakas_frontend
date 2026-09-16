@@ -108,15 +108,17 @@ Bila ❌/⚠️, tulis temuan di kolom **Catatan** (nomor error, pesan, atau per
 | TC-AUT-10 | Sesi bertahan saat refresh | Setelah login, tekan F5 | Tetap login (token dipulihkan dari `localStorage` `kk_token`) | | |
 | TC-AUT-11 | Redirect balik ke tujuan | Logout → buka `/donasi` → diarahkan ke login → login | Setelah login langsung diarahkan ke `/donasi`, bukan beranda | | |
 | TC-AUT-12 | Logout | Klik menu akun → Keluar | Sesi berakhir, navbar kembali menampilkan tombol Masuk, `/profil` tidak bisa dibuka | | |
-| TC-AUT-13 | Lupa password — kode terkirim | `/forgot-password` → isi email terdaftar → Kirim | Muncul langkah pengisian OTP. Kode 6 digit tercatat di `storage/logs/laravel.log` (karena `MAIL_MAILER=log`) | | |
-| TC-AUT-14 | Lupa password — ganti sandi | Masukkan kode dari log → isi sandi baru ≥ 8 karakter → Simpan | Muncul konfirmasi berhasil; **sandi baru bisa dipakai login** dan sandi lama ditolak | | |
-| TC-AUT-15 | Kode OTP salah | Masukkan kode asal 6 digit | Ditolak dengan pesan "Kode verifikasi salah", kembali ke langkah pengisian kode | | |
-| TC-AUT-16 | Kode sekali pakai | Ulangi reset memakai kode yang sudah terpakai | Ditolak dengan pesan kode sudah kedaluwarsa | | |
-| TC-AUT-17 | Kode kedaluwarsa | Tunggu >10 menit lalu pakai kodenya | Ditolak dengan pesan kode sudah kedaluwarsa | | |
+| TC-AUT-13 | Lupa password — tautan terkirim | `/forgot-password` → isi email terdaftar → Kirim Tautan | Muncul keterangan "Periksa Email Anda"; surel berisi tombol **Setel Ulang Kata Sandi** benar-benar diterima | | |
+| TC-AUT-14 | Lupa password — ganti sandi | Buka tautan dari surel → isi sandi baru ≥ 8 karakter → Simpan | Muncul konfirmasi berhasil; **sandi baru bisa dipakai login** dan sandi lama ditolak | | |
+| TC-AUT-15 | Tautan diubah-ubah | Ubah beberapa karakter pada parameter `token` di alamat tautan | Halaman menampilkan "Tautan Tidak Berlaku" beserta tombol minta tautan baru | | |
+| TC-AUT-16 | Tautan sekali pakai | Buka lagi tautan yang sudah dipakai mengganti sandi | Ditolak; halaman menampilkan "Tautan Tidak Berlaku" | | |
+| TC-AUT-17 | Tautan kedaluwarsa | Tunggu >60 menit lalu buka tautannya | Ditolak; halaman menampilkan "Tautan Tidak Berlaku" | | |
 | TC-AUT-18 | Sandi baru < 8 karakter | Isi sandi 6 karakter | Ditolak dengan pesan minimal 8 karakter | | |
 | TC-AUT-19 | Lupa password email asing | Isi email yang tidak terdaftar | Ditolak dengan pesan email tidak terdaftar | | |
-| TC-AUT-20 | Sesi lama dicabut | Login di perangkat A → reset sandi lewat perangkat B → gunakan lagi perangkat A | Perangkat A tidak lagi berwenang; token lama sudah dicabut | | |
+| TC-AUT-19a | Tautan lama dibatalkan | Minta tautan dua kali, lalu buka tautan dari surel **pertama** | Ditolak; hanya tautan terbaru yang berlaku | | |
+| TC-AUT-20 | Sesi lama dicabut | Login di perangkat A → reset sandi lewat tautan pada perangkat B → gunakan lagi perangkat A | Perangkat A tidak lagi berwenang; token lama sudah dicabut | | |
 | TC-AUT-21 | **Pembatasan laju login** | Salah memasukkan sandi 6 kali berturut-turut dalam satu menit | Percobaan ke-6 ditolak dengan `429 Too Many Requests` | | |
+| TC-AUT-21a | Jatah pembatas terpisah | Muat ulang halaman tautan penyetelan ulang 6 kali, lalu coba **masuk** | Login tetap dapat dilakukan; jatah `reset-sandi` tidak memakan jatah `masuk` | | |
 
 ---
 
@@ -211,7 +213,7 @@ Bila ❌/⚠️, tulis temuan di kolom **Catatan** (nomor error, pesan, atau per
 | TC-REL-08 | Riwayat relawan | `/profil` → tab Kegiatan Relawan | Pendaftaran tampil dengan status Pending | | |
 | TC-REL-09 | Verifikasi admin | Login admin → Relawan → ubah status jadi **Diterima** | Status berubah; `jumlah_relawan_terdaftar` kegiatan bertambah 1 | | |
 | TC-REL-10 | Email relawan diterima | Setelah TC-REL-09, buka `tugas_akhir/storage/logs/laravel.log` | Isi email "Relawan Diterima" tercatat lengkap. **Belum masuk inbox** karena `MAIL_MAILER=log` (lihat §12) | | |
-| TC-REL-11 | Notifikasi tercatat | Panel admin → Notifikasi | Muncul catatan notifikasi email & WhatsApp untuk relawan tadi | | |
+| TC-REL-11 | Notifikasi tercatat | Panel admin → Notifikasi | Muncul satu catatan notifikasi **surel** untuk relawan tadi; tidak ada baris WhatsApp | | |
 | TC-REL-12 | Status ditolak | Ubah status pendaftar lain jadi Ditolak | Status berubah, jumlah relawan terdaftar **tidak** bertambah | | |
 
 ---
@@ -281,13 +283,16 @@ Bila ❌/⚠️, tulis temuan di kolom **Catatan** (nomor error, pesan, atau per
 |---|---|---|---|:--:|---|
 | TC-ADN-01 | Daftar donasi | Buka menu Donasi | Seluruh donasi tampil dari API | | |
 | TC-ADN-02 | Masking nominal | Login **admin biasa** | Kolom nominal tertutup `Rp •••••` | | |
-| TC-ADN-03 | Verifikasi donasi | Ubah status Pending → Berhasil | Status tersimpan, tercatat di Audit Log | | |
-| TC-ADN-04 | Lihat bukti | Klik Detail pada donasi yang ada buktinya | Gambar bukti tampil, bisa dibuka penuh | | |
+| TC-ADN-03 | Verifikasi donasi (super) | Login **super admin** → ubah status Pending → Berhasil | Status tersimpan, tercatat di Audit Log | | |
+| TC-ADN-04 | Lihat bukti (super) | Login **super admin** → klik Detail pada donasi yang ada buktinya | Gambar bukti tampil, bisa dibuka penuh | | |
 | TC-ADN-05 | Edit donasi (super) | Login super admin → Edit donasi | Bisa mengubah nominal, metode, biaya, kode transaksi | | |
-| TC-ADN-06 | Edit ditolak (admin) | Login admin biasa | Tombol edit tidak tersedia | | |
+| TC-ADN-06 | Tindakan keuangan tersembunyi (admin) | Login **admin biasa** → buka menu Donasi | Kolom Ubah Status, tombol Detail/Bukti, Edit, dan Hapus **tidak tersedia**; status tampil sebagai label | | |
 | TC-ADN-07 | Cari & filter | Ketik nama donatur & pilih status | Tabel tersaring sesuai, jumlah data ikut berubah | | |
-| TC-ADN-08 | Hapus donasi | Hapus satu donasi → konfirmasi | Terhapus dari daftar | | |
+| TC-ADN-08 | Hapus donasi (super) | Login **super admin** → hapus satu donasi → konfirmasi | Terhapus dari daftar | | |
 | TC-ADN-09 | Metode QRIS tercatat | Cek donasi yang dibuat lewat QRIS | Kolom Metode tertulis **QRIS** | | |
+| TC-ADN-10 | Verifikasi ditolak di server | Dengan token **admin biasa**, kirim `PATCH /admin/donasi/{id}/status` (mis. lewat Postman/curl) | Dibalas **403**, status tidak berubah | | |
+| TC-ADN-11 | Ubah & hapus ditolak di server | Dengan token **admin biasa**, kirim `PUT` dan `DELETE /admin/donasi/{id}` | Keduanya dibalas **403**, data tidak berubah | | |
+| TC-ADN-12 | Data keuangan tersamar di server | Dengan token **admin biasa**, panggil `GET /admin/donasi` dan `GET /admin/donasi/search?q=a` | Tak ada medan `jumlah`, `biaya_transfer`, `kode_transaksi`, `rekening_pengirim`, maupun `bukti_transfer` pada tanggapan | | |
 
 ### Relawan (admin)
 
@@ -339,7 +344,7 @@ Bila ❌/⚠️, tulis temuan di kolom **Catatan** (nomor error, pesan, atau per
 | TC-USR-08 | Hapus pengguna lain | Hapus akun uji → konfirmasi | Akun terhapus & tidak bisa login lagi | | |
 | TC-AUD-01 | Audit log terisi | Lakukan beberapa aksi admin → buka Audit Log | Setiap aksi tercatat: pelaku, aksi, target, waktu | | |
 | TC-AUD-02 | Audit hanya super admin | Login admin biasa → coba akses Audit | Tidak tersedia | | |
-| TC-NOT-01 | Riwayat notifikasi | Buka menu Notifikasi | Daftar notifikasi dari server tampil (email & WhatsApp) | | |
+| TC-NOT-01 | Riwayat notifikasi | Buka menu Notifikasi | Daftar notifikasi dari server tampil, seluruhnya berkanal **surel** | | |
 | TC-NOT-02 | Notifikasi donasi | Verifikasi donasi jadi Berhasil → cek Notifikasi | Catatan notifikasi donasi bertambah | | |
 
 ---
@@ -393,9 +398,9 @@ Bagian ini penting ditulis apa adanya di laporan agar penguji tidak menganggapny
 | Fitur | Kondisi saat ini | Cara menguji sejauh yang bisa |
 |---|---|---|
 | **Email nyata** | `MAIL_MAILER=log` — email ditulis ke `storage/logs/laravel.log`, belum masuk inbox | Verifikasi isi email di berkas log (TC-REL-10). Untuk uji nyata, isi SMTP (Mailtrap) di `.env` |
-| **WhatsApp** | Baru **dicatat** di `notifikasi_logs`, belum dikirim | Pastikan catatan notifikasi muncul (TC-REL-11). Pengiriman nyata perlu gateway + API key |
+| **WhatsApp** | **Ditiadakan 16 September 2026** — seluruh pemberitahuan otomatis dikirim lewat surel | Tidak ada kasus uji WhatsApp. Pastikan riwayat notifikasi hanya berkanal surel (TC-REL-11, TC-NOT-01) |
 | **Pembayaran otomatis** | QRIS bersifat **statis** — tidak ada konfirmasi otomatis | Uji alur manual: bayar → unggah bukti → admin verifikasi |
-| **Lupa password** | ✅ **Sudah berfungsi nyata** (23 Agustus) — OTP 6 digit, berlaku 10 menit, sekali pakai | Uji penuh lewat TC-AUT-13 s.d. TC-AUT-20; ambil kode OTP dari `storage/logs/laravel.log` selama SMTP belum diisi |
+| **Lupa password** | ✅ **Berfungsi nyata.** Sejak 16 September 2026 memakai **tautan sekali pakai** yang dikirim ke surel dan berlaku 60 menit | Uji penuh lewat TC-AUT-13 s.d. TC-AUT-20. Surel harus benar-benar terkirim, jadi `RESEND_API_KEY` dan `FRONTEND_URL` wajib terisi pada `.env` peladen |
 | **Form Kontak** | ✅ **Tidak lagi menjadi keterbatasan** (23 Agustus) — formulirnya **dihapus**, pertanyaan pengunjung diarahkan ke WhatsApp yang sudah aktif | Uji kanal WhatsApp lewat TC-PUB-09 |
 | **Template notifikasi admin** | Masih konfigurasi teks lokal, bukan data transaksional | Cukup uji tampilan formulirnya |
 
@@ -406,21 +411,21 @@ Bagian ini penting ditulis apa adanya di laporan agar penguji tidak menganggapny
 | Kelompok Pengujian | Jumlah Kasus | Berhasil | Gagal | Sebagian |
 |---|:--:|:--:|:--:|:--:|
 | Halaman Publik (TC-PUB) | 10 | | | |
-| Autentikasi (TC-AUT) | 21 | | | |
+| Autentikasi (TC-AUT) | 23 | | | |
 | Kegiatan / Berita / Galeri publik | 15 | | | |
 | Donasi (TC-DON) | 24 | | | |
 | Relawan (TC-REL) | 12 | | | |
 | Profil (TC-PRF) | 7 | | | |
-| Panel Admin (DSH 6 · AKG 6 · AGL 7 · ABR 4 · ADN 9 · ARL 7) | 39 | | | |
+| Panel Admin (DSH 6 · AKG 6 · AGL 7 · ABR 4 · ADN 12 · ARL 7) | 42 | | | |
 | Export Rekapan (TC-EXP) | 15 | | | |
 | Pengguna / Audit / Notifikasi | 12 | | | |
 | Keamanan (TC-SEC) | 9 | | | |
 | Ketahanan (TC-ERR) | 6 | | | |
 | Tampilan (TC-UI) | 6 | | | |
-| **TOTAL** | **176** | | | |
+| **TOTAL** | **181** | | | |
 
 **Kesimpulan pengujian:**
 
-> _(Diisi setelah pengujian selesai — mis. "Dari 176 kasus uji, 171 berhasil (97,2%). 5 kasus berstatus sebagian karena bergantung pada layanan eksternal yang belum diaktifkan, sebagaimana dicatat pada §15.")_
+> _(Diisi setelah pengujian selesai — mis. "Dari 181 kasus uji, 176 berhasil (97,2%). 5 kasus berstatus sebagian karena bergantung pada layanan eksternal yang belum diaktifkan, sebagaimana dicatat pada §15.")_
 
 **Penguji:** ______________________  **Tanggal:** ______________  **Tanda tangan:** ______________

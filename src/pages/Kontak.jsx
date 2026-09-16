@@ -2,6 +2,7 @@
 import Breadcrumb from '../components/Breadcrumb'
 import PageHero from '../components/PageHero'
 import CTA from '../components/CTA'
+import { ALAMAT, ALAMAT_LENGKAP, PETA_SEMATAN, PETA_TAUTAN } from '../data/lembaga'
 
 const infoCards = [
   {
@@ -9,7 +10,7 @@ const infoCards = [
     color: '#C0392B',
     bg: '#FFEBEE',
     label: 'Alamat',
-    value: 'Jl. Pandanaran No. 13, Semarang, Jawa Tengah 50241',
+    value: ALAMAT_LENGKAP,
   },
   {
     icon: 'bi-telephone-fill',
@@ -156,7 +157,7 @@ function Kontak() {
                     </div>
                     <div>
                       <p className="kt-contact-item-label">Alamat Kantor</p>
-                      <p className="kt-contact-item-value">Jl. Pandanaran No. 13,<br />Semarang, Jawa Tengah 50241</p>
+                      <p className="kt-contact-item-value">{ALAMAT.jalan},<br />{ALAMAT.wilayah},<br />{ALAMAT.provinsi}</p>
                     </div>
                   </li>
                   <li className="kt-contact-item">
@@ -202,7 +203,7 @@ function Kontak() {
               <div className="kt-map-wrapper">
                 <iframe
                   title="Lokasi Karinakas"
-                  src="https://maps.google.com/maps?q=Jl.+Pandanaran+Semarang&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  src={PETA_SEMATAN}
                   width="100%"
                   height="240"
                   style={{ border: 0 }}
@@ -211,6 +212,9 @@ function Kontak() {
                   referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
+              <a href={PETA_TAUTAN} target="_blank" rel="noreferrer" className="kt-link d-inline-flex align-items-center gap-1 mt-2">
+                <i className="bi bi-box-arrow-up-right"></i>Buka di Google Maps
+              </a>
 
             </div>
           </div>

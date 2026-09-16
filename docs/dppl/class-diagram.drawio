@@ -34,10 +34,10 @@
         <mxCell id="b4" value="&lt;&lt;boundary&gt;&gt;&#10;ForgotPasswordView" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#1F3864;strokeColor=#0F1E3C;fontColor=#FFFFFF;horizontalStack=0;resizeParent=0;resizeParentMax=0;html=1;whiteSpace=wrap;fontSize=11;align=center;verticalAlign=middle;swimlaneFillColor=#1F3864;" vertex="1" parent="1">
           <mxGeometry x="918" y="30" width="200" height="76" as="geometry"/>
         </mxCell>
-        <mxCell id="b4_0" value="+ mintaKode()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="b4">
+        <mxCell id="b4_0" value="+ kirimTautan()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="b4">
           <mxGeometry y="40" width="200" height="18" as="geometry"/>
         </mxCell>
-        <mxCell id="b4_1" value="+ kirimKataSandiBaru()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="b4">
+        <mxCell id="b4_1" value="+ simpanKataSandiBaru()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="b4">
           <mxGeometry y="58" width="200" height="18" as="geometry"/>
         </mxCell>
         <mxCell id="b5" value="&lt;&lt;boundary&gt;&gt;&#10;BeritaView" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#1F3864;strokeColor=#0F1E3C;fontColor=#FFFFFF;horizontalStack=0;resizeParent=0;resizeParentMax=0;html=1;whiteSpace=wrap;fontSize=11;align=center;verticalAlign=middle;swimlaneFillColor=#1F3864;" vertex="1" parent="1">
@@ -185,7 +185,7 @@
           <mxGeometry x="0" y="414" width="3000" height="316" as="geometry"/>
         </mxCell>
         <mxCell id="c0" value="&lt;&lt;control&gt;&gt;&#10;AuthController" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#375623;strokeColor=#1E3011;fontColor=#FFFFFF;horizontalStack=0;resizeParent=0;resizeParentMax=0;html=1;whiteSpace=wrap;fontSize=11;align=center;verticalAlign=middle;swimlaneFillColor=#375623;" vertex="1" parent="1">
-          <mxGeometry x="30" y="444" width="300" height="202" as="geometry"/>
+          <mxGeometry x="30" y="444" width="300" height="256" as="geometry"/>
         </mxCell>
         <mxCell id="c0_0" value="+ register(Request) : JsonResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c0">
           <mxGeometry y="40" width="300" height="18" as="geometry"/>
@@ -211,8 +211,17 @@
         <mxCell id="c0_7" value="+ resetPassword(Request) : JsonResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c0">
           <mxGeometry y="166" width="300" height="18" as="geometry"/>
         </mxCell>
-        <mxCell id="c0_8" value="- otpKey(string) : string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c0">
+        <mxCell id="c0_8" value="+ checkResetToken(Request) : JsonResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c0">
           <mxGeometry y="184" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="c0_9" value="- kunciToken(string) : string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c0">
+          <mxGeometry y="202" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="c0_10" value="- kunciTokenPengguna(string) : string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c0">
+          <mxGeometry y="220" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="c0_11" value="- ambilDataTautan(string, string) : array" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c0">
+          <mxGeometry y="238" width="300" height="18" as="geometry"/>
         </mxCell>
         <mxCell id="c1" value="&lt;&lt;control&gt;&gt;&#10;KampanyeController" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#375623;strokeColor=#1E3011;fontColor=#FFFFFF;horizontalStack=0;resizeParent=0;resizeParentMax=0;html=1;whiteSpace=wrap;fontSize=11;align=center;verticalAlign=middle;swimlaneFillColor=#375623;" vertex="1" parent="1">
           <mxGeometry x="360" y="444" width="300" height="184" as="geometry"/>
@@ -326,7 +335,7 @@
           <mxGeometry y="184" width="300" height="18" as="geometry"/>
         </mxCell>
         <mxCell id="c5" value="&lt;&lt;control&gt;&gt;&#10;DonasiController" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#375623;strokeColor=#1E3011;fontColor=#FFFFFF;horizontalStack=0;resizeParent=0;resizeParentMax=0;html=1;whiteSpace=wrap;fontSize=11;align=center;verticalAlign=middle;swimlaneFillColor=#375623;" vertex="1" parent="1">
-          <mxGeometry x="1680" y="444" width="300" height="202" as="geometry"/>
+          <mxGeometry x="1680" y="444" width="300" height="238" as="geometry"/>
         </mxCell>
         <mxCell id="c5_0" value="+ store(Request) : JsonResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c5">
           <mxGeometry y="40" width="300" height="18" as="geometry"/>
@@ -349,11 +358,17 @@
         <mxCell id="c5_6" value="+ update(Request, id) : JsonResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c5">
           <mxGeometry y="148" width="300" height="18" as="geometry"/>
         </mxCell>
-        <mxCell id="c5_7" value="+ destroy(id) : JsonResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c5">
+        <mxCell id="c5_7" value="+ destroy(Request, id) : JsonResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c5">
           <mxGeometry y="166" width="300" height="18" as="geometry"/>
         </mxCell>
         <mxCell id="c5_8" value="+ search(Request) : JsonResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c5">
           <mxGeometry y="184" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="c5_9" value="- sembunyikanKeuangan(Request, paginator) : void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c5">
+          <mxGeometry y="202" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="c5_10" value="- wajibSuperAdmin(Request, string) : void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;html=1;fontSize=8;fontColor=#FFFFFF;" vertex="1" parent="c5">
+          <mxGeometry y="220" width="300" height="18" as="geometry"/>
         </mxCell>
         <mxCell id="c6" value="&lt;&lt;control&gt;&gt;&#10;NotifikasiController" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#375623;strokeColor=#1E3011;fontColor=#FFFFFF;horizontalStack=0;resizeParent=0;resizeParentMax=0;html=1;whiteSpace=wrap;fontSize=11;align=center;verticalAlign=middle;swimlaneFillColor=#375623;" vertex="1" parent="1">
           <mxGeometry x="2010" y="444" width="300" height="148" as="geometry"/>

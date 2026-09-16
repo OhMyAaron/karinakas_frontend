@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import KarinakasLogo from './KarinakasLogo'
+import { ALAMAT_LENGKAP, PETA_SEMATAN, PETA_TAUTAN } from '../data/lembaga'
 
 const navLinks = [
   { label: 'Beranda',      path: '/' },
@@ -47,7 +48,9 @@ function Footer() {
             <h6 className="fw-bold mb-3">Kontak</h6>
             <p className="text-white-50 small mb-2">
               <i className="bi bi-geo-alt-fill me-2"></i>
-              Jl. Panuluh 377A, Pringwulung, Sleman, Yogyakarta
+              <a href={PETA_TAUTAN} target="_blank" rel="noreferrer" className="text-white-50 text-decoration-none footer-link">
+                {ALAMAT_LENGKAP}
+              </a>
             </p>
             <p className="text-white-50 small mb-2">
               <i className="bi bi-telephone-fill me-2"></i>
@@ -68,8 +71,12 @@ function Footer() {
               <a href="https://wa.me/6281392777710" target="_blank" rel="noreferrer" className="text-white-50 footer-social" title="WhatsApp">
                 <i className="bi bi-whatsapp"></i>
               </a>
-              <a href="https://linktr.ee/prjct88?utm_source=qr_code" target="_blank" rel="noreferrer" className="text-white-50 footer-social" title="LinkTree">
-                <i className="bi bi-linktree"></i>
+              {/* Bootstrap Icons tidak punya ikon Linktree (bi-linktree tidak ada, dulu tampil kosong),
+                  jadi lambangnya digambar langsung sebagai SVG */}
+              <a href="https://linktr.ee/prjct88?utm_source=qr_code" target="_blank" rel="noreferrer" className="text-white-50 footer-social" title="Linktree" aria-label="Linktree">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m13.73635 5.85251 4.00467-4.11665 2.3248 2.3808-4.20064 4.00466h5.9085v3.30473h-5.9365l4.22865 4.10766-2.3248 2.3338L12.0005 12.099l-5.74052 5.76852-2.3248-2.3248 4.22864-4.10766h-5.9375V8.12132h5.9085L3.93417 4.11666l2.3248-2.3808 4.00468 4.11665V0h3.4727zm-3.4727 10.30614h3.4727V24h-3.4727z" />
+                </svg>
               </a>
             </div>
           </div>
@@ -79,7 +86,7 @@ function Footer() {
             <h6 className="fw-bold mb-3">Kunjungi Kami</h6>
             <div className="rounded-3 overflow-hidden footer-map">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3952.7!2d110.38!3d-7.76!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zN8KwNDUnMzYuMCJTIDExMMKwMjInNDguMCJF!5e0!3m2!1sen!2sid!4v1234567890"
+                src={PETA_SEMATAN}
                 width="100%"
                 height="140"
                 style={{ border: 0 }}

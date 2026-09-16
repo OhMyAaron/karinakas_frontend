@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import KarinakasLogo from '../components/KarinakasLogo'
 import { useAuth } from '../context/AuthContext'
 
 const features = [
@@ -110,7 +111,7 @@ function Register() {
 
         <div className="lg-left-inner">
           <Link to="/" className="lg-brand">
-            <div className="lg-brand-box"><i className="bi bi-heart-fill"></i></div>
+            <KarinakasLogo size={46} className="lg-brand-logo" />
             <span>KARINAKAS</span>
           </Link>
 
@@ -149,7 +150,7 @@ function Register() {
         <div className="lg-form-wrap">
 
           <div className="lg-form-brand">
-            <i className="bi bi-heart-fill text-danger me-2"></i>
+            <KarinakasLogo size={30} className="me-2" />
             <span>KARINAKAS</span>
           </div>
 

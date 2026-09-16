@@ -17,8 +17,7 @@ function SectionRelawan() {
   const [filterStatus,  setFilterStatus]  = useState('')
   const [filterJenis,   setFilterJenis]   = useState('')
   const [filterKegiatan, setFilterKegiatan] = useState('')
-  const [dariTanggal,   setDariTanggal]   = useState('')
-  const [sampaiTanggal, setSampaiTanggal] = useState('')
+  const [filterBulan,   setFilterBulan]   = useState('')   // 'YYYY-MM', kosong = semua
   const [detail,       setDetail]       = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
 
@@ -35,30 +34,36 @@ function SectionRelawan() {
   const jenisTersedia = [...new Set([...JENIS_RELAWAN, ...items.map(r => r.jenis).filter(Boolean)])].sort()
   const kegiatanTerpakai = [...new Set(items.map(r => r.kegiatan).filter(Boolean))].sort()
 
-  // Bandingkan hanya bagian tanggalnya (YYYY-MM-DD) agar jam tidak ikut memengaruhi
-  const hariSaja = (v) => {
+  // Bulan (YYYY-MM) menurut jam lokal peramban. Sengaja tidak memakai toISOString()
+  // karena itu mengubah ke UTC: data pukul 00.00–06.59 WIB akan tergeser ke hari —
+  // bahkan bulan — sebelumnya.
+  const bulanSaja = (v) => {
     if (!v) return ''
     const d = new Date(v)
-    return isNaN(d) ? '' : d.toISOString().slice(0, 10)
+    return isNaN(d) ? '' : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
   }
+  const namaBulan = (ym) => {
+    const [y, m] = ym.split('-').map(Number)
+    return new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+  }
+  // Pilihan bulan diambil dari data yang benar-benar ada, terbaru di atas
+  const bulanTersedia = [...new Set(items.map(x => bulanSaja(x.tanggalRaw)).filter(Boolean))].sort().reverse()
 
   const filtered = items.filter(it => {
-    const tgl = hariSaja(it.tanggalRaw)
     return (
       ((it.nama || '').toLowerCase().includes(search.toLowerCase()) ||
        (it.email || '').toLowerCase().includes(search.toLowerCase())) &&
       (!filterStatus   || it.status === filterStatus) &&
       (!filterJenis    || it.jenis === filterJenis) &&
       (!filterKegiatan || (it.kegiatan || '') === filterKegiatan) &&
-      (!dariTanggal    || (tgl && tgl >= dariTanggal)) &&
-      (!sampaiTanggal  || (tgl && tgl <= sampaiTanggal))
+      (!filterBulan    || bulanSaja(it.tanggalRaw) === filterBulan)
     )
   })
 
-  const adaPenyaring = Boolean(search || filterStatus || filterJenis || filterKegiatan || dariTanggal || sampaiTanggal)
+  const adaPenyaring = Boolean(search || filterStatus || filterJenis || filterKegiatan || filterBulan)
   const resetPenyaring = () => {
     setSearch(''); setFilterStatus(''); setFilterJenis('')
-    setFilterKegiatan(''); setDariTanggal(''); setSampaiTanggal('')
+    setFilterKegiatan(''); setFilterBulan('')
   }
 
   // Export rekapan relawan (Super Admin) — mengikuti filter & pencarian aktif.
@@ -78,9 +83,7 @@ function SectionRelawan() {
         ['Filter jenis', filterJenis || 'Semua jenis'],
         ['Filter status', filterStatus ? STATUS_RELAWAN[filterStatus]?.label : 'Semua status'],
         ['Filter kegiatan', filterKegiatan || 'Semua kegiatan'],
-        ['Rentang tanggal daftar', dariTanggal || sampaiTanggal
-          ? `${dariTanggal || 'awal'} s.d. ${sampaiTanggal || 'sekarang'}`
-          : 'Seluruh periode'],
+        ['Bulan daftar', filterBulan ? namaBulan(filterBulan) : 'Seluruh periode'],
         ['Kata kunci', search || '(tanpa pencarian)'],
         ['Jumlah baris', `${filtered.length} dari ${items.length} data`],
         ['PERHATIAN', 'Berkas ini memuat data pribadi relawan (alamat, no. HP, no. KTP). Simpan terbatas, jangan disebarkan.'],
@@ -187,10 +190,11 @@ function SectionRelawan() {
           <option value="">Semua Kegiatan</option>
           {kegiatanTerpakai.map(k => <option key={k} value={k}>{k}</option>)}
         </select>
-        <input type="date" className="ad-filter-select" title="Mendaftar sejak tanggal"
-          value={dariTanggal} onChange={e => setDariTanggal(e.target.value)} />
-        <input type="date" className="ad-filter-select" title="Mendaftar sampai tanggal"
-          value={sampaiTanggal} onChange={e => setSampaiTanggal(e.target.value)} />
+        <select className="ad-filter-select" value={filterBulan} onChange={e => setFilterBulan(e.target.value)}
+          title="Saring menurut bulan pendaftaran">
+          <option value="">Semua Bulan</option>
+          {bulanTersedia.map(b => <option key={b} value={b}>{namaBulan(b)}</option>)}
+        </select>
         {adaPenyaring && (
           <button className="ad-filter-select" onClick={resetPenyaring} title="Hapus semua penyaring"
             style={{ cursor: 'pointer' }}>

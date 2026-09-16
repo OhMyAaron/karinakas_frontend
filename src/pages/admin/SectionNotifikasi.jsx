@@ -68,8 +68,8 @@ function SectionNotifikasi() {
                   : history.map(n => (
                     <tr key={n.id}>
                       <td>
-                        <span className={`ad-badge ${n.tipe === 'email' ? 'blue' : 'green'}`}>
-                          <i className={`bi ${n.tipe === 'email' ? 'bi-envelope-fill' : 'bi-whatsapp'} me-1`}></i>{n.tipe}
+                        <span className={`ad-badge ${n.tipe === 'email' ? 'blue' : 'gray'}`}>
+                          <i className={`bi ${n.tipe === 'email' ? 'bi-envelope-fill' : 'bi-gear-fill'} me-1`}></i>{n.tipe}
                         </span>
                       </td>
                       <td className="ad-td-bold">{n.penerima}</td>
@@ -82,7 +82,7 @@ function SectionNotifikasi() {
               </tbody>
             </table>
           </div>
-          <p className="ad-table-note"><i className="bi bi-info-circle me-1"></i>Pengiriman email/WhatsApp nyata akan aktif setelah integrasi server. Saat ini riwayat dicatat otomatis.</p>
+          <p className="ad-table-note"><i className="bi bi-info-circle me-1"></i>Pemberitahuan dikirim melalui surel. Riwayat pengiriman dicatat otomatis oleh sistem.</p>
         </div>
       )}
 

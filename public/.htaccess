@@ -1,0 +1,35 @@
+# SPA fallback untuk hosting Apache / cPanel.
+#
+# Aplikasi ini memakai React Router, sehingga alamat seperti /galeri, /profil,
+# dan /reset-password TIDAK memiliki berkas fisik di peladen. Tanpa aturan di
+# bawah ini, membuka alamat tersebut langsung — termasuk menekan tautan
+# penyetelan ulang kata sandi dari surel — akan dibalas 404.
+#
+# Berkas ini berada di public/ sehingga Vite menyalinnya ke dist/ pada setiap
+# `npm run build`. Pada peladen Nginx berkas ini diabaikan; pakai padanannya:
+#   location / { try_files $uri $uri/ /index.html; }
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Jangan ganggu permintaan ke backend Laravel yang dilayani di /api
+  RewriteCond %{REQUEST_URI} ^/api(/|$) [NC]
+  RewriteRule ^ - [L]
+
+  # Berkas dan folder yang benar-benar ada dilayani apa adanya
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Sisanya diserahkan ke React Router
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# Jangan simpan index.html di cache, supaya pengguna selalu mendapat
+# rujukan berkas aset (JS/CSS) versi terbaru setelah deploy ulang.
+<IfModule mod_headers.c>
+  <FilesMatch "index\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+</IfModule>

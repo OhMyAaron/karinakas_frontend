@@ -10,8 +10,24 @@ import { LABEL_UMUM, fmtTanggal } from '../data/store'
 const unwrapList = (res) => (Array.isArray(res?.data) ? res.data : (res?.data?.data ?? []))
 const unwrapOne  = (res) => res?.data ?? res
 
+// Ambil SEMUA halaman dari endpoint berpaginasi. Tanpa ini tabel & ekspor rekap
+// admin diam-diam hanya berisi halaman pertama (dulu donasi terpotong di 20 baris).
+async function ambilSemuaHalaman(path, params = {}, perPage = 100) {
+  let page = 1
+  let all = []
+  for (;;) {
+    const qs = new URLSearchParams({ per_page: perPage, page, ...params }).toString()
+    const pg = (await api.get(`${path}?${qs}`))?.data
+    const rows = Array.isArray(pg?.data) ? pg.data : (Array.isArray(pg) ? pg : [])
+    all = all.concat(rows)
+    if (page >= (Number(pg?.last_page) || 1) || rows.length === 0) break
+    page++
+  }
+  return all
+}
+
 // Bangun URL file dari path storage (mis. bukti transfer)
-const STORAGE_BASE = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/v1').replace(/\/api\/v1\/?$/, '/storage')
+const STORAGE_BASE = import.meta.env.VITE_STORAGE_URL || (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/v1').replace(/\/api\/v1\/?$/, '/storage')
 const fileUrl = (p) => (p ? (p.startsWith('http') ? p : `${STORAGE_BASE}/${p}`) : null)
 
 // ── KEGIATAN ────────────────────────────────────────────────
@@ -341,7 +357,7 @@ const relawanFE = (r) => ({
   kegiatan: r.kegiatan?.judul || '',
   kegiatanId: r.kegiatan_id || null,
   tanggal: r.tanggal_daftar ? fmtTanggal(r.tanggal_daftar) : '',
-  tanggalRaw: r.tanggal_daftar || '',   // bentuk asli untuk penyaringan rentang tanggal
+  tanggalRaw: r.tanggal_daftar || '',   // bentuk asli untuk penyaringan per bulan
   status: r.status,
 })
 const relawanBE = (f) => ({
@@ -359,8 +375,7 @@ export const relawanService = {
   async myRegistrations() { return unwrapList(await api.get('/relawan/my-registrations')).map(relawanFE) },
   async cancel(id)        { return api.del(`/relawan/${id}/cancel`) },
   async listAdmin(params = {}) {
-    const qs = new URLSearchParams({ per_page: 100, ...params }).toString()
-    return unwrapList(await api.get(`/admin/relawan?${qs}`)).map(relawanFE)
+    return (await ambilSemuaHalaman('/admin/relawan', params)).map(relawanFE)
   },
   async updateStatus(id, status) { return api.patch(`/admin/relawan/${id}/status`, { status }) },
   async remove(id)               { return api.del(`/admin/relawan/${id}`) },
@@ -375,8 +390,7 @@ export const donasiService = {
   },
   async myDonations()     { return unwrapList(await api.get('/donasi/my-donations')).map(donasiFE) },
   async listAdmin(params = {}) {
-    const qs = new URLSearchParams({ per_page: 100, ...params }).toString()
-    return unwrapList(await api.get(`/admin/donasi?${qs}`)).map(donasiFE)
+    return (await ambilSemuaHalaman('/admin/donasi', params)).map(donasiFE)
   },
   async update(id, data)         { return api.put(`/admin/donasi/${id}`, donasiUpdateBE(data)) },
   async updateStatus(id, status) { return api.patch(`/admin/donasi/${id}/status`, { status_pembayaran: status }) },

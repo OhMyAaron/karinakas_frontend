@@ -37,6 +37,7 @@ APP_NAME=Karinakas
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://api.karinakas.org        # ← domain backend (dipakai untuk URL storage/foto)
+FRONTEND_URL=https://karinakas.org       # ← domain situs React; menyusun tautan reset kata sandi pada surel
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -47,6 +48,12 @@ DB_PASSWORD=<password_db>
 
 FILESYSTEM_DISK=public
 LOG_CHANNEL=stack
+
+# Surel WAJIB aktif: dipakai tautan reset kata sandi & pemberitahuan penerimaan relawan
+MAIL_MAILER=resend                        # atau smtp
+RESEND_API_KEY=<kunci_resend>
+MAIL_FROM_ADDRESS=noreply@karinakas.org
+MAIL_FROM_NAME=Karinakas
 ```
 - [ ] `php artisan key:generate`
 
@@ -184,9 +191,9 @@ server {
 ## E. Catatan penting
 - **Data & file aman saat update biasa** (`git pull` + `migrate`). **Jangan** `migrate:fresh` di produksi (menghapus semua data; file foto jadi yatim).
 - **File foto** ada di `storage/app/public/` — backup folder ini secara berkala bersama database.
-- **Rekening donasi** (`BNI 725318271 a.n. Aaron Risang Panji Bharata`) ditulis di frontend `src/pages/Donasi.jsx` (konstanta `BANK`). Ubah di sana bila perlu, lalu build ulang.
+- **Rekening donasi** (`Mandiri 1370013862012 a.n. YAYASAN KARINAKAS`) ditulis di frontend `src/pages/Donasi.jsx` (konstanta `BANK`). Ubah di sana bila perlu, lalu build ulang.
 - **QRIS**: gambar QR **wajib ada** di `frontend_karinakas/public/qris-karinakas.png` sebelum `npm run build` (ikut tersalin ke `dist/`). Data merchant (NMID `ID2026479922646`, terminal `A01`) ada di konstanta `QRIS` pada file yang sama. Kalau file hilang, halaman donasi menampilkan pesan "Gambar QRIS belum tersedia" dan mengarahkan ke transfer bank.
-- **Kontak & sosial media** (WhatsApp `+62 851-5621-7359`, IG, YouTube) ada di `src/components/Footer.jsx` & `src/pages/Kontak.jsx`.
+- **Kontak & sosial media** (WhatsApp `+62 813-9277-7710`, IG, YouTube) ada di `src/components/Footer.jsx` & `src/pages/Kontak.jsx`. Alamat kantor dan peta dipusatkan di `src/data/lembaga.js`.
 - **Keamanan produksi**: pastikan `APP_DEBUG=false`, HTTPS aktif, CORS dibatasi, dan password default admin sudah diganti.
-- **Email**: kode sudah jalan (`RelawanDiterima` saat relawan diterima), tapi di dev `MAIL_MAILER=log` → email hanya ditulis ke `storage/logs/laravel.log`. Di produksi isi SMTP asli di `.env` (`MAIL_MAILER=smtp`, host/port/username/password, `MAIL_FROM_ADDRESS`) agar benar-benar terkirim.
-- **WhatsApp nyata & payment gateway** belum aktif (notifikasi WA baru tercatat di `notifikasi_logs`) — bisa ditambah nanti bila diperlukan.
+- **Email wajib aktif.** Pemulihan kata sandi memakai **tautan** yang dikirim lewat surel, sehingga `MAIL_MAILER`, kunci pengirimnya (`RESEND_API_KEY` atau SMTP), dan `FRONTEND_URL` harus terisi benar pada `.env` peladen. `FRONTEND_URL` menentukan alamat di dalam tautan — bila salah, tautan mengarah ke situs yang keliru walaupun surelnya terkirim. Di pengembangan, `MAIL_MAILER=log` membuat seluruh isi surel (termasuk tautannya) tertulis pada `storage/logs/laravel.log`.
+- **Payment gateway** belum aktif — verifikasi donasi dilakukan manual melalui bukti transfer. Pengiriman **WhatsApp otomatis ditiadakan** (16 September 2026); seluruh pemberitahuan dikirim lewat surel.

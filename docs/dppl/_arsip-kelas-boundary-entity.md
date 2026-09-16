@@ -225,28 +225,51 @@ Deskripsi fungsi pada kelas RegisterView
 
 ---
 
-**10. ForgotPasswordView** : Kelas antarmuka pemulihan kata sandi yang meminta kode verifikasi lalu menerima kata sandi baru.
+**10. ForgotPasswordView** : Kelas antarmuka permintaan pemulihan kata sandi. Sejak 16 September 2026 halaman ini hanya meminta alamat surel, karena kata sandi baru diisikan pada halaman tujuan tautan.
 
 Deskripsi atribut kelas ForgotPasswordView
 
 | Nama atribut | Tipe Data | Deskripsi |
 |---|---|---|
-| confirm | boolean | Penanda bahwa tahap pengisian kode dan kata sandi baru sedang ditampilkan |
+| email | string | Alamat surel akun yang akan dikirimi tautan |
+| terkirim | boolean | Penanda bahwa keterangan "tautan telah dikirim" sedang ditampilkan |
 | loading | boolean | Penanda bahwa permintaan sedang diproses |
 
 Deskripsi fungsi pada kelas ForgotPasswordView
 
-| **sendOtp(event)** | |
+| **kirimTautan(event)** | |
 |---|---|
 | Input | Alamat surel terdaftar |
-| Output | Pemberitahuan bahwa kode verifikasi telah dikirim |
-| Deskripsi | Meminta AuthController membangkitkan dan mengirimkan kode verifikasi enam digit ke surel pengguna |
+| Output | Keterangan bahwa tautan penyetelan ulang telah dikirim ke surel tersebut |
+| Deskripsi | Meminta AuthController membangkitkan token, menyusun tautan, dan mengirimkannya melalui surel |
 
-| **resetPass(event)** | |
+---
+
+**10a. ResetPasswordView** : Kelas antarmuka tujuan tautan penyetelan ulang kata sandi, dibuka pada alamat `/reset-password?token=...&email=...`. Pada Gambar 2.5 kelas ini dan ForgotPasswordView digambarkan menyatu sebagai satu kelas «boundary» pemulihan kata sandi, sehingga jumlah kelas pada diagram tetap tiga puluh sembilan.
+
+Deskripsi atribut kelas ResetPasswordView
+
+| Nama atribut | Tipe Data | Deskripsi |
+|---|---|---|
+| token | string | Token tautan yang dibaca dari parameter alamat |
+| email | string | Alamat surel akun yang dibaca dari parameter alamat |
+| memeriksa | boolean | Penanda bahwa keabsahan tautan sedang diperiksa ke layanan |
+| tautanSah | boolean | Penanda bahwa tautan masih berlaku sehingga formulir boleh ditampilkan |
+| pass, confirm | string | Kata sandi baru beserta konfirmasinya |
+
+Deskripsi fungsi pada kelas ResetPasswordView
+
+| **periksaTautan()** | |
 |---|---|
-| Input | Alamat surel, kode verifikasi, dan kata sandi baru beserta konfirmasinya |
-| Output | Pemberitahuan keberhasilan, atau pesan kesalahan bila kode salah atau kedaluwarsa |
-| Deskripsi | Mengirimkan kode verifikasi beserta kata sandi baru ke AuthController untuk diperiksa dan disimpan |
+| Input | Token dan alamat surel dari parameter alamat |
+| Output | Formulir kata sandi baru, atau keterangan bahwa tautan tidak berlaku |
+| Deskripsi | Dijalankan saat halaman dimuat. Memanggil checkResetToken agar pengguna tidak mengisi formulir yang pasti ditolak |
+
+| **simpan(event)** | |
+|---|---|
+| Input | Token, alamat surel, kata sandi baru, dan konfirmasinya |
+| Output | Pemberitahuan keberhasilan, atau pesan kesalahan bila tautan sudah tidak berlaku |
+| Deskripsi | Mengirimkan token beserta kata sandi baru ke AuthController untuk diperiksa dan disimpan |
 
 ---
 
@@ -426,8 +449,7 @@ Deskripsi atribut kelas SectionRelawanView
 | filterStatus | string | Status pendaftaran yang sedang disaring |
 | filterJenis | string | Jenis relawan yang sedang disaring |
 | filterKegiatan | string | Kegiatan yang sedang disaring |
-| dariTanggal | string | Batas awal rentang tanggal pendaftaran |
-| sampaiTanggal | string | Batas akhir rentang tanggal pendaftaran |
+| filterBulan | string | Bulan pendaftaran yang disaring, berbentuk YYYY-MM; kosong berarti semua bulan |
 | deleteTarget | object | Pendaftaran yang sedang dikonfirmasi penghapusannya |
 
 Deskripsi fungsi pada kelas SectionRelawanView
@@ -494,8 +516,7 @@ Deskripsi atribut kelas SectionDonasiView
 | loading | boolean | Penanda bahwa pengambilan data sedang berlangsung |
 | filterStatus | string | Status pembayaran yang sedang disaring |
 | filterKegiatan | string | Kegiatan tujuan donasi yang sedang disaring |
-| dariTanggal | string | Batas awal rentang tanggal donasi |
-| sampaiTanggal | string | Batas akhir rentang tanggal donasi |
+| filterBulan | string | Bulan donasi yang disaring, berbentuk YYYY-MM; kosong berarti semua bulan |
 | detailTarget | object | Donasi yang sedang ditampilkan rinciannya beserta bukti pembayaran |
 | deleteTarget | object | Donasi yang sedang dikonfirmasi penghapusannya |
 
@@ -1126,7 +1147,7 @@ Deskripsi atribut kelas NotifikasiLog
 | Nama atribut | Tipe Data | Deskripsi |
 |---|---|---|
 | user_id | uuid | Kunci tamu menuju penerima notifikasi, boleh kosong |
-| tipe | string | Kanal notifikasi bernilai email, whatsapp, atau system |
+| tipe | string | Kanal notifikasi bernilai email atau system |
 | penerima | string | Alamat surel atau nomor telepon penerima |
 | judul, isi | string | Judul dan isi ringkas notifikasi |
 | trigger | string | Peristiwa yang memicu notifikasi |

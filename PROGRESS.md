@@ -49,7 +49,7 @@ php artisan storage:link     # agar foto galeri & bukti transfer tampil
 
 ### Frontend (UI)
 - [x] Halaman publik: Beranda, Tentang Kami, Galeri, Kegiatan, Berita (+ detail), Kontak
-- [x] Autentikasi: Login, Register (2 langkah, data lengkap), Logout, Forgot Password (simulasi OTP)
+- [x] Autentikasi: Login, Register (2 langkah, data lengkap), Logout, Forgot Password (tautan reset lewat surel)
 - [x] Halaman Profil pengguna (info pribadi, riwayat donasi, kegiatan relawan, notifikasi)
 - [x] Donasi (pilih kegiatan + tujuan + nominal + transfer + upload bukti)
 - [x] Daftar Relawan (jenis, keterbatasan, kemampuan, kuota per kegiatan)
@@ -97,9 +97,9 @@ php artisan storage:link     # agar foto galeri & bukti transfer tampil
 
 ### Layanan eksternal (perlu keputusan/akun)
 - [ ] **Aktifkan email nyata** — kode siap, tinggal isi SMTP di `tugas_akhir/.env` (Mailtrap untuk uji / Gmail App Password). Sekarang `MAIL_MAILER=log` → email tertulis ke `storage/logs/laravel.log` (sudah diuji, isinya lengkap)
-- [ ] **WhatsApp nyata** — sekarang baru **dicatat**, belum dikirim. Perlu gateway (Fonnte/Wablas/WA Cloud API) + API key. Titik sambung: `RelawanController.updateStatus` (blok `diterima`)
+- [x] ~~**WhatsApp nyata**~~ — **ditiadakan 16 September 2026.** Seluruh pemberitahuan otomatis dikirim lewat surel, sehingga gateway WhatsApp tidak lagi diperlukan
 - [ ] *(opsional)* Email/WA **donasi berhasil** mengikuti pola relawan → `DonasiController.updateStatus`
-- [x] **Forgot password / OTP** ✅ nyata sejak 23 Agustus — OTP 6 digit, berlaku 10 menit, sekali pakai, token lama dicabut
+- [x] **Forgot password** ✅ — sejak 16 September 2026 memakai **tautan sekali pakai** yang dikirim ke surel, berlaku 60 menit, dan membatalkan tautan sebelumnya; token sesi lama dicabut setelah sandi diganti
 - [ ] **Payment gateway** otomatis (QRIS dinamis / Virtual Account dengan verifikasi otomatis) — saat ini QRIS statis & transfer, keduanya manual + upload bukti
 
 ### Kosmetik / opsional

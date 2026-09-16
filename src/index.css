@@ -5312,3 +5312,20 @@ small, .small { font-size: 0.9em; }
   transition: background 0.15s ease;
 }
 .kg-suggest-chip:hover { background: #F3E8FF; }
+
+/* Logo Karinakas pada panel kiri halaman Masuk/Daftar/Lupa Sandi (menggantikan ikon hati) */
+.lg-brand-logo {
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+  transition: transform 0.25s ease;
+}
+.lg-brand:hover .lg-brand-logo {
+  transform: scale(1.06);
+}
+
+/* Ikon SVG pada tombol sosial footer (mis. Linktree) mengikuti ukuran & warna ikon font */
+.footer-social svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}

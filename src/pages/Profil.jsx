@@ -346,7 +346,7 @@ function Profil() {
                         {myNotif.map(n => (
                           <div key={n.id} className="pf-activity-item">
                             <div className="pf-info-icon" style={{ color: n.tipe === 'email' ? '#1d4ed8' : '#1a6b3a', background: n.tipe === 'email' ? '#EFF6FF' : '#E8F5E9', flexShrink: 0 }}>
-                              <i className={`bi ${n.tipe === 'email' ? 'bi-envelope-fill' : 'bi-whatsapp'}`}></i>
+                              <i className={`bi ${n.tipe === 'email' ? 'bi-envelope-fill' : 'bi-gear-fill'}`}></i>
                             </div>
                             <div className="pf-activity-body">
                               <div className="pf-activity-top">

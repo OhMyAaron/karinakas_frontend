@@ -155,7 +155,7 @@ export const seedDonasi = [
 
 export const seedNotifikasi = [
   { id: 1, tipe: 'email',    penerima: 'budi@email.com',  judul: 'Terima kasih atas donasi Anda', trigger: 'donasi_verified',   tanggal: '2026-06-03 10:24', status: 'terkirim' },
-  { id: 2, tipe: 'whatsapp', penerima: '081234567803',    judul: 'Selamat datang sebagai relawan', trigger: 'relawan_approved', tanggal: '2026-05-20 09:10', status: 'terkirim' },
+  { id: 2, tipe: 'email',    penerima: 'ahmad@email.com', judul: 'Selamat datang sebagai relawan', trigger: 'relawan_approved', tanggal: '2026-05-20 09:10', status: 'terkirim' },
   { id: 3, tipe: 'email',    penerima: 'dewi@email.com',  judul: 'Terima kasih atas donasi Anda', trigger: 'donasi_verified',   tanggal: '2026-06-02 14:02', status: 'terkirim' },
 ]
 

@@ -3,7 +3,7 @@
 Dokumen ini memuat **skenario tugas (*task scenario*)** untuk pengujian kebergunaan
 (*usability testing*) bersama pengguna nyata, beserta perangkat pencatatan dan kuesioner SUS.
 
-> **Berbeda dengan [TESTING.md](TESTING.md).** Berkas itu memuat 176 kasus uji fungsional
+> **Berbeda dengan [TESTING.md](TESTING.md).** Berkas itu memuat 179 kasus uji fungsional
 > (*black-box*) yang dijalankan penyusun untuk memastikan fitur bekerja. Dokumen ini menguji
 > hal yang berbeda: **apakah orang lain bisa memakainya** — dijalankan bersama peserta,
 > penyusun hanya mengamati.
@@ -74,17 +74,21 @@ mengerjakan tugas pendaftaran relawan, dan kegagalan itu bukan karena antarmukan
 
 ### 3.4 Dua hambatan teknis yang harus diselesaikan lebih dulu
 
-**Kode OTP pemulihan kata sandi tidak sampai ke surel peserta.**
-Selama `MAIL_MAILER=log`, kode hanya tertulis di `storage/logs/laravel.log`. Peserta tidak akan
-bisa menyelesaikan Tugas A8 sendiri. Pilihannya:
+**Tautan pemulihan kata sandi harus benar-benar sampai ke surel peserta.**
+Sejak 16 September 2026 pemulihan kata sandi memakai **tautan sekali pakai** yang dikirim lewat surel,
+bukan kode OTP. Agar Tugas A8 dapat dikerjakan peserta sendiri, dua hal wajib benar pada `.env` peladen:
 
-- **Disarankan** — isi SMTP sungguhan (Mailtrap atau Gmail App Password) di `.env` sebelum pengujian,
-  lalu pakai alamat surel yang benar-benar dapat dibuka peserta; atau
-- Fasilitator membacakan kode dari berkas log — tetapi ini mengubah sifat tugas, dan hasilnya
-  **tidak boleh diklaim** sebagai pengujian alur pemulihan yang utuh.
+- **`MAIL_MAILER` beserta kuncinya** (`RESEND_API_KEY` atau SMTP sungguhan) supaya surel benar-benar terkirim.
+  Bila masih `MAIL_MAILER=log`, isi surel hanya tertulis di `storage/logs/laravel.log` dan peserta tidak
+  akan menerima apa pun.
+- **`FRONTEND_URL`** harus menunjuk alamat situs yang dipakai peserta, karena nilai itulah yang menyusun
+  tautan di dalam surel. Bila salah, tautan mengarah ke alamat yang keliru meskipun surelnya terkirim.
+
+Pakai alamat surel yang benar-benar dapat dibuka peserta, dan siapkan satu akun uji cadangan.
+Fasilitator membacakan tautan dari berkas log **tidak boleh diklaim** sebagai pengujian alur yang utuh.
 
 **Pembatasan laju permintaan dapat memblokir peserta berikutnya.**
-Rute masuk, daftar, dan lupa kata sandi dibatasi **5 permintaan per menit per alamat IP**.
+Rute masuk dan daftar dibatasi **5 permintaan per menit per alamat IP**, begitu pula permintaan tautan pada halaman Lupa Kata Sandi. Halaman penyetelan ulang kata sandi memakai jatah tersendiri yang lebih longgar (20 per menit), sehingga memuat ulang halaman itu tidak memblokir peserta yang hendak masuk.
 Bila beberapa peserta diuji berurutan pada jaringan yang sama, permintaan ke-6 akan dibalas galat.
 Beri jeda ± 1 menit antarpeserta pada tugas yang menyentuh ketiga rute tersebut.
 
@@ -242,7 +246,7 @@ Delapan tugas, berurutan dari yang paling umum ke yang paling terlibat.
 
 ## 6. Skenario tugas — Kelompok B (Pengelola)
 
-Tujuh tugas. Tugas B5–B7 khusus super admin.
+Tujuh tugas. Tugas B4–B7 khusus super admin.
 
 ---
 
@@ -289,7 +293,7 @@ Tujuh tugas. Tugas B5–B7 khusus super admin.
 
 ---
 
-### B4 — Memverifikasi pembayaran donasi
+### B4 — Memverifikasi pembayaran donasi *(super admin)*
 
 > **Situasi.** Seorang donatur mengaku sudah mentransfer dan mengunggah buktinya.
 > Periksa dan tetapkan status pembayarannya.
@@ -299,7 +303,7 @@ Tujuh tugas. Tugas B5–B7 khusus super admin.
 | **Tujuan** | Membuka bukti pembayaran, lalu menetapkan status donasi |
 | **Berhasil bila** | Status pembayaran berubah sesuai keputusan pengelola |
 | **Perkiraan waktu** | 3–4 menit |
-| **Yang diamati** | Apakah bukti transfer mudah ditemukan dan cukup jelas dilihat. **Bagi admin biasa, nominal donasi memang disembunyikan** — amati apakah ketiadaan angka itu mengganggu pekerjaannya |
+| **Yang diamati** | Apakah bukti transfer mudah ditemukan dan cukup jelas dilihat, dan apakah nominal pada bukti mudah dicocokkan dengan nominal yang tercatat. Tugas ini memakai akun **super admin** — sejak 14 September 2026 admin biasa tidak lagi memverifikasi donasi |
 
 ---
 

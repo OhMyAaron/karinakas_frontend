@@ -32,7 +32,7 @@ berbeda — alasannya dicatat pada kolom keterangan.
 | 2.2.2 Deskripsi Kelas dan Atribut | ✅ Selesai | idem |
 | 2.3 Perancangan Data | ✅ Selesai | `docs/dppl/2.3-Perancangan-Data.md` |
 | 2.3.1 Dekomposisi Data | ✅ Selesai | idem |
-| 2.3.2 Physical Data Model | ✅ Selesai | idem + `pdm-diagram.drawio` |
+| 2.3.2 Physical Data Model | ✅ Selesai | `docs/dppl/2.3.2-Physical-Data-Model.md` + `pdm-diagram.drawio` |
 | **2.4 Perancangan Antarmuka** | ⬜ **Belum dikerjakan** | — |
 | 2.4.1 Antarmuka Website | ⬜ Belum dikerjakan | — |
 
@@ -83,7 +83,11 @@ berbeda — alasannya dicatat pada kolom keterangan.
 - [x] **2.2.2 Deskripsi Kelas dan Atribut** — **9 kelas kontroler, dinomori 1–9**
   - [x] Cakupan dibatasi pada kelas `«control»` saja: 8 kontroler Laravel + `RoleMiddleware`
   - [x] Tiap kelas: kalimat deskripsi + tabel *Deskripsi atribut kelas* + tabel *Deskripsi fungsi pada kelas*
-  - [x] **70 tabel fungsi** — satu tabel per fungsi, berisi Input / Output / Deskripsi
+  - [x] **75 tabel fungsi** — satu tabel per fungsi, berisi Input / Output / Deskripsi. Semula 70; bertambah
+      dua fungsi privat DonasiController (`sembunyikanKeuangan`, `wajibSuperAdmin`) pada 14 September 2026,
+      lalu pada 16 September 2026 `otpKey` diganti empat fungsi pemulihan kata sandi berbasis tautan
+      (`checkResetToken`, `kunciToken`, `kunciTokenPengguna`, `ambilDataTautan`)
+  - [x] **Disesuaikan 14 September 2026 (Opsi A kunci donasi):** DonasiController — deskripsi kelas, konstanta `MEDAN_KEUANGAN`, tanda tangan `destroy(Request $request, $id)`, penolakan 403 pada `updateStatus`, `update`, `destroy`, penyamaran pada `index` & `search`, serta dua fungsi privat baru. `class-diagram.drawio` ikut diperbarui; **PNG Gambar 2.5 perlu diekspor ulang**
   - [x] Paragraf penjelas cakupan: `«entity»` dirinci di 2.3, `«boundary»` di 2.4,
         dan sistem tidak memiliki kelas *service* tersendiri pada sisi layanan data
 - [x] Catatan penyusunan: 3 bagian kode yang masih berupa kerangka, ditulis apa adanya
@@ -94,11 +98,17 @@ berbeda — alasannya dicatat pada kolom keterangan.
   - [x] Kolom: Nama Field, Tipe Data, Null, Konstrain, Range Nilai, Default, Keterangan
   - [x] `created_at` dan `updated_at` dicantumkan pada setiap tabel
   - [x] Catatan batasan unik gabungan pada tabel `relawan`
-- [x] **2.3.2 Physical Data Model**
+- [x] **2.3.2 Physical Data Model** — sejak 1 September 2026 naskahnya berada pada berkas terpisah
+      [`2.3.2-Physical-Data-Model.md`](2.3.2-Physical-Data-Model.md)
   - [x] Gambar 2.6 + berkas `pdm-diagram.drawio` (dibangkitkan dari skema MySQL)
   - [x] Relasi dikelompokkan: One-to-Many dengan FK, One-to-Many tanpa FK, Polimorfik, tabel berdiri sendiri
   - [x] Tabel 10 aturan `ON DELETE` beserta alasan perancangannya
   - [x] 4 aturan integritas lain
+- [x] **Diverifikasi ulang 30 Agustus 2026** terhadap basis data MySQL yang berjalan (`information_schema`),
+      bukan terhadap catatan terdahulu. 116 medan, urutan kolom, indeks unik, batasan unik gabungan,
+      dan 5 aturan ON DELETE **cocok seluruhnya**. Tiga kolom *Range Nilai* diperbaiki
+      (`donasi.metode_pembayaran`, `notifikasi_logs.status`, indeks gabungan `personal_access_tokens`).
+      Rinciannya ada pada blok *Catatan penyusunan* di akhir berkas 2.3
 
 ---
 
@@ -129,7 +139,7 @@ Output    : ...
 > [`_arsip-kelas-boundary-entity.md`](_arsip-kelas-boundary-entity.md). Tinggal diubah bentuknya
 > menjadi Deskripsi / Input / Output dan disisipi tangkapan layar.
 
-**Daftar halaman yang perlu dicakup** — 22 halaman:
+**Daftar halaman yang perlu dicakup** — 23 halaman:
 
 | No | Halaman | Berkas |
 |---|---|---|
@@ -142,7 +152,8 @@ Output    : ...
 | A7 | Kontak | `pages/Kontak.jsx` |
 | A8 | Masuk | `pages/Login.jsx` |
 | A9 | Pendaftaran Akun | `pages/Register.jsx` |
-| A10 | Pemulihan Kata Sandi | `pages/ForgotPassword.jsx` |
+| A10 | Lupa Kata Sandi | `pages/ForgotPassword.jsx` |
+| A10a | Penyetelan Ulang Kata Sandi | `pages/ResetPassword.jsx` |
 | A11 | Donasi | `pages/Donasi.jsx` |
 | A12 | Pendaftaran Relawan | `pages/DaftarRelawan.jsx` |
 | A13 | Profil Pengguna | `pages/Profil.jsx` |
@@ -185,13 +196,20 @@ Bukan bagian naskah, tetapi memengaruhi isinya.
 - [ ] **Endpoint `/admin/rekapan/*`** — empat titik akhir tidak pernah dipanggil aplikasi klien,
       salah satunya (`exportRekapan`) hanya kerangka. Dihapus atau dibiarkan? Bila dihapus,
       angka **65 titik akhir** pada SKPL 3.1.4 dan DPPL 1.2.2 berubah menjadi 61
-- [ ] **5 berkas PHP tidak PSR-4** — `roleMiddleware.php`, `donasiController.php`,
-      `galeriController.php`, `kampanyeController.php`, `relawanController.php` berhuruf kecil
-      di awal padahal nama kelasnya berhuruf besar. Aman selama *classmap* dibuat ulang,
-      berisiko galat 500 di peladen Linux bila tidak. Perbaikannya hanya ganti nama berkas
-- [ ] **Batas 100 baris pada ekspor rekapitulasi** — `per_page: 100` membuat ekspor hanya
-      memuat 100 baris pertama tanpa peringatan. Pola pengambilan semua halaman sudah ada
-      pada `galeriService`, tinggal diterapkan ke donasi dan relawan
+- [x] ~~**5 berkas PHP tidak PSR-4**~~ — **sudah diperbaiki 31 Agustus 2026.** Risikonya sempat
+      terwujud sebagai galat 500 saat situs dihosting di Linux. Kelima berkas diganti nama menjadi
+      berhuruf kapital di awal (`RoleMiddleware.php`, `DonasiController.php`, `GaleriController.php`,
+      `KampanyeController.php`, `RelawanController.php`) memakai `git mv` dua langkah, lalu
+      diverifikasi dengan `composer dump-autoload -o` dan `class_exists()`. Tidak memengaruhi
+      naskah DPPL karena nama kelas pada Subbab 2.2.2 sejak awal sudah ditulis berhuruf kapital
+- [ ] **Validasi `nama_lengkap` tidak sepadan dengan skema** — `AdminController::storeUser` dan
+      `updateUser` memakai `max:150`, sedangkan kolom `users.nama_lengkap` berupa `varchar(100)`.
+      Nama sepanjang 101–150 aksara lolos validasi lalu ditolak basis data. `AuthController` sudah
+      benar memakai `max:100`. Ditemukan saat verifikasi 2.3 pada 30 Agustus 2026; tidak memengaruhi
+      isi Subbab 2.3 karena skemanya sendiri sudah benar
+- [x] ~~**Batas 100 baris pada ekspor rekapitulasi**~~ — **sudah diperbaiki 14 September 2026.** Batas
+      sebenarnya 20 baris untuk donasi (`paginate(20)` mengabaikan `per_page`). Kini klien mengambil
+      seluruh halaman dan peladen menghormati `per_page` 1–100; keluaran `index` di DPPL 2.2 disesuaikan
 
 ---
 
@@ -215,7 +233,8 @@ Bukan bagian naskah, tetapi memengaruhi isinya.
 |---|---|
 | `DPPL.md` | Bagian depan, Bab 1, Subbab 2.1 |
 | `docs/dppl/2.2-Perancangan-Rinci.md` | Kelas diagram dan deskripsi 39 kelas |
-| `docs/dppl/2.3-Perancangan-Data.md` | Dekomposisi data dan Physical Data Model |
+| `docs/dppl/2.3-Perancangan-Data.md` | Pengantar + Subbab 2.3.1 Dekomposisi Data |
+| `docs/dppl/2.3.2-Physical-Data-Model.md` | Subbab 2.3.2 Physical Data Model |
 | `docs/dppl/class-diagram.drawio` | Sumber Gambar 2.5 |
 | `docs/dppl/pdm-diagram.drawio` | Sumber Gambar 2.6 |
 | `docs/dppl/README.md` | Indeks folder dan catatan konvensi |

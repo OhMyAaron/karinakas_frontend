@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import KarinakasLogo from '../components/KarinakasLogo'
 import { useAuth } from '../context/AuthContext'
 
 const features = [
@@ -57,7 +58,7 @@ function Login() {
 
         <div className="lg-left-inner">
           <Link to="/" className="lg-brand">
-            <div className="lg-brand-box"><i className="bi bi-heart-fill"></i></div>
+            <KarinakasLogo size={46} className="lg-brand-logo" />
             <span>KARINAKAS</span>
           </Link>
 
@@ -105,7 +106,7 @@ function Login() {
         <div className="lg-form-wrap">
 
           <div className="lg-form-brand">
-            <i className="bi bi-heart-fill text-danger me-2"></i>
+            <KarinakasLogo size={30} className="me-2" />
             <span>KARINAKAS</span>
           </div>
 
@@ -196,11 +197,6 @@ function Login() {
             </button>
 
           </form>
-
-          <p className="lg-admin-hint" style={{ animationDelay: '0.33s' }}>
-            <i className="bi bi-info-circle me-1"></i>
-            Admin: gunakan akun <strong>@karinakas.org</strong>
-          </p>
 
           <p className="rg-prompt" style={{ animationDelay: '0.37s' }}>
             Belum punya akun?{' '}
