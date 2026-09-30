@@ -78,8 +78,9 @@ mengerjakan tugas pendaftaran relawan, dan kegagalan itu bukan karena antarmukan
 Sejak 16 September 2026 pemulihan kata sandi memakai **tautan sekali pakai** yang dikirim lewat surel,
 bukan kode OTP. Agar Tugas A8 dapat dikerjakan peserta sendiri, dua hal wajib benar pada `.env` peladen:
 
-- **`MAIL_MAILER` beserta kuncinya** (`RESEND_API_KEY` atau SMTP sungguhan) supaya surel benar-benar terkirim.
-  Bila masih `MAIL_MAILER=log`, isi surel hanya tertulis di `storage/logs/laravel.log` dan peserta tidak
+- **Blok `MAIL_*`** harus memakai SMTP sungguhan supaya surel benar-benar terkirim. Sejak 16 September 2026
+  pengirimnya kotak surel hosting `noreply@karinakas.com` lewat `mail.karinakas.com` porta 587 (STARTTLS).
+  Bila `MAIL_MAILER` masih `log`, isi surel hanya tertulis di `storage/logs/laravel.log` dan peserta tidak
   akan menerima apa pun.
 - **`FRONTEND_URL`** harus menunjuk alamat situs yang dipakai peserta, karena nilai itulah yang menyusun
   tautan di dalam surel. Bila salah, tautan mengarah ke alamat yang keliru meskipun surelnya terkirim.

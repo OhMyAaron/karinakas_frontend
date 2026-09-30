@@ -50,10 +50,14 @@ FILESYSTEM_DISK=public
 LOG_CHANNEL=stack
 
 # Surel WAJIB aktif: dipakai tautan reset kata sandi & pemberitahuan penerimaan relawan
-MAIL_MAILER=resend                        # atau smtp
-RESEND_API_KEY=<kunci_resend>
-MAIL_FROM_ADDRESS=noreply@karinakas.org
-MAIL_FROM_NAME=Karinakas
+MAIL_MAILER=smtp
+MAIL_SCHEME=smtp
+MAIL_HOST=mail.karinakas.com              # kotak surel hosting (cPanel)
+MAIL_PORT=587                             # STARTTLS; 465 juga terbuka bila perlu
+MAIL_USERNAME=noreply@karinakas.com
+MAIL_PASSWORD="<sandi_kotak_surel>"       # WAJIB diapit kutip bila memuat tanda #
+MAIL_FROM_ADDRESS="noreply@karinakas.com" # harus sama dengan MAIL_USERNAME
+MAIL_FROM_NAME="Yayasan Karinakas"
 ```
 - [ ] `php artisan key:generate`
 
@@ -195,5 +199,5 @@ server {
 - **QRIS**: gambar QR **wajib ada** di `frontend_karinakas/public/qris-karinakas.png` sebelum `npm run build` (ikut tersalin ke `dist/`). Data merchant (NMID `ID2026479922646`, terminal `A01`) ada di konstanta `QRIS` pada file yang sama. Kalau file hilang, halaman donasi menampilkan pesan "Gambar QRIS belum tersedia" dan mengarahkan ke transfer bank.
 - **Kontak & sosial media** (WhatsApp `+62 813-9277-7710`, IG, YouTube) ada di `src/components/Footer.jsx` & `src/pages/Kontak.jsx`. Alamat kantor dan peta dipusatkan di `src/data/lembaga.js`.
 - **Keamanan produksi**: pastikan `APP_DEBUG=false`, HTTPS aktif, CORS dibatasi, dan password default admin sudah diganti.
-- **Email wajib aktif.** Pemulihan kata sandi memakai **tautan** yang dikirim lewat surel, sehingga `MAIL_MAILER`, kunci pengirimnya (`RESEND_API_KEY` atau SMTP), dan `FRONTEND_URL` harus terisi benar pada `.env` peladen. `FRONTEND_URL` menentukan alamat di dalam tautan — bila salah, tautan mengarah ke situs yang keliru walaupun surelnya terkirim. Di pengembangan, `MAIL_MAILER=log` membuat seluruh isi surel (termasuk tautannya) tertulis pada `storage/logs/laravel.log`.
+- **Email wajib aktif.** Pemulihan kata sandi memakai **tautan** yang dikirim lewat surel, sehingga blok `MAIL_*` dan `FRONTEND_URL` harus terisi benar pada `.env` peladen. Pengiriman memakai kotak surel hosting `noreply@karinakas.com` lewat `mail.karinakas.com` porta **587 (STARTTLS)** — sudah diuji berhasil pada 16 September 2026. Tiga hal yang sering menggagalkan: `MAIL_FROM_ADDRESS` tidak sama dengan `MAIL_USERNAME`; `MAIL_PASSWORD` tidak diapit kutip padahal memuat tanda `#` sehingga sandinya terpotong; dan `FRONTEND_URL` salah sehingga tautan mengarah ke domain backend. Di pengembangan, `MAIL_MAILER=log` membuat seluruh isi surel (termasuk tautannya) tertulis pada `storage/logs/laravel.log`.
 - **Payment gateway** belum aktif — verifikasi donasi dilakukan manual melalui bukti transfer. Pengiriman **WhatsApp otomatis ditiadakan** (16 September 2026); seluruh pemberitahuan dikirim lewat surel.

@@ -195,13 +195,31 @@ Bukan bagian naskah, tetapi memengaruhi isinya.
       kode penomoran, atau diganti serentak di SKPL, TESTING.md, dan naskah use case
 - [ ] **Endpoint `/admin/rekapan/*`** — empat titik akhir tidak pernah dipanggil aplikasi klien,
       salah satunya (`exportRekapan`) hanya kerangka. Dihapus atau dibiarkan? Bila dihapus,
-      angka **65 titik akhir** pada SKPL 3.1.4 dan DPPL 1.2.2 berubah menjadi 61
+      angka **66 titik akhir** pada SKPL 3.1.4 dan DPPL 1.2.2 berubah menjadi 62
 - [x] ~~**5 berkas PHP tidak PSR-4**~~ — **sudah diperbaiki 31 Agustus 2026.** Risikonya sempat
       terwujud sebagai galat 500 saat situs dihosting di Linux. Kelima berkas diganti nama menjadi
       berhuruf kapital di awal (`RoleMiddleware.php`, `DonasiController.php`, `GaleriController.php`,
       `KampanyeController.php`, `RelawanController.php`) memakai `git mv` dua langkah, lalu
       diverifikasi dengan `composer dump-autoload -o` dan `class_exists()`. Tidak memengaruhi
       naskah DPPL karena nama kelas pada Subbab 2.2.2 sejak awal sudah ditulis berhuruf kapital
+- [x] ~~**`users()` dan `deleteUser()` tidak dijaga `isSuperAdmin()`**~~ — ditemukan dan **diperbaiki 19 September 2026.**
+      Keduanya memakai `$this->authorize()`, padahal `Gate::before` pada `AppServiceProvider`
+      memberikan seluruh *ability* kepada peran `admin` maupun `super_admin`, sehingga pemeriksaan itu
+      selalu lolos. Akibatnya admin biasa dapat membaca seluruh daftar akun dan menghapus akun
+      pengguna — dan karena `donasi.user_id` memakai `ON DELETE CASCADE`, penghapusan akun turut
+      melenyapkan catatan donasi milik akun tersebut. Bertentangan dengan FR SIKAS 513 dan 514,
+      F-19, UC-19, serta definisi Admin pada DPPL. **Dokumen sudah benar; yang perlu menyusul kodenya.**
+      Perbaikannya menyamakan pola dengan `storeUser`/`updateUser`/`resetUserPassword` yang sudah aman.
+      Diuji lewat API pada 19 September 2026: admin dibalas 403 pada `GET /admin/users` dan
+      `DELETE /admin/users/{id}`, baris `users` terbukti masih ada setelahnya, sedangkan super admin
+      tetap berhasil. Deskripsi kedua fungsi pada DPPL Subbab 2.2.2 ikut diperbarui
+
+- [ ] **Jejak audit tidak mencakup pengelolaan konten** — `AuditLog::record` dipanggil pada 9 titik
+      (relawan, donasi, akun pengguna), tetapi tidak pada 11 fungsi pengelolaan kegiatan, berita,
+      dan galeri. **Diselesaikan lewat dokumen pada 19 September 2026:** NFR 3.4.4.8 dipersempit
+      agar sepadan dengan FR SIKAS 516 yang sejak awal memang hanya menyebut data transaksional
+      dan data akun. Bila kelak cakupannya hendak diperluas, cukup menambah satu baris per fungsi
+
 - [ ] **Validasi `nama_lengkap` tidak sepadan dengan skema** — `AdminController::storeUser` dan
       `updateUser` memakai `max:150`, sedangkan kolom `users.nama_lengkap` berupa `varchar(100)`.
       Nama sepanjang 101–150 aksara lolos validasi lalu ditolak basis data. `AuthController` sudah

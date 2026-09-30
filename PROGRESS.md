@@ -96,7 +96,7 @@ php artisan storage:link     # agar foto galeri & bukti transfer tampil
 ## ⏳ BELUM SELESAI (Todo berikutnya)
 
 ### Layanan eksternal (perlu keputusan/akun)
-- [ ] **Aktifkan email nyata** — kode siap, tinggal isi SMTP di `tugas_akhir/.env` (Mailtrap untuk uji / Gmail App Password). Sekarang `MAIL_MAILER=log` → email tertulis ke `storage/logs/laravel.log` (sudah diuji, isinya lengkap)
+- [x] **Aktifkan email nyata** ✅ — selesai 16 September 2026. Memakai SMTP kotak surel hosting `noreply@karinakas.com` (`mail.karinakas.com`, porta 587 STARTTLS); autentikasi dan pengiriman sudah diuji.
 - [x] ~~**WhatsApp nyata**~~ — **ditiadakan 16 September 2026.** Seluruh pemberitahuan otomatis dikirim lewat surel, sehingga gateway WhatsApp tidak lagi diperlukan
 - [ ] *(opsional)* Email/WA **donasi berhasil** mengikuti pola relawan → `DonasiController.updateStatus`
 - [x] **Forgot password** ✅ — sejak 16 September 2026 memakai **tautan sekali pakai** yang dikirim ke surel, berlaku 60 menit, dan membatalkan tautan sebelumnya; token sesi lama dicabut setelah sandi diganti
@@ -145,7 +145,7 @@ tugas_akhir/
 - **Backend mati** → gejalanya "semua data kosong / gagal fetch". Jalankan `php artisan serve`.
 - **Ganti `VITE_API_URL`** harus `npm run build` ulang (nilainya dibakar saat build).
 - **`/me` balikan `{success, user}`** (bukan `data`) → frontend baca `res.user`.
-- **Email belum sampai inbox** → wajar, `MAIL_MAILER=log`. Isi SMTP dulu.
+- **Email belum sampai inbox** → periksa `MAIL_MAILER` (harus `smtp`), `MAIL_PASSWORD` yang wajib diapit kutip karena memuat `#`, dan `MAIL_FROM_ADDRESS` yang harus sama dengan `MAIL_USERNAME`. Cek juga Spam.
 - **Upload > 20 foto terpotong** → limit PHP `max_file_uploads` (default 20); sudah diatasi auto-batch di frontend, php.ini dev dinaikkan ke 100.
 - **JANGAN `migrate:fresh`** di data asli — tabel kosong & foto di `storage/` jadi yatim.
 - Beberapa data uji coba mungkin masih ada di database (mis. "Kegiatan Tes Integrasi", donasi tes) — bisa dihapus lewat panel admin.

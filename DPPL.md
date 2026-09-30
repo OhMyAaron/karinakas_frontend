@@ -139,9 +139,9 @@ Pembangkit laporan tidak memakai pustaka pihak ketiga. Berkas rekapitulasi diben
 Perancangan yang diuraikan pada dokumen ini **mencakup** hal-hal berikut.
 
 1. Rancangan arsitektur perangkat lunak beserta pembagian tanggung jawab antarkomponen dan pola komunikasi di antaranya.
-2. Rancangan pengendalian akses berbasis peran bagi pengunjung umum, pengguna terdaftar, admin, dan super admin, termasuk pembatasan data nominal donasi bagi admin.
+2. Rancangan pengendalian akses berbasis peran bagi pengunjung umum, pengguna terdaftar, admin, dan super admin, termasuk pembatasan seluruh data keuangan donasi beserta verifikasi pembayarannya bagi admin.
 3. Dekomposisi data yang menjadi dasar pembentukan sembilan tabel basis data beserta relasi dan aturan integritasnya.
-4. Rancangan antarmuka pengguna pada halaman publik dan panel pengelolaan, serta rancangan antarmuka pemrograman berupa 65 titik akhir REST API.
+4. Rancangan antarmuka pengguna pada halaman publik dan panel pengelolaan, serta rancangan antarmuka pemrograman berupa 66 titik akhir REST API, yaitu 64 titik akhir fungsional ditambah 2 titik akhir webhook yang belum digunakan.
 5. Rancangan modul pembangkit laporan dan mekanisme penyimpanan berkas unggahan.
 
 Sebaliknya, hal-hal berikut **berada di luar cakupan perancangan** dokumen ini, sejalan dengan lingkup yang telah ditetapkan pada Subbab 1.2 SKPL.
@@ -219,7 +219,6 @@ Subbab ini memuat istilah yang diperlukan untuk membaca dokumen ini, disusun dal
 | **NFR** | *Non-Functional Requirement* |
 | **NMID** | *National Merchant Identifier* |
 | **ORM** | *Object-Relational Mapping* |
-| **OTP** | *One-Time Password* |
 | **PHP** | *PHP: Hypertext Preprocessor* |
 | **PK** | *Primary Key* |
 | **QRIS** | *Quick Response Code Indonesian Standard* |
@@ -333,7 +332,7 @@ Ketergantungan antarlapisan bersifat satu arah, yaitu dari lapisan yang lebih at
 
 1. **Presentation Layer:** Lapisan ini bertanggung jawab menampilkan data dan menerima masukan pengguna. Antarmuka dibangun menggunakan komponen React 19.2 dengan gaya visual Bootstrap 5.3 dan perutean sisi klien menggunakan React Router 7.16, yang mengonsumsi data dari REST API dalam format JSON. Termasuk dalam lapisan ini adalah pengelolaan keadaan antarmuka melalui `context/AuthContext.jsx` untuk keadaan sesi pengguna serta `hooks/useResource.js` dan `pages/admin/shared/useCrud.js` untuk keadaan data yang sedang ditampilkan, ditambah `services/api.js` dan `services/resources.js` yang menyusun permintaan HTTP, menyertakan token, dan memetakan bentuk data layanan ke bentuk yang dipakai antarmuka.
 
-2. **Business Logic Layer:**  Lapisan ini diimplementasikan menggunakan *Controller* Laravel. *Controller* menangani perutean aksi melalui `routes/api.php`, pemeriksaan keabsahan masukan, orkestrasi logika bisnis (keterikatan donasi pada kegiatan yang membuka donasi, pemeriksaan kesesuaian pilihan relawan terhadap opsi kegiatan, penyembunyian nominal donasi bagi admin, penerbitan notifikasi surel), serta pengendalian akses berbasis peran (RBAC) melalui *middleware* `role`. Termasuk dalam lapisan ini adalah pemeriksaan keabsahan token oleh Laravel Sanctum dan pembatasan laju permintaan `throttle` pada rute autentikasi.
+2. **Business Logic Layer:**  Lapisan ini diimplementasikan menggunakan *Controller* Laravel. *Controller* menangani perutean aksi melalui `routes/api.php`, pemeriksaan keabsahan masukan, orkestrasi logika bisnis (keterikatan donasi pada kegiatan yang membuka donasi, pemeriksaan kesesuaian pilihan relawan terhadap opsi kegiatan, penyembunyian data keuangan donasi bagi admin, penerbitan notifikasi surel), serta pengendalian akses berbasis peran (RBAC) melalui *middleware* `role`. Termasuk dalam lapisan ini adalah pemeriksaan keabsahan token oleh Laravel Sanctum dan pembatasan laju permintaan melalui pembatas bernama `masuk`, `lupa-sandi`, dan `reset-sandi` pada rute autentikasi, yang masing-masing memakai jatah terpisah per alamat IP.
 
 3. **Data Access Layer & Data Storage:** Lapisan ini menggunakan Eloquent ORM untuk seluruh operasi CRUD terhadap basis data relasional MySQL 8. Setiap tabel dipetakan ke kelas *Model* beserta relasinya, dan sebagian model memasang pendengar peristiwa yang menjaga kekonsistenan data turunan, misalnya pemutakhiran cacah relawan pada kegiatan. Berkas media berupa foto dokumentasi kegiatan dan bukti pembayaran donasi disimpan pada *filesystem* lokal Laravel (disk `public`) dan diakses publik melalui pranala simbolik.
 
@@ -411,7 +410,7 @@ Untuk mempermudah pengembangan dan pemeliharaan, *business logic layer* Website 
 - **Paket Donasi:** pengajuan donasi yang terikat kegiatan, pengunggahan bukti pembayaran, verifikasi status pembayaran oleh super admin, serta penyembunyian data keuangan bagi admin.
 - **Paket Relawan:** pendaftaran relawan, pemeriksaan kesesuaian pilihan terhadap opsi kegiatan, verifikasi status, dan pemutakhiran jumlah relawan diterima.
 - **Paket Pengelolaan:** dasbor statistik sadar-peran, pengelolaan akun pengguna, serta pembacaan jejak audit yang seluruhnya khusus super admin.
-- **Paket Notifikasi:** pengiriman surel penerimaan relawan dan kode pemulihan kata sandi, serta pencatatan riwayat notifikasi.
+- **Paket Notifikasi:** pengiriman surel penerimaan relawan dan tautan pemulihan kata sandi, serta pencatatan riwayat notifikasi.
 
 Terdapat tiga keputusan perancangan yang menyertai arsitektur ini.
 
@@ -469,7 +468,7 @@ Spesifikasi setiap simpul penerapan dirinci pada Tabel 2.2.
 | Peladen aplikasi | PHP 8.3, PHP-FPM, Laravel 13 | Menjalankan REST API. Akar dokumen diarahkan ke direktori `public/` |
 | Peladen basis data | MySQL 8 | Menyimpan data transaksional pada sembilan tabel |
 | Penyimpanan berkas | Sistem berkas peladen aplikasi | Menyimpan foto dokumentasi dan bukti pembayaran, diakses publik melalui pranala simbolik |
-| Layanan surel | Peladen SMTP pihak ketiga | Mengirimkan notifikasi penerimaan relawan dan kode pemulihan kata sandi |
+| Layanan surel | Peladen SMTP pihak ketiga | Mengirimkan notifikasi penerimaan relawan dan tautan pemulihan kata sandi |
 
 Pada lingkungan pengembangan, keempat simpul tersebut ditempatkan pada satu mesin dengan pembagian porta sebagaimana Tabel 2.3.
 

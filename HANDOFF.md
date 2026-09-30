@@ -1,351 +1,454 @@
-# 🤝 HAND-OFF — Progres Pengerjaan Karinakas (detail)
+# 🤝 HANDOFF — Progres Pengerjaan Website Karinakas
 
-Dokumen agar **pindah room chat langsung paham** dan bisa **dipelajari mendalam**.
-Baca **[CONTEXT.md](CONTEXT.md)** dulu untuk arsitektur & referensi endpoint.
+Berkas ini menjawab *"sudah sampai mana, apa yang masih bermasalah, dan apa langkah berikutnya"*.
+Gambaran sistem (arsitektur, endpoint, konfigurasi) ada di **[CONTEXT.md](CONTEXT.md)** — baca itu lebih dulu.
 
-**Diperbarui:** 16 September 2026 · **Status:** fungsional end-to-end, semua modul data ke API; **SKPL Bab I–III selesai**; **DPPL Bab 1, 2.1, 2.2, 2.3 selesai** (tersisa 2.4 Perancangan Antarmuka); skenario uji kebergunaan siap dijalankan; data kontak dan rekening sudah memakai data resmi yayasan.
+**Diperbarui:** 30 September 2026
 
-> **Melanjutkan di room chat baru:** baca berkas ini dan `CONTEXT.md`. Khusus untuk melanjutkan
-> naskah DPPL, baca **`docs/dppl/CHECKLIST.md`** — memuat daftar periksa tiap subbab, hal yang
-> perlu dilengkapi penyusun, dan keputusan yang masih menggantung.
-
----
-
-## 1. Cara menjalankan (dev)
-```bash
-# Terminal 1 — backend
-cd tugas_akhir
-php artisan serve            # http://127.0.0.1:8000
-
-# Terminal 2 — frontend
-cd frontend_karinakas
-npm run dev                  # http://localhost:5173
-
-# Bila skema DB berubah / baru clone:
-cd tugas_akhir
-php artisan migrate          # JANGAN migrate:fresh kalau tak mau data hilang
-php artisan storage:link     # agar foto galeri & bukti transfer tampil
-```
-Login: akun demo ada di CONTEXT.md §3.
+> **Untuk AI / room chat baru:** baca `CONTEXT.md` → berkas ini → bila menyentuh DPPL, `docs/dppl/CHECKLIST.md`.
+> Bagian §7 menjelaskan cara bekerja yang disukai penyusun — ikuti itu.
 
 ---
 
-## 2. Perjalanan pengerjaan (kronologis — biar paham konteksnya)
-1. **Awal**: frontend UI sudah ada tapi **pakai localStorage**; backend Laravel **belum jalan** (Sanctum belum terpasang, route API belum didaftarkan, model User rusak, nama file model tidak PSR-4, tak ada CORS/middleware role).
-2. **Perbaikan backend total** → bisa jalan: pasang Sanctum, daftarkan route, perbaiki/rename model, CORS, middleware `role`, `Gate::before`, migrasi + seeder. Divalidasi via curl.
-3. **Integrasi bertahap** frontend → API, modul demi modul (Auth → Kegiatan → Berita → Galeri → Donasi → Relawan → Pengguna → Dashboard → Notifikasi/Audit), memakai fondasi reusable (`api.js`, `resources.js`, `useResource`).
-4. **Penyempurnaan fitur** sesuai permintaan: donasi transfer + bukti, donasi wajib kegiatan, galeri album + lightbox + bulk upload + nama foto + auto-batch, opsi relawan per kegiatan, email relawan-diterima.
-5. **UX/branding**: intro screen, font besar, merah lembut, kontras (ramah lansia), tombol publik terhubung, kontak & sosmed asli, loading state.
-6. **Dokumentasi**: PROGRESS.md, DEPLOY.md, CONTEXT.md, HANDOFF.md.
-7. **Pembayaran QRIS** (Agustus): metode QRIS statis ditambahkan di samping transfer bank; layar instruksi pembayaran dibuat bercabang sesuai metode.
-8. **Export rekapan dirapikan** (Agustus): dari CSV mentah → **berkas Excel bertabel**. Dibuat helper bersama `utils/excel.js`; ditambah rekap **Relawan** untuk Super Admin.
-9. **Dokumen skripsi** (Agustus): `TESTING.md` (176 kasus uji) lalu naskah **SKPL** lengkap Bab I–III beserta diagram use case dan ERD.
-10. **Sinkronisasi database** (23 Agustus): audit skema vs kode, perbaikan counter relawan yang tertinggal, dan **formulir Kontak dihapus** — pertanyaan pengunjung diarahkan ke WhatsApp yang sudah aktif.
-11. **Naskah DPPL** (25–26 Agustus): Bab 1, 2.1, 2.2, dan 2.3 selesai beserta dua berkas diagram `.drawio`. Nama produk pada DPPL memakai **Website Karinakas**, bukan SIKAS.
-12. **Skenario uji kebergunaan** (28 Agustus): `SKENARIO-TUGAS.md` — 15 tugas untuk pengujian bersama pengguna nyata, lembar pengamatan, dan kuesioner SUS.
-13. **Penyaring ekspor & data lembaga** (29 Agustus): penyaring kegiatan dan rentang tanggal pada admin Donasi & Relawan; nomor kontak, surel, dan rekening donasi diperbarui ke data resmi yayasan.
-14. **Verifikasi DPPL 2.3** (30 Agustus): isi Subbab 2.3 dibandingkan langsung ke basis data MySQL yang berjalan. Skema cocok seluruhnya; tiga kolom *Range Nilai* diperbaiki agar sesuai nilai yang benar-benar dipakai kode.
+## 1. Status saat ini (ringkas)
 
----
-
-## 3. Fitur SELESAI ✅ — detail per modul
-> Format: **Modul** — apa yang jadi · file frontend kunci · endpoint/backend · logika penting.
-
-### 3.1 Autentikasi
-- Login (email/username), register data lengkap, logout, `me`, update profil, ganti sandi; pulihkan sesi saat reload; rute terproteksi + **redirect balik** ke tujuan.
-- FE: `context/AuthContext.jsx`, `pages/Login.jsx`, `pages/Register.jsx`, `App.jsx` (`RequireAuth`/`RequireAdmin`).
-- BE: `AuthController`, rute `/login /register /me /profile /logout`.
-- Catatan: `/me` balikan `{success, user}` → FE baca `res.user`.
-
-### 3.2 Kegiatan (+ opsi relawan per kegiatan)
-- Publik: list + modal detail + kuota. Admin: CRUD + ubah status.
-- **Admin menentukan opsi Jenis Relawan & Bidang Minat** per kegiatan (editor tag), dipakai form pendaftaran relawan.
-- FE: `pages/Kegiatan.jsx`, `pages/admin/SectionKegiatan.jsx` (komponen `TagEditor`), `kegiatanService`.
-- BE: `KegiatanController` (validasi `jenis_relawan[]`,`bidang_minat[]`), kolom JSON di `kegiatan`.
-
-### 3.3 Berita/Kampanye
-- Publik list + detail + terkait; admin CRUD.
-- FE: `pages/Berita.jsx`, `pages/BeritaDetail.jsx`, `pages/admin/SectionBerita.jsx`, `beritaService`.
-- BE: `KampanyeController`.
-
-### 3.4 Galeri (album + lightbox + bulk + nama foto)
-- Publik **berbasis album per kegiatan** (`judul`) → klik album → semua fotonya → **lightbox** (geser, keyboard, Esc). Tiap foto punya **`nama_foto`**.
-- Admin: kelola album, **bulk upload** banyak foto dengan **nama per foto**, **auto-batch 20/request** (aman ratusan foto), **indikator progres**.
-- FE: `pages/Galeri.jsx` (publik), `components/Galeri.jsx` (beranda), `pages/admin/SectionGaleri.jsx`, `galeriService` (`list` ambil **semua halaman**, `latest`, `bulkUpload` batching, `update`).
-- BE: `GaleriController` (`index/latest/store/bulkUpload/update/destroy`), kolom `nama_foto`.
-- Fix penting: dulu publik **nol foto** karena bug reveal-animation + fetch 100. Sudah beres.
-
-### 3.5 Donasi
-- **Wajib pilih kegiatan yang membuka donasi** (tak ada donasi umum), **2 metode: QRIS (default) & transfer BNI**, **upload bukti**, riwayat di Profil.
-- **QRIS statis** (NMID `ID2026479922646` a.n. YAYASAN KARINAKAS, terminal A01): QR ditampilkan di layar instruksi + tombol simpan gambar + tombol salin nominal + langkah cara bayar. Nominal **tidak** tertanam di QR → donatur mengetik sendiri, lalu unggah bukti untuk diverifikasi admin (sama seperti transfer, bukan payment gateway).
-- Gambar QR: `public/qris-karinakas.png` (petunjuk di `public/README-QRIS.txt`). Bila file tak ada, halaman menampilkan pesan ramah + arahan ke transfer bank, bukan gambar rusak.
-- Admin: **verifikasi status, edit, hapus, bukti transfer, dan export rekap Excel khusus Super Admin** (sejak 14 September, Opsi A — §3.20). Admin biasa hanya memantau daftar donatur, kegiatan, dan status tanpa data keuangan.
-- FE: `pages/Donasi.jsx` (konstanta `QRIS` & `BANK`), `pages/admin/SectionDonasi.jsx`, `donasiService`.
-- BE: `DonasiController` (`store` cek kegiatan, `uploadBukti`, `index` masking, `update/updateStatus/destroy`), kolom `bukti_transfer`.
-
-### 3.6 Relawan
-- Daftar publik (wajib login, data pribadi dari profil); admin verifikasi status & hapus; riwayat di Profil.
-- **Export rekap Excel (Super Admin)** — mengikuti filter/pencarian aktif, lengkap dengan ringkasan per status, per jenis, dan per kegiatan. Berisi data pribadi (alamat, HP, KTP) → berkasnya memuat baris PERHATIAN.
-- Saat **diterima** → `jumlah_relawan_terdaftar++`, **email otomatis**, catat notifikasi.
-- FE: `pages/DaftarRelawan.jsx` (dropdown ikut opsi kegiatan), `pages/admin/SectionRelawan.jsx`, `relawanService`.
-- BE: `RelawanController` (`store` validasi opsi kegiatan, `index/updateStatus/destroy`).
-
-### 3.7 Manajemen Pengguna (Super Admin)
-- Daftar akun, ubah role, tambah, reset password, hapus. **Anti lock-out** (tak bisa ubah/hapus akun sendiri).
-- FE: `pages/admin/SectionPengguna.jsx`, `penggunaService` (map role).
-- BE: `AdminController` (`users/storeUser/updateUser/resetUserPassword/deleteUser`, semua super-admin-only).
-
-### 3.8 Dashboard
-- Statistik dari `/admin/dashboard` (sadar-peran), breakdown relawan per jenis, tabel donasi/relawan terkini, aktivitas dari data asli, export laporan Excel.
-- FE: `pages/AdminDashboard.jsx`, `adminService.dashboard()`.
-- BE: `AdminController.dashboard` (nominal hanya super).
-
-### 3.9 Notifikasi & Audit Log
-- **Dicatat otomatis di server** (`audit_logs`, `notifikasi_logs`). Panel admin + tab Profil membaca dari API.
-- FE: `pages/admin/SectionNotifikasi.jsx`, `SectionAudit.jsx`, `notifikasiService`, `auditService`.
-- BE: `AdminController.auditLogs/notifikasiLogs`, model `AuditLog::record()` & `NotifikasiLog::record()` dipanggil di titik aksi.
-
-### 3.10 UI/UX & branding
-- **IntroScreen** (scroll story + foto Karinakas + "Mulai Menjelajah", sekali/sesi) — `components/IntroScreen.jsx`.
-- Font **18.5px**, merah **#C0392B**, kontras dinaikkan.
-- Semua tombol publik terhubung; kontak & sosmed asli; `ConfirmDelete` ada state "Menghapus...".
-
-### 3.11 Export rekapan (Excel)
-- Helper bersama **`src/utils/excel.js`** dipakai tiga tempat: rekap **Donasi**, rekap **Relawan**, dan **Laporan Dashboard**. Sebelumnya masing-masing menyalin logika CSV sendiri dan **tak satu pun meng-*escape* nilai** — nama donatur bermuatan `;` bisa menggeser seluruh kolom.
-- Berkas berbentuk workbook HTML berekstensi `.xls` (tanpa pustaka tambahan), sehingga bisa mengatur hal yang mustahil di CSV: **lebar kolom auto-fit**, teks membungkus, **baris judul dibekukan**, angka berformat ribuan tapi tetap bisa di-`SUM`, dan **No. KTP / No. HP dipaksa teks** agar 16 digit tidak jadi notasi ilmiah dan angka 0 di depan tidak hilang.
-- Isi berkas **mengikuti filter & pencarian yang sedang aktif** di layar; tombol nonaktif bila tidak ada data.
-- Ketiganya **hanya untuk Super Admin**.
-
-### 3.12 Pemulihan kata sandi & pengerasan autentikasi (23 Agustus)
-
-> **Sudah tidak berlaku sejak 16 September 2026.** Alur OTP di bawah ini diganti **tautan sekali pakai** yang dikirim ke surel — lihat §3.21. Bagian ini disimpan sebagai catatan riwayat.
-- **Pemulihan kata sandi kini berfungsi nyata.** Sebelumnya frontend memakai `localStorage` dan backend hanya berisi `// TODO`, sehingga sandi baru tidak pernah berlaku.
-- Alur: `POST /forgot-password {email}` → kode **6 digit** disimpan di cache (`otp_reset:{email}`, TTL **10 menit**) + surel `KodeOtpReset` → `POST /reset-password {email, otp, new_password, new_password_confirmation}` → verifikasi `hash_equals` → sandi diganti → kode dihapus (**sekali pakai**) → **seluruh token lama dicabut** → dicatat ke `notifikasi_logs`.
-- FE: `pages/ForgotPassword.jsx` (tidak lagi menyentuh `localStorage`). BE: `AuthController`, `app/Mail/KodeOtpReset.php`, `resources/views/emails/kode-otp-reset.blade.php`.
-- **Kata sandi `min:8` di seluruh jalur** dan **`throttle:5,1`** pada empat rute autentikasi.
-- Karena `MAIL_MAILER=log`, **kode OTP terbaca di `storage/logs/laravel.log`** selama SMTP belum diisi — ini yang dipakai saat menguji.
-- Sudah diuji ujung ke ujung: OTP masuk cache → reset 200 → login sandi baru **berhasil** → login sandi lama **ditolak** → OTP dipakai ulang **ditolak** → percobaan login ke-6 **429**.
-
-### 3.13 Formulir Kontak dihapus — diganti WhatsApp (23 Agustus)
-- **Keputusan:** formulir pesan di halaman Kontak **dihapus**, bukan disambungkan ke server. Alasannya WhatsApp sudah aktif dan dipakai; menambah kotak masuk kedua berarti admin harus memantau dua tempat.
-- Halaman Kontak kini: kartu **"Hubungi Kami lewat WhatsApp"** (tombol chat + empat pilihan topik yang otomatis mengisi pesan awal via parameter `text=`), alternatif surel, plus informasi kontak & peta yang sudah ada.
-- **Tidak ada tabel maupun endpoint** untuk pesan kontak — ini disengaja. Jangan tambahkan lagi tanpa alasan baru.
-- FE: `pages/Kontak.jsx` (konstanta `topikWa` + helper `waLink`). Tidak ada state form, tidak ada panggilan API.
-- Konsekuensinya halaman Kontak **murni statis** — tidak terpengaruh backend mati.
-- **Dokumen skripsi ikut disisir** agar tidak bertentangan: `TESTING.md` (TC-PUB-09 kini menguji kanal WhatsApp; tabel keterbatasan §15 diperbarui), `SKPL.md` Lampiran B, `docs/skpl/3.1` (catatan form + catatan penyusunan) dan `docs/skpl/3.2`. Angka **65 titik akhir** pada SKPL 3.1.4 tetap akurat.
-
-### 3.14 Konsistensi counter relawan (23 Agustus)
-- **Akar masalah:** model `Relawan` hanya memasang listener `updated` dan `deleted`. Relawan yang **dibuat langsung berstatus `diterima`** (seeder / impor data) tidak pernah menambah `kegiatan.jumlah_relawan_terdaftar`, sehingga kuota di halaman publik tampak lebih longgar dari kenyataan.
-- **Perbaikan:** ditambahkan listener `created` di `app/Models/Relawan.php`. Alur normal aplikasi tidak terpengaruh — pendaftaran baru tetap lahir berstatus `pending`, jadi tidak ada hitungan ganda.
-- **Data lama diperbaiki:** kegiatan "Bimbingan Belajar Anak Daerah Terpencil" `0 → 3`.
-
-### 3.15 Penyaring ekspor rekapitulasi (29 Agustus)
-- Admin **Donasi** dan **Relawan** kini punya penyaring **kegiatan** dan **rentang tanggal**, ditambah tombol **Reset** dan penghitung **"x dari y data"**.
-- Penyaring **Jenis** pada Relawan diperbaiki: pilihannya diambil dari data yang benar-benar ada, sehingga **jenis khusus yang ditetapkan admin per kegiatan ikut muncul**. Sebelumnya hanya memakai daftar tetap `['Lansia','Kebencanaan']` — ini butir kosmetik lama yang akhirnya beres.
-- Isi berkas ekspor mengikuti penyaring aktif, dan **penyaringnya ikut tercatat di kepala berkas** agar pembaca tahu datanya sudah tersaring.
-- FE: `SectionDonasi.jsx`, `SectionRelawan.jsx`. Ditambahkan medan `tanggalRaw` pada `relawanFE` karena `tanggal` sudah berupa teks terformat sehingga tak bisa dibandingkan.
-- **Tanpa perubahan backend sama sekali** — penyaringan dikerjakan di peramban.
-- **Dokumen ikut disesuaikan:** `FR SIKAS 501` dan `FR SIKAS 507` di SKPL 3.2 (enumerasi penyaringnya eksplisit), serta langkah 2 Basic Flow UC-16 di SKPL 3.3. FR lain memakai kalimat generik sehingga tetap berlaku. DPPL tidak berubah karena controller tidak disentuh.
-
-### 3.16 Pemutakhiran data lembaga (29 Agustus)
-- **Kontak** → WhatsApp/telepon `081392777710`, surel `karinakas.office@gmail.com`. Menggantikan tiga alamat surel berbeda yang sebelumnya berserakan.
-- **Rekening donasi** → **Mandiri `1370013862012` a.n. YAYASAN KARINAKAS**. Sebelumnya rekening **pribadi** (BNI a.n. Aaron Risang Panji Bharata) — cukup penting terkoreksi untuk halaman donasi yayasan.
-- **Sidebar panel admin** → ikon hati diganti logo Karinakas lewat komponen `KarinakasLogo` yang kini punya parameter `bleed`.
-- Dua ketidakcocokan lama ikut dibetulkan: halaman Kontak sempat menampilkan **dua nomor berbeda** (kartu atas vs daftar rincian), dan halaman Login menulis domain akun admin `@karinakas.or.id` padahal yang benar `@karinakas.org`.
-
-### 3.17 Verifikasi DPPL Subbab 2.3 Perancangan Data (30 Agustus)
-- Naskah `docs/dppl/2.3-Perancangan-Data.md` **dibandingkan langsung ke basis data MySQL `karinakas` yang berjalan** lewat `information_schema`, bukan ke berkas migrasi saja maupun ke catatan terdahulu.
-- **Cocok seluruhnya:** 116 medan pada 9 tabel (nama, tipe, *nullability*, nilai bawaan), urutan kolom termasuk sisipan `nama_foto`/`bukti_transfer`/`jenis_relawan`/`bidang_minat`, indeks unik, batasan unik gabungan pada `relawan`, dan **5 aturan ON DELETE** pada Tabel 10.
-- **Tiga perbaikan:** `donasi.metode_pembayaran` dari `QRIS, Transfer Bank` menjadi **`QRIS, Transfer Mandiri`** (menyusul pergantian rekening 29 Agustus; data lama masih memuat `Transfer BNI` dan `Virtual Account`); `notifikasi_logs.status` dari `terkirim, gagal` menjadi **`terkirim`** karena nilai `gagal` tidak pernah ditulis jalur kode mana pun — pencatatan kegagalan berhenti di berkas log kanal `notifikasi`; `personal_access_tokens.tokenable_*` ditegaskan memakai **satu indeks gabungan**, bukan dua indeks terpisah.
-- Rincian verifikasi ditulis pada blok **Catatan penyusunan** di akhir berkas 2.3 (blok itu **tidak** disalin ke naskah akhir).
-
-### 3.18 Perbaikan hosting: PSR-4 dan `VITE_API_URL` (31 Agustus)
-Dua cacat terpisah yang muncul bersamaan saat situs pertama kali dihosting. Gejalanya bercampur sehingga sempat sulit dipisahkan: sebagian data tidak masuk, disertai `500` di konsol peramban.
-
-**a. Lima berkas PHP tidak PSR-4 → galat 500.** Windows tidak peka huruf besar/kecil, Linux peka. Autoloader mencari `GaleriController.php` tetapi berkas di disk bernama `galeriController.php`, sehingga `Class not found` → 500. Kegagalannya **selektif**, itulah sebabnya sebagian data tetap masuk:
-
-| Berkas (lama → baru) | Dampak saat rusak |
+| Aspek | Status |
 |---|---|
-| `donasiController.php` → `DonasiController.php` | Donasi 500 |
-| `galeriController.php` → `GaleriController.php` | Galeri 500 |
-| `kampanyeController.php` → `KampanyeController.php` | Berita 500 |
-| `relawanController.php` → `RelawanController.php` | Relawan 500 |
-| `roleMiddleware.php` → `RoleMiddleware.php` | **Seluruh `/admin/*` 500** |
+| **Aplikasi** | ✅ Fungsional end-to-end, semua modul terhubung ke API |
+| **Hosting** | ✅ Live di **https://karinakas.com** — backend & frontend versi 17 Sept terpasang · ⚠️ **perbaikan `AdminController` 19 Sept (lihat §4.7) belum di-deploy** |
+| **Pemulihan kata sandi** | ✅ Kode selesai & teruji (tautan sekali pakai) · ⚠️ **pengiriman surel dari peladen belum terbukti berhasil** |
+| **Manajemen pengguna** | ✅ Celah `isSuperAdmin()` **sudah diperbaiki dan diuji** di kode lokal (19 Sept, §4.7) · ⚠️ belum di-push/di-deploy |
+| **Git** | ✅ Perbaikan `AdminController.php` sudah di-commit backend `9582191` dan di-*push* (28 Sept, penanda lokal `main...origin/main` tanpa selisih) · ⚠️ **aktif di karinakas.com belum terverifikasi** — Anda sudah mencoba `git pull` di cPanel; uji admin → `GET /admin/users` harus 403 (`docs/PDHUPL-STATUS-DAN-KODE.md` §4.3). Frontend masih `88b825c` |
+| **SKPL** | ✅ Bab I–III selesai, **disinkronkan ulang 19–20 Sept** (lihat §4.8): 66 titik akhir, UC-24 Memulihkan Kata Sandi, NFR 3.4.4.8 dipersempit sesuai FR 516 |
+| **DPPL** | ✅ Bab 1, 2.1, 2.2, 2.3 (juga disinkronkan 19–20 Sept) · ⬜ **2.4 Perancangan Antarmuka belum** — draf materi sudah ada di `docs/laporan/4.3-4.4-...md` §4.3.7–4.3.9 |
+| **Bab IV Laporan TA** | ✅ **Naskah siap tempel** di `docs/laporan/BAB-IV-LENGKAP.md` (§4.12) — konsolidasi draf lama, penomoran final 4.1–4.6 disamakan dengan Word, "catatan revisi" (gaya "naskah sebelumnya salah...") ditulis ulang jadi prosa langsung, jumlah antarmuka **diputuskan 24** (11 publik/5 terdaftar/8 admin) · ⬜ SKPL/DPPL belum ikut memakai angka 24 ini |
+| **PDHUPL** | ✅ **88 butir uji, Bab 5 & Bab 6 (SUS) lengkap** di `docs/PDHUPL.md` (§4.10–§4.13) — Bab 5 lewat **penelusuran kode**; **UT-03 (validasi KTP) diperbaiki 30 Sept, kini Handal** (§4.13, kode lokal belum di-deploy); **Bab 6 kini memuat data mentah P1–P10 seluruh 40 responden** (§4.12), bukan hanya skor akhir · ⬜ **verifikasi nyata di situs live masih perlu dilakukan sebelum dianggap final**. ⚠️ Berkas Word terpisah yang pernah diserahkan penyusun ("PDHUPL FX.pdf") adalah **ekspor lama** — sempat kurang 3 subbab (AD-28N/30N/32N di Bab 4.6); `docs/PDHUPL.md` sudah benar, tinggal ekspor ulang |
+| **TESTING.md** | ✅ 181 kasus tersusun · ⬜ belum dijalankan/diisi |
+| **Uji kebergunaan (SUS)** | ✅ **Sudah dijalankan — 40 responden nyata, skor rata-rata 72,56** (Baik/*Acceptable*), lihat §4.10 |
+| **Laporan TA (.docx)** | ⚠️ Belum selaras dengan SKPL/DPPL — draf perbaikan sudah siap di `docs/laporan/`, tinggal dipindahkan |
 
-`AuthController`, `KegiatanController`, `AdminController`, dan `NotifikasiController` namanya sudah benar sehingga Login dan Kegiatan tetap hidup. Penggantian nama dilakukan dengan `git mv` dua langkah karena `core.ignorecase=true` di Windows membuat Git tidak melihat perubahan kapitalisasi. Diverifikasi dengan `composer dump-autoload -o` lalu `class_exists()` — ketujuh kelas kunci **OK**.
-
-**b. `VITE_API_URL` kurang `/v1` → galat 404.** Berkas `.env` sempat berisi `/api`, padahal rute berada di `/api/v1`. Terbukti dari bundel yang sudah terlanjur diunggah: `var Wn = "/api"` pada `dist/assets/index-BcVjpcUO.js`. Efek keduanya, `STORAGE_BASE` di `resources.js` memotong akhiran `/api/v1` untuk membentuk `/storage`; dengan nilai `/api` pemotongan gagal sehingga **seluruh foto galeri dan bukti transfer tidak tampil**. Sudah dibetulkan menjadi `/api/v1`, `.env.development` menjadi `http://127.0.0.1:8000/api/v1`, lalu `npm run build` diulang dan `dist.zip` dibuat ulang. Bundel baru terverifikasi memuat `/api/v1` dan `STORAGE_BASE` yang benar.
-
-> **Pelajaran yang mudah tertukar:** rute yang tidak cocok menghasilkan **404**, sedangkan kelas yang tidak ditemukan menghasilkan **500**. Kalau di tab Network tercampur keduanya, memang ada dua masalah — jangan berhenti setelah salah satunya diperbaiki.
-
-### 3.19 Revisi pascahosting (14 September)
-Hasil peninjauan penyusun setelah situs dihosting.
-
-- **Penyaring tanggal di admin Relawan & Donasi** — dua kotak `type="date"` itu sebenarnya satu rentang (*sejak* dan *sampai*) yang hanya dibedakan lewat *tooltip*, sehingga tampak dobel. Diganti **satu pilihan "Bulan"** yang isinya diambil dari bulan yang benar-benar ada pada data (terbaru di atas); kepala berkas ekspor kini mencatat *Bulan daftar/donasi*. Pengelompokan bulan memakai jam lokal, bukan `toISOString()` yang dulu menggeser data pukul 00.00–06.59 WIB ke hari sebelumnya.
-- **Tabel admin kini memuat seluruh data.** Penyaring bulan berjalan di peramban, jadi hanya benar bila semua baris dimuat. Ternyata `DonasiController::index` memakai `paginate(20)` dan mengabaikan `per_page`, sehingga daftar & ekspor donasi **diam-diam berhenti di 20 baris**. Perbaikan: helper `ambilSemuaHalaman()` di `resources.js` untuk Donasi & Relawan, dan peladen kini menghormati `per_page` (1–100).
-- **Logo hati → logo Karinakas** pada Login, Register, ForgotPassword (6 titik). **Favicon** diganti dari logo bawaan Vite menjadi potongan logo Karinakas 64 px + `apple-touch-icon` 180 px. Ikon hati bermakna "donasi" sengaja dipertahankan.
-- **Linktree** — `bi-linktree` tidak ada di Bootstrap Icons 1.13.1, jadi tombolnya kosong. Diganti SVG lambang Linktree.
-- **Alamat** — Footer (`Jl. Panuluh…`) dan Kontak (`Jl. Pandanaran No. 13, Semarang`) sama-sama salah, begitu pula petanya. Kini keduanya membaca `src/data/lembaga.js`: **Jl. Empu Panuluh No.377A, Pringwulung, Condongcatur, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta**, dengan sematan Google Maps berbasis alamat + tautan "Buka di Google Maps".
-- **Dokumen ikut disesuaikan:** SKPL FR SIKAS 501 & 507 dan UC-15 (*rentang tanggal* → *bulan*), DPPL 2.2 keluaran `index` Donasi & Relawan, arsip bahan 2.4, CONTEXT §9 & §11.
-- **Kunci donasi** — diputuskan **Opsi A** dan sudah dikerjakan, lihat §3.20.
-
-### 3.20 Kunci data keuangan donasi — Opsi A (14 September)
-- **Keputusan penyusun:** verifikasi pembayaran donasi **khusus Super Admin** (berperan sebagai bendahara). Alasannya: verifikasi berarti mencocokkan bukti dengan mutasi rekening atau QRIS, dan siapa pun yang memegang akses rekening pasti melihat nominalnya. "Admin memverifikasi tetapi nominal disembunyikan" tidak mungkin konsisten.
-- **Kebocoran yang ditemukan sebelum perbaikan:**
-  1. Gambar bukti transfer tampil ke admin, dan nominal terbaca di gambarnya.
-  2. `index` hanya menghapus `jumlah`; kode transaksi, rekening pengirim, biaya, dan bukti tetap dikirim.
-  3. **`/admin/donasi/search` sama sekali tidak menyamarkan** — nominal lengkap sampai ke admin.
-  4. **`PUT /admin/donasi/{id}` tanpa pengecekan Super Admin di server** — admin bisa mengubah nominal lewat API; hanya tombolnya yang disembunyikan.
-  Butir 3 dan 4 melanggar FR SIKAS 510/512/513, NFR 3.4.4.4, dan K-15 yang sudah tertulis di SKPL. Akarnya sama dengan celah Manajemen Pengguna: `Gate::before` meloloskan semua `authorize()` untuk admin.
-- **Kode:** `DonasiController` — konstanta `MEDAN_KEUANGAN`, `sembunyikanKeuangan()` pada `index` & `search` (memakai `makeHidden`), `wajibSuperAdmin()` pada `updateStatus`, `update`, `destroy` (membalas 403). `SectionDonasi.jsx` — admin biasa tidak lagi mendapat kolom Ubah Status, tombol Detail/Bukti, Edit, dan Hapus; statusnya tampil sebagai label.
-- **Diuji langsung lewat API — 18/18 lulus.** Admin: 16 baris daftar dan 10 baris hasil cari tanpa satu pun medan keuangan; PATCH status, PUT, dan DELETE dibalas 403; dasbor tetap tanpa total nominal; modul relawan tetap berjalan. Super admin: `jumlah` dan `bukti_transfer` terkirim; tindakan pada ID palsu dibalas 404 (artinya lolos penjaga peran). Seluruh uji memakai ID palsu sehingga tidak ada data yang berubah.
-- **Dokumen yang disesuaikan:** SKPL.md (ringkasan produk, glosarium, F-15, F-19, matriks fungsi–peran, karakteristik pengguna, A-04, Lampiran B, rujukan TESTING) · SKPL 3.2 (FR SIKAS 508, 509, 511, 512, 513) · SKPL 3.3 (AK-03, AK-04, UC-16, diagram Mermaid) · SKPL 3.4 (NFR 3.4.4.4) · `use-case-diagram.drawio` (garis Admin–UC-16 dihapus) · DPPL.md (definisi peran, paket Donasi) · DPPL 2.2 (DonasiController: deskripsi kelas, konstanta, 5 fungsi publik, 2 fungsi privat baru — **70 → 72 tabel fungsi**) · `class-diagram.drawio` · TESTING.md (TC-ADN-03/04/06/08 diubah, TC-ADN-10–12 baru — **176 → 179 kasus**) · SKENARIO-TUGAS (B4 menjadi tugas super admin) · CONTEXT §3 & §9.
-- **Tindakan penyusun:** ekspor ulang PNG diagram use case dan diagram kelas dari berkas `.drawio`.
-
-### 3.21 Pemulihan kata sandi berbasis tautan & pemberitahuan khusus surel (16 September)
-Tiga permintaan penyusun setelah meninjau situs yang sudah dihosting.
-
-- **Petunjuk akun admin dihapus dari halaman Masuk.** Baris "Admin: gunakan akun @karinakas.org" tidak lagi ditampilkan.
-- **Pemulihan kata sandi: OTP → tautan sekali pakai.** `POST /forgot-password {email}` kini membangkitkan token acak 64 karakter, menyimpan **sidik SHA-256**-nya pada cache (`reset_sandi:{sidik}`, berlaku **60 menit**), lalu mengirim surel `TautanResetSandi` berisi tautan `{FRONTEND_URL}/reset-password?token=...&email=...`. Halaman tujuan memanggil `POST /reset-password/check` lebih dahulu agar tautan mati langsung ketahuan, lalu `POST /reset-password {token, email, new_password, new_password_confirmation}` menyimpan kata sandi baru, menghapus tautan, dan mencabut seluruh token sesi. Permintaan tautan baru membatalkan tautan sebelumnya. Rute `/verify-otp` diganti `/reset-password/check`; `KodeOtpReset` beserta templatnya dihapus.
-- **FE:** `pages/ForgotPassword.jsx` disederhanakan menjadi satu langkah, ditambah halaman baru `pages/ResetPassword.jsx` pada rute `/reset-password`. **BE:** `AuthController`, `app/Mail/TautanResetSandi.php`, `resources/views/emails/tautan-reset-sandi.blade.php`, `config/app.php` (`frontend_url`).
-- **⚠️ Wajib diisi saat deploy:** `FRONTEND_URL` pada `.env` peladen. Nilai inilah yang menyusun alamat di dalam tautan; bila kosong, tautan memakai `APP_URL` (domain backend) sehingga mengarah ke alamat yang keliru. Surel juga harus benar-benar aktif (`RESEND_API_KEY`/SMTP) — inilah sebab pengujian di situs yang sudah dihosting sebelumnya gagal.
-- **Pembatas laju dipisah per kelompok rute.** Ditemukan saat pengujian: `throttle:5,1` tanpa nama memakai kunci `domain|IP`, bukan per rute, sehingga `/login`, `/register`, `/forgot-password`, `/reset-password`, dan `/reset-password/check` berbagi satu jatah 5 permintaan per menit. Karena halaman penyetelan ulang memanggil `/reset-password/check` otomatis saat dimuat, beberapa kali muat ulang bisa ikut memblokir login pengguna selama semenit. Kini didaftarkan pembatas bernama di `AppServiceProvider`: `masuk` 5/menit, `lupa-sandi` 5/menit, dan `reset-sandi` 20/menit, masing-masing per alamat IP.
-- **Pemberitahuan WhatsApp ditiadakan.** Pencatatan `NotifikasiLog` berkanal `whatsapp` dihapus dari `RelawanController` dan `DonasiController`, fungsi `kirimWhatsApp()` beserta templatnya dihapus dari `NotifikasiController`, dan parameter `$channel` pada `kirimNotifikasiDonasi()` dihilangkan. Di layar, ikon kanal pada panel Notifikasi dan tab Profil tidak lagi memakai lambang WhatsApp. Kolom `notifikasi_logs.tipe` tetap menerima nilai `whatsapp`, tetapi sistem tidak lagi menghasilkannya.
-- **Diuji langsung lewat API — 13/13 lulus.** Surel dialihkan sementara ke `MAIL_MAILER=log` agar tautannya terbaca dari berkas log: permintaan tautan → 200 dengan token 64 karakter di dalam surel; token benar → 200; token diubah satu karakter → 422; surel tidak cocok dengan token → 422; permintaan tautan baru membatalkan tautan lama (lama → 422, baru → 200); sandi < 8 karakter → 422; sandi sah → 200; tautan dipakai ulang → 422; login dengan sandi baru → 200; rute lama `/verify-otp` → 404. Nilai `.env` dikembalikan dan kata sandi akun uji tetap seperti semula.
-- **Dokumen disesuaikan:** SKPL (FR SIKAS 213, antarmuka 12a & 12b, batasan WhatsApp, Lampiran B, kamus data), SKPL 3.5 · DPPL.md (paket autentikasi) · DPPL 2.2 (atribut token, forgotPassword, resetPassword, `otpKey` → empat fungsi, tanda tangan `kirimNotifikasiDonasi`) · DPPL 2.3 · `class-diagram.drawio` · arsip bahan 2.4 (ForgotPasswordView + ResetPasswordView) · TESTING (TC-AUT-13 s.d. 20 ditulis ulang, TC-AUT-19a baru, TC-REL-11, TC-NOT-01, tabel keterbatasan — **179 → 180 kasus**) · SKENARIO-TUGAS §3.4 · CONTEXT · PROGRESS · DEPLOY (blok `.env` + catatan surel).
+**Yang paling mendesak:** (1) **commit & deploy perbaikan `AdminController.php`** (§4.7) — sudah teruji lokal
+tapi belum sampai ke situs live; (2) memastikan surel reset kata sandi terkirim dari peladen (§5 butir lama 1);
+(3) eksekusi nyata `TESTING.md` dan `docs/PDHUPL.md` supaya Bab V laporan punya angka hasil sungguhan, bukan
+rencana uji kosong.
 
 ---
 
-## 4. Notifikasi — status terkini ⚠️ (penting)
-- **Email relawan-diterima: SUDAH ada** — `app/Mail/RelawanDiterima.php` + `resources/views/emails/relawan-diterima.blade.php`, dipicu di `RelawanController.updateStatus` saat status → `diterima`.
-  - Kini `MAIL_MAILER=log` → email **tertulis ke `storage/logs/laravel.log`** (sudah diuji lengkap). **Isi SMTP di `.env`** (Gmail App Password / Mailtrap) → restart server → terkirim asli.
-- **WhatsApp: DITIADAKAN (16 September 2026).** Seluruh pemberitahuan otomatis dikirim lewat surel, sehingga gateway WhatsApp tidak lagi diperlukan. Pencatatan `NotifikasiLog` berkanal `whatsapp` sudah dihapus dari kode.
-- **Donasi berhasil**: notifikasi baru dicatat; email/WA nyata belum dipasang (bisa mengikuti pola relawan).
+## 2. Cara menjalankan (dev, Windows + Laragon)
+
+```bash
+# 0. MySQL Laragon (porta 3307) — nyalakan lewat Laragon, atau:
+"C:/laragon/bin/mysql/mysql-8.0.30-winx64/bin/mysqld.exe" --defaults-file="C:/laragon/bin/mysql/mysql-8.0.30-winx64/my.ini"
+
+# 1. Backend
+cd tugas_akhir
+php artisan serve              # http://127.0.0.1:8000   (PHP: C:\laragon\bin\php\php-8.3.13-nts-Win32-vs16-x64)
+
+# 2. Frontend
+cd frontend_karinakas
+npm run dev                    # http://localhost:5173
+
+# Bila skema berubah / baru clone
+php artisan migrate            # JANGAN migrate:fresh
+php artisan storage:link
+```
+
+- Gejala **"semua data kosong / 500"** di lokal hampir selalu karena **MySQL mati**.
+- `php artisan serve` **memuat ulang otomatis bila `.env` berubah** — permintaan yang sedang berjalan bisa terputus.
+- Untuk menguji surel tanpa mengirim sungguhan: set sementara `MAIL_MAILER=log`, isi surel masuk `storage/logs/laravel.log`.
 
 ---
 
-## 5. Belum / opsional ⏳
+## 3. Riwayat pengerjaan (kronologis)
 
-**Temuan audit kode (22 Agustus) — sudah dikerjakan ✅ (lihat §3.12):**
-- [x] Panjang kata sandi disamakan **`min:8` di seluruh jalur** (registrasi, ganti, reset, tambah/reset akun oleh super admin) — sisi frontend ikut disesuaikan.
-- [x] **Pembatasan laju** aktif pada seluruh rute autentikasi. Sejak 16 September 2026 memakai pembatas **bernama** (`masuk` 5/menit, `lupa-sandi` 5/menit, `reset-sandi` 20/menit per IP) agar jatahnya tidak bercampur. Diuji: percobaan masuk ke-6 dibalas `429`.
-- [x] **Pemulihan kata sandi kini nyata** — backend sebelumnya hanya stub `TODO`; sekarang OTP 6 digit, sekali pakai, berlaku 10 menit.
-- [x] **`SESSION_DRIVER` diubah ke `file`** — sebelumnya `database` padahal tabel `sessions` tak pernah dimigrasikan.
-
-**Sudah dikerjakan ✅ (lihat §3.13 & §3.14):**
-- [x] **Formulir Kontak dihapus** — diganti kanal WhatsApp. Tidak ada lagi fitur UI yang menggantung.
-- [x] **Counter relawan konsisten** — listener `created` ditambahkan, data lama diperbaiki.
-
-**Butuh layanan eksternal / keputusan:**
-- [x] ~~WhatsApp nyata (pilih gateway + API key)~~ — **dibatalkan 16 September 2026**; pemberitahuan cukup lewat surel.
-- [ ] Aktifkan email nyata (isi SMTP; kode siap). Terapkan juga untuk donasi-berhasil bila mau.
-- [ ] Payment gateway otomatis (QRIS dinamis/VA, verifikasi otomatis) — sekarang QRIS **statis** & transfer, keduanya manual + upload bukti.
-- [x] ~~Simpan `public/qris-karinakas.png`~~ — **sudah ada** (267 KB, 8 Agustus 2026). Metode QRIS dapat diuji.
-
-**Menunggu tindakan penyusun (per 29 Agustus):**
-- [ ] **Timpa `public/karinakas-logo.png`** dengan berkas logo HD. Semua kode sudah menunjuk ke nama berkas itu, jadi begitu ditimpa, Navbar, Footer, IntroScreen, dan sidebar admin ikut berubah.
-- [ ] **Ekspor ulang PNG diagram** — `docs/skpl/use-case-diagram.png` (garis Admin–UC-16 sudah dihapus dari `.drawio`; elips UC-16 boleh dipindah ke area Super Admin saat mengekspor) dan Gambar 2.5 dari `docs/dppl/class-diagram.drawio` (kotak DonasiController bertambah dua fungsi privat).
-- [ ] **Konfirmasi QRIS** — data rekening baru sudah diterapkan ke bagian transfer bank. Bila gambar QRIS juga sudah diganti ke Mandiri, NMID pada konstanta `QRIS` di `Donasi.jsx` perlu diperbarui.
-- [x] ~~**Ikon hati pada Login, Register, dan ForgotPassword**~~ — **sudah diganti logo Karinakas** (14 September, §3.19).
-
-**Temuan kode yang belum diputuskan:**
-- [ ] **Empat titik akhir `/admin/rekapan/*` tidak pernah dipanggil klien.** Tiga terimplementasi, satu (`exportRekapan`) hanya kerangka yang membalas `download_url: null`. Ekspor yang berjalan seluruhnya di sisi klien. Bila dihapus, jumlah titik akhir berubah **65 → 61** dan harus disesuaikan di SKPL 3.1.4 serta DPPL 1.2.2.
-- [x] ~~**Lima berkas PHP tidak PSR-4**~~ — **sudah diperbaiki 31 Agustus** (lihat §3.18). Risikonya sempat terwujud: galat 500 di hosting Linux.
-- [x] ~~**Ekspor rekapitulasi terbatas 100 baris**~~ — **sudah diperbaiki** (14 September, §3.19). Batas sebenarnya ternyata **20 baris** untuk donasi karena `DonasiController::index` mengabaikan `per_page`.
-- [ ] **Validasi `nama_lengkap` melebihi lebar kolom** — `AdminController::storeUser` dan `updateUser` memakai `max:150`, padahal `users.nama_lengkap` berupa `varchar(100)`. Nama 101–150 aksara lolos validasi lalu ditolak basis data saat super admin menambah akun. `AuthController` sudah benar `max:100`. Perbaikannya cukup menyamakan angka.
-- [x] ~~**Kunci donasi tidak konsisten**~~ — **diputuskan Opsi A dan sudah dikerjakan** (14 September, §3.20).
-- [ ] **`SectionNotifikasi.saveTpl`**
-- [ ] **Satu berkas yatim** di `storage/app/public/galeri/` — `hib1InD6Po2D9BQeRtyehzuqlqGfDpEtH0PEKfZK.jpg`, sisa unggahan gagal, aman dihapus.
-- [ ] **Kode `FR SIKAS 101`–`608`** masih berawalan SIKAS, sedangkan nama produk pada DPPL sudah **Website Karinakas**. Dibiarkan sebagai kode penomoran, atau diganti serentak di SKPL, TESTING.md, dan naskah use case.
-- [ ] **`TESTING.md` belum memuat kasus uji penyaring baru** — perkiraan 6–8 kasus (saring per kegiatan, per bulan, gabungan, reset, ekspor mengikuti penyaring).
-
-**Kosmetik & produksi:**
-- [ ] Template notifikasi admin masih konfigurasi lokal.
-- [x] ~~Filter "Jenis" di admin Relawan belum ikut opsi kustom~~ — **sudah beres**. Pilihan jenis kini diambil dari data yang ada, jadi jenis khusus per kegiatan ikut muncul. Sekalian ditambah penyaring **kegiatan** dan **rentang tanggal** di admin Donasi dan Relawan, plus tombol Reset dan penghitung "x dari y data".
-- [ ] Keamanan produksi: batasi CORS, `APP_DEBUG=false`, ganti password default, HTTPS (DEPLOY.md).
-
-**Konsistensi dokumen skripsi:**
-- [ ] UC-15 pada diagram use case masih terhubung ke Admin saja; Super Admin juga berwenang (grup rute `role:admin,super_admin`).
-- [ ] Judul batas sistem pada diagram use case masih "WEBSITE KARINAKAS", sedangkan naskah SKPL memakai "SIKAS".
+| # | Tanggal | Pekerjaan |
+|---|---|---|
+| 1 | Mei–Jun | UI frontend awal memakai `localStorage`; backend Laravel belum bisa jalan |
+| 2 | Jun | **Backend diperbaiki total** (Sanctum, rute, model, CORS, middleware `role`, `Gate::before`, migrasi, seeder) |
+| 3 | Jun–Jul | **Integrasi frontend → API** modul demi modul lewat `api.js`, `resources.js`, `useResource` |
+| 4 | Jul–Agu | Fitur: donasi + bukti, donasi wajib kegiatan, galeri album + lightbox + unggah massal, opsi relawan per kegiatan, surel relawan diterima, intro screen, tampilan ramah lansia |
+| 5 | Agu | **QRIS statis** + transfer bank; ekspor rekap **Excel** (`utils/excel.js`) |
+| 6 | Agu | `TESTING.md`, naskah **SKPL** Bab I–III |
+| 7 | 22–23 Agu | Audit kode: `min:8` semua jalur, pembatasan laju, pemulihan sandi nyata (versi OTP), `SESSION_DRIVER=file`, **formulir Kontak dihapus** (diganti WhatsApp), perbaikan counter relawan |
+| 8 | 25–26 Agu | Naskah **DPPL** Bab 1, 2.1, 2.2, 2.3 + `class-diagram.drawio`, `pdm-diagram.drawio` |
+| 9 | 28 Agu | `SKENARIO-TUGAS.md` (uji kebergunaan + SUS) |
+| 10 | 29 Agu | Penyaring kegiatan & tanggal di admin; data kontak & rekening resmi yayasan |
+| 11 | 30 Agu | Verifikasi DPPL 2.3 langsung ke MySQL (116 medan cocok) |
+| 12 | 31 Agu | **Hosting pertama:** 5 berkas PHP tak PSR-4 → 500 di Linux (diganti nama); `VITE_API_URL` kurang `/v1` → 404 |
+| 13 | 1 Sep | **Black-box testing lewat API (~80 pemeriksaan)** — temuan di §4.1; DPPL 2.3.2 dipecah jadi berkas sendiri |
+| 14 | 14 Sep | Revisi pascahosting: penyaring **bulan**, muat semua halaman, logo & favicon, Linktree, **alamat & peta Sleman**; **Opsi A kunci donasi** |
+| 15 | 15 Sep | Audit dokumen fitur audit log / manajemen pengguna / ekspor terhadap laporan TA, SKPL, DPPL |
+| 16 | 16 Sep | **Reset sandi via tautan** (OTP dihapus), petunjuk akun admin dihapus dari Login, **WhatsApp otomatis ditiadakan**, pembatas laju bernama, `.htaccess` SPA |
+| 17 | 16–17 Sep | Surel: Resend → **SMTP kotak surel hosting** `noreply@karinakas.com`; verifikasi situs live |
+| 18 | 19 Sep | **Perbaikan celah manajemen pengguna**: `AdminController::users()` dan `deleteUser()` diberi `isSuperAdmin()`, diuji API+MySQL (§4.7) — **belum di-commit** |
+| 19 | 19–20 Sep | **Sinkronisasi SKPL/DPPL menyeluruh** terhadap kode nyata: hapus klaim Blade PHP & ekspor PDF, betulkan 65→66 titik akhir, tambah **UC-24 Memulihkan Kata Sandi** (diagram + spesifikasi + `use-case-diagram.drawio`), persempit NFR 3.4.4.8 agar sesuai FR 516, perbaiki 5 kelas hilang di ringkasan diagram kelas DPPL (§4.8) |
+| 20 | 21–25 Sep | **Draf Bab IV laporan TA lengkap** — 5 *user persona* dari 27 data kuesioner nyata, *pain points*, kebutuhan fungsional/nonfungsional diperbaiki, arsitektur & desain visual dikoreksi, evaluasi mockup *high-fidelity* (masukan warna & ukuran huruf dari Karinakas), kode fungsi utama — ditulis di `docs/laporan/4.3-4.4-Perancangan-Implementasi-Pengujian.md` (§4.9) |
+| 21 | 26 Sep | **PDHUPL disusun** (`docs/PDHUPL.md`) — 67 kasus uji kotak hitam asli disinkronkan ke kode nyata (peran Super Admin pada Donasi/Pengguna, nilai enum status), 6 kasus baru ditambahkan (reset sandi, audit, notifikasi); **skor SUS nyata dihitung dari 40 responden: 72,56** (§4.10) |
+| 22 | 26 Sep | **Format PDHUPL disamakan** dengan contoh PDHUPL teman penyusun (SIGO Dental) — Bab 3.1 diberi kolom Tingkat/Jenis Pengujian, Bab 4 dipecah satu subbab per butir uji, Bab 5 diberi kolom Kriteria Evaluasi Hasil + prosedur berlangkah; catatan kerja dipisah ke `docs/PDHUPL-CATATAN.md` |
+| 23 | 28 Sep | **Bab 5 PDHUPL diisi via penelusuran kode** (bukan eksekusi langsung) — 85→**88 butir** setelah menambah 3 butir negatif yang kelewatan (AD-28N, AD-30N, AD-32N); ditemukan **UT-03 Tidak Handal** (validasi 16 digit KTP tak ditegakkan); lokasi tempel *screenshot* kuesioner + cara ekspor data mentah SUS ditambahkan ke Bab 6 (§4.11) |
+| 24 | 28 Sep | **PDHUPL dicocokkan dengan SKPL Word `Aaron (2).pdf`** (memuat FR 213/UC-24): awalan kode **FR SIKAS → FR Karinakas**; SR-12 → FR 202, PU-04 → FR 106, PU-07 +FR 111, AD-09 +FR 406, AD-33/35 +FR 513; AD-33/AD-35 diperbaiki (tombol ekspor rekap **hanya super admin**). **Temuan utama:** FR 509/511 dan UC-16 pada SKPL Word masih menyebut admin ikut memverifikasi/menghapus donasi, bertentangan dengan kode Opsi A dan butir AD-14N/15N — SKPL Word perlu diperbarui. Rincian, asal kode SR/AD/UT, dan status backend `9582191` ada di `docs/PDHUPL-STATUS-DAN-KODE.md`. Berkas `.md` SKPL/DPPL belum disinkronkan awalannya |
+| 25 | 29 Sep | **Kesalahan pada PDHUPL Word ("PDHUPL FX.pdf") ditemukan dan dicek balik ke `docs/PDHUPL.md`:** Bab 4.6 pada Word itu kurang 3 subbab (AD-28N, AD-30N, AD-32N) dan salah tulis "12 butir uji" (seharusnya 15) — **`docs/PDHUPL.md` sudah benar**, jadi Word itu ternyata ekspor lama, bukan `.md` yang salah. Ditemukan pula typo "epran" → "peran" di Word (tidak ada di `.md`). **Bab 4 laporan TA dikonsolidasi** jadi `docs/laporan/BAB-IV-LENGKAP.md`: 5 rujukan "FR SIKAS" tersisa diganti "FR Karinakas" (di dua berkas draf lama sekaligus), gaya "naskah sebelumnya keliru..." ditulis ulang jadi prosa langsung tanpa mengubah fakta, dan jumlah antarmuka diputuskan **24** (rekomendasi lama, belum pernah dieksekusi) |
+| 26 | 29–30 Sep | **`docs/PDHUPL.md` Bab 6 dilengkapi data mentah SUS.** Data jawaban P1–P10 milik 40 responden (yang sebelumnya diminta diekspor manual via CSV) ternyata sudah tersedia — sempat tersalin ke PDHUPL Word ("PDHUPL FX.pdf") tapi belum pernah dibawa balik ke `docs/PDHUPL.md`. Ditambahkan Bab 6.2 (10 pernyataan SUS), 6.3 (jawaban mentah per responden, dua tabel), 6.4 (rekapitulasi per pernyataan — distribusi 1–5, rata-rata, kontribusi); Bab 6.2–6.4 lama diberi nomor baru 6.5–6.7. Seluruh angka dicocokkan ulang terhadap skor akhir di 6.5/6.6 sebelum ditulis (tidak ada beda). Dikonfirmasi ke penyusun: `docs/PDHUPL.md` **tidak** punya bagian "Daftar Revisi" (beda dari templat Word resmi) — kerangkanya ditawarkan tapi belum ditambahkan, menunggu keputusan |
+| 27 | 30 Sep | **Perbaikan validasi nomor KTP relawan (menutup UT-03).** `RelawanController::store` diubah dari `nomor_ktp` => `nullable\|string\|max:20` menjadi `required\|digits:16`; `DaftarRelawan.jsx` diberi `required`, `minLength`/`maxLength={16}`, `pattern="\d{16}"`, dan pemeriksaan panjang sisi klien sebelum kirim. Kolom `nomor_ktp` di tabel `relawan` **tetap nullable** (tidak ada migrasi) supaya baris lama tak terdampak — hanya pendaftaran baru yang kini wajib 16 digit. `docs/PDHUPL.md` (UT-03), `docs/PDHUPL-CATATAN.md`, `docs/PDHUPL-STATUS-DAN-KODE.md` diperbarui dari Tidak Handal menjadi Handal. **Belum di-commit/deploy.** |
 
 ---
 
-## 6. Perubahan skema DB yang sudah dijalankan
-`php artisan migrate` membuat semuanya. Yang notable: `personal_access_tokens` (uuidMorphs); `bukti_transfer` di donasi; tabel `audit_logs` & `notifikasi_logs`; `nama_foto` di galeri; `jenis_relawan`+`bidang_minat` (JSON) di kegiatan + `relawan.jenis` enum→string. (Daftar lengkap di CONTEXT.md §8.)
+## 4. Keputusan & perubahan penting (perlu diketahui sebelum menyentuh kode)
 
-**Hasil audit sinkronisasi 23 Agustus** — dijalankan langsung ke MySQL, bukan asumsi:
-- Seluruh **14 migrasi** berstatus `Ran`; tidak ada migrasi tertunda.
-- `$fillable` & `$casts` **kedelapan model cocok penuh** dengan kolom nyata — tidak ada kolom yatim maupun fillable tanpa kolom.
-- Enum DB **cocok** dengan konstanta frontend: `KATEGORI_KEGIATAN` (5), `GALERI_KATEGORI` (6), `BERITA_KATEGORI` (7).
-- **Tidak ada berkas hilang**: 468 foto galeri & 5 bukti transfer semuanya ada di `storage/`. Satu berkas yatim di `storage/app/public/galeri/` (`hib1InD6Po2D9BQeRtyehzuqlqGfDpEtH0PEKfZK.jpg`) — sisa unggahan gagal, aman dihapus.
-- `public/storage` (junction Windows) **sudah terpasang** dan mengarah benar.
+### 4.1 Hasil black-box testing 1 September
+**Terbukti handal:** penyamaran nominal donasi, invarian counter relawan (0→0→1→0), 6 aturan validasi donasi,
+opsi relawan per kegiatan, proteksi 401, pembatasan laju, CRUD kegiatan & berita, jejak audit & notifikasi, logout
+mencabut token. **Temuan yang masih terbuka** tercantum di §5.
+
+### 4.2 Kunci data keuangan donasi — Opsi A (14 Sep)
+- **Keputusan penyusun:** verifikasi donasi **khusus super admin** (bendahara). Alasan: memverifikasi berarti
+  mencocokkan bukti dengan mutasi rekening, dan pemegang rekening pasti melihat nominal.
+- Sebelum perbaikan ditemukan 4 kebocoran, termasuk `/admin/donasi/search` yang tidak menyamarkan apa pun dan
+  `PUT /admin/donasi/{id}` tanpa cek peran di server.
+- Kode: `DonasiController::sembunyikanKeuangan()` + `wajibSuperAdmin()`; `SectionDonasi.jsx` menyembunyikan
+  aksi keuangan dari admin. **Diuji 18/18 lulus.**
+- Dokumen yang ikut diubah: SKPL (F-15, F-19, FR 508–513, AK-03/04, UC-16, NFR 3.4.4.4, Lampiran B), diagram use
+  case, DPPL (definisi peran, DonasiController), TESTING (TC-ADN-10–12), SKENARIO (B4 jadi tugas super admin).
+
+### 4.3 Revisi pascahosting (14 Sep)
+- Dua kotak tanggal di admin (sebenarnya satu rentang) → **satu pilihan Bulan**; pengelompokan memakai jam lokal.
+- `DonasiController::index` dulu mengabaikan `per_page` sehingga daftar & ekspor **diam-diam berhenti di 20 baris**
+  → klien kini `ambilSemuaHalaman()`, server menerima `per_page` 1–100.
+- Logo hati → logo Karinakas (Login/Register/Forgot); favicon bawaan Vite diganti; ikon Linktree jadi SVG.
+- Alamat Footer & Kontak salah (Semarang / "Jl. Panuluh") → dipusatkan di `src/data/lembaga.js`.
+
+### 4.4 Pemulihan kata sandi berbasis tautan (16 Sep)
+- **Tidak ada lagi OTP maupun WhatsApp.** Pengguna mengisi email → menerima tautan → mengeklik → mengisi sandi baru.
+- BE: `forgotPassword`, `checkResetToken`, `resetPassword` + privat `kunciToken`, `kunciTokenPengguna`,
+  `ambilDataTautan`; `app/Mail/TautanResetSandi.php`; `config('app.frontend_url')`. Berkas `KodeOtpReset` dihapus.
+- FE: `ForgotPassword.jsx` (satu langkah) + halaman baru `ResetPassword.jsx` di rute `/reset-password`.
+- **Diuji 13/13 lulus** (token benar/palsu, surel tak cocok, tautan lama dibatalkan, sekali pakai, sandi < 8, login).
+- **Temuan saat pengujian:** `throttle:5,1` polos berbagi jatah antar semua rute autentikasi, sehingga memuat ulang
+  halaman reset bisa memblokir login → diganti pembatas bernama `masuk`, `lupa-sandi`, `reset-sandi`.
+- Dokumen: SKPL FR 213, antarmuka 12a/12b, NFR 3.4.4.5; DPPL 2.2 (72 → **75** tabel fungsi); TESTING (**181** kasus).
+
+### 4.5 Pemberitahuan khusus surel (16 Sep)
+- Pencatatan `NotifikasiLog` berkanal `whatsapp`, fungsi `kirimWhatsApp()`, dan parameter `$channel` dihapus.
+- Tombol WhatsApp di **Footer dan Kontak tetap ada** — itu kanal tanya-jawab pengunjung, bukan notifikasi otomatis.
+
+### 4.6 Perjalanan konfigurasi surel (16–17 Sep)
+1. Semula **Resend** dengan pengirim `onboarding@resend.dev` → hanya bisa mengirim ke **pemilik akun Resend**,
+   sehingga pengguna lain tidak pernah menerima surel. Inilah penyebab reset gagal di situs live.
+2. Penyusun memberi kotak surel **`noreply@karinakas.com`**. DNS menunjukkan kotak surel **hosting (cPanel)**,
+   bukan Gmail → tidak perlu App Password.
+3. Diuji dari luar: porta **587 + `smtp`** dan **465 + `smtps`** sama-sama lolos autentikasi; Laravel lokal berhasil
+   mengirim; kata sandi terbaca utuh 16 karakter.
+4. Situs live diverifikasi memakai backend & frontend terbaru (`/reset-password/check` → 422, `/verify-otp` → 404).
+5. **Penyusun melaporkan reset masih gagal dari situs live.** Saran terakhir: pakai **465 + `MAIL_SCHEME=smtps`**
+   (hosting bersama sering memblokir 587), pastikan `MAIL_PASSWORD` dikutip, tidak ada baris `MAIL_*` ganda,
+   `FRONTEND_URL=https://karinakas.com`, lalu `php artisan config:clear`. **Belum ada kabar hasilnya.**
+
+### 4.7 Perbaikan celah manajemen pengguna (19 Sep)
+- **Akar masalah:** `AdminController::users()` dan `deleteUser()` memakai `$this->authorize()` bawaan Laravel,
+  yang selalu lolos untuk admin **dan** super admin karena `Gate::before`. Admin biasa bisa membaca seluruh
+  daftar akun dan menghapus akun pengguna — padahal `donasi.user_id` memakai `ON DELETE CASCADE`, sehingga
+  menghapus akun ikut melenyapkan riwayat donasi milik akun itu.
+- **Perbaikan:** kedua fungsi kini memakai pemeriksaan manual `isSuperAdmin()`, pola yang sama dengan
+  `storeUser`/`updateUser`/`resetUserPassword` yang sejak awal sudah aman. `deleteUser` diberi parameter
+  `Request $request` agar bisa memanggil `$request->user()`.
+- **Diuji nyata 19–20 Sep** lewat API sungguhan: admin menerima 403 pada `GET /admin/users` dan
+  `DELETE /admin/users/{id}`; keberadaan baris di basis data diverifikasi langsung (bukan lewat percobaan
+  login, yang sempat memberi hasil menyesatkan karena kena pembatas laju `masuk`). Super admin tetap berhasil.
+- **Status:** perbaikan ini **hanya ada di berkas lokal**, belum di-commit maupun di-deploy. DPPL Subbab 2.2.2
+  (`users()`, `deleteUser()`) dan `docs/dppl/CHECKLIST.md` sudah diperbarui mengikuti kode yang benar.
+
+### 4.8 Sinkronisasi SKPL/DPPL terhadap kode nyata (19–20 Sep)
+Pemeriksaan menyeluruh menemukan naskah SKPL/DPPL (baik `docs/skpl/`, `docs/dppl/`, maupun `SKPL.md`/`DPPL.md`)
+berbeda dari kode yang sesungguhnya berjalan pada beberapa hal:
+- **§2.3.2 DPPL salah menyebut "Hybrid REST API dan Blade PHP"** — kenyataannya Blade hanya dipakai untuk dua
+  templat email, seluruh halaman publik murni React SPA. Diperbaiki, disamakan dengan §4.4.2 yang sudah benar.
+- **Klaim ekspor "PDF dan Excel"** — sistem hanya menghasilkan **Excel** (`.xls`), dibentuk sisi klien. Ekspor
+  sisi server (`exportRekapan`) tidak pernah selesai, `download_url` selalu kosong.
+- **Jumlah titik akhir 65 → dikoreksi jadi 66** (64 fungsional + 2 *webhook*), dihitung ulang langsung dari
+  `routes/api.php`.
+- **UC-24 Memulihkan Kata Sandi ditambahkan** — sebelumnya FR SIKAS 213 (pemulihan kata sandi) tidak punya
+  padanan *use case* sama sekali. Ditambahkan ke `use-case-diagram.drawio` (simpul, asosiasi aktor, relasi
+  «include» ke UC-22) dan ke tabel penelusuran SKPL 3.3.4. Total use case: 23 → **24**.
+  Total FR tetap 71.
+- **NFR 3.4.4.8 dipersempit** agar sesuai cakupan FR SIKAS 516 yang sejak awal memang hanya menuntut pencatatan
+  pada tindakan transaksional dan akun — bukan seluruh tindakan pengelola. Ini menutup kesenjangan lama (11
+  fungsi kegiatan/berita/galeri tidak tercatat jejak auditnya) **lewat dokumen**, bukan menambah kode.
+- **CORS diperbaiki** — SKPL sebelumnya menyatakan *frontend*/*backend* selalu lintas asal; kenyataannya di
+  produksi keduanya satu domain (`karinakas.com`), sehingga CORS hanya relevan di lingkungan pengembangan.
+- **Diagram kelas DPPL kehilangan 5 kelas** (`BeritaDetailView`, `TentangKamiView`, `KontakView`,
+  `SectionBeritaView`, `SectionNotifikasiView`) pada ringkasan Mermaid — sudah ditambahkan beserta garis
+  penghubungnya. Ditambahkan pula catatan bahwa `ForgotPasswordView` mewakili dua berkas halaman
+  (`ForgotPassword.jsx` + `ResetPassword.jsx`) sebagai satu kelas.
+
+### 4.9 Draf Bab IV Laporan TA (21–25 Sep)
+Seluruh subbab yang diminta dosen pembimbing untuk Bab 4.3 (Perancangan Sistem) dan 4.4 (Implementasi dan
+Pengujian) sudah ditulis lengkap dalam bentuk narasi (bukan poin-poin) di
+**`docs/laporan/4.3-4.4-Perancangan-Implementasi-Pengujian.md`**, meliputi:
+- **5 *user persona*** (Dina, Bimo, Pak Herman, Wulan, Reno) disusun dari klaster nyata pada 27 data kuesioner
+  analisis kebutuhan (bukan kuesioner SUS pada §4.10 — dua instrumen berbeda), dengan kerangka atribut yang
+  seragam (Demografi, Perilaku Digital, Tujuan, *Pain Points*, Kebutuhan, Kutipan, Relevansi Rancangan).
+- Kebutuhan fungsional/nonfungsional yang diperbaiki (gabung "lupa/reset sandi" jadi satu alur, hapus klaim
+  PDF, tambah kunci keuangan donasi & jejak audit yang sebelumnya tak disebut).
+- Evaluasi mockup *high-fidelity*: pihak Karinakas meminta warna diredupkan dan huruf diperbesar. Diverifikasi
+  ke kode — huruf **sudah** 18,5px, merah **sudah** diredupkan (`#C0392B`), tetapi **kuning aksen `#FFD700`
+  belum ditindaklanjuti** (lihat §5 butir baru).
+- Evaluasi *low-fidelity* **masih kosong** — menunggu catatan tinjauan wireframe yang sesungguhnya dari
+  penyusun, sengaja tidak diisi konten karangan.
+
+### 4.10 PDHUPL & hasil SUS nyata (26 Sep)
+- **`docs/PDHUPL.md`** dibuat mengikuti kerangka resmi (Bab 1–5) + Bab 6 SUS, menyinkronkan 67 kasus uji kotak
+  hitam asli penyusun (`TC_Blackbox_Testing_Karinakas.pdf`) ke kode nyata. Temuan penting: kasus **AD-14/15
+  (ubah/hapus donasi)** dan **AD-27…32 (kelola pengguna)** pada berkas asli mensyaratkan "Login sebagai Admin",
+  padahal keduanya **khusus Super Admin** sejak Opsi A dan perbaikan §4.7 — diperbaiki, ditambah kasus negatif
+  (AD-14N, AD-15N, AD-29N, AD-31N) yang menguji admin **ditolak**. Nilai enum status juga diperbaiki
+  (`pending/berhasil/gagal` untuk donasi, `pending/diterima/ditolak` untuk relawan — bukan istilah bebas di
+  berkas asli). Ditambahkan 6 kasus uji baru untuk fitur yang sama sekali belum tercakup: pemulihan kata sandi
+  (RP-01…03), jejak audit (AL-01/02), riwayat notifikasi (NL-01).
+- **Kolom hasil pada PDHUPL sengaja dikosongkan (🔲)** — berkas asli penyusun juga belum berisi hasil apa pun,
+  jadi ini rencana uji yang belum dieksekusi, bukan hasil yang sudah jadi.
+- **Skor SUS dihitung nyata dari 40 responden** (kuesioner `Kuesioner Pengujian Fungsionalitas dan Usability
+  Website Karinakas`, disebar 3–26 Sep 2026) — **bukan** kuesioner 27-responden di §4.9. Hasil: Pengunjung
+  Umum (n=29) 71,38 · Admin & Super Admin (n=11) 75,68 · **gabungan 72,56** — di atas ambang 68, kategori
+  "Baik"/*Acceptable*. Satu responden menjawab "Sangat Setuju" ke seluruh 10 butir (termasuk yang negatif),
+  pola *straight-lining* yang justru menurunkan skornya jadi 50 — dicatat sebagai catatan analisis jujur,
+  bukan disembunyikan.
+
+### 4.11 Bab 5 PDHUPL diisi via penelusuran kode & simetri butir negatif diperbaiki (26–28 Sep)
+- Atas permintaan penyusun, kolom "Hasil yang Didapat"/"Kesimpulan" Bab 5 (yang sebelumnya sengaja dikosongkan,
+  lihat §4.10) kini diisi lewat **penelusuran kode statis** — membaca langsung `app/Http/Controllers/*.php` dan
+  berkas React terkait, mencocokkan pesan/kode HTTP/perilaku terhadap "Keluaran yang Diharapkan" tiap butir.
+  **Ini bukan eksekusi dinamis ke `karinakas.com`** — perbedaan metode ini dicatat di awal Bab 5 pada
+  `docs/PDHUPL.md` dan di `docs/PDHUPL-CATATAN.md`, supaya jelas ke dosen pembimbing bila ditanya.
+- **Temuan: UT-03 (validasi 16 digit KTP) = Tidak Handal.** `DaftarRelawan.jsx` hanya membatasi
+  `maxLength={16}` (batas maksimum, bukan mewajibkan tepat 16 digit) dan `RelawanController::store` memvalidasi
+  `nomor_ktp` sebagai `nullable|string|max:20` tanpa aturan panjang sama sekali — nomor KTP kurang dari 16 digit
+  tetap dapat dikirim dan tersimpan. Ini bukan salah tulis dokumen, memang begitu perilaku kodenya (konsisten
+  dengan temuan lama §5 butir 14 di bawah).
+- **Simetri butir negatif diperbaiki.** Ternyata AD-27/28 (tambah pengguna), AD-30 (ubah data pengguna), dan
+  AD-32 (reset kata sandi) sama-sama dibatasi `isSuperAdmin()` di kode seperti AD-29/AD-31, tapi kelewatan
+  tidak diberi pasangan butir "(negatif)" saat PDHUPL pertama kali disusun (§4.10) — murni salinan cakupan dari
+  `TC_Blackbox_Testing_Karinakas.pdf` yang memang hanya mengoreksi AD-14/15 dan AD-29/31. Ditambahkan **AD-28N,
+  AD-30N, AD-32N**; total butir uji naik dari 85 menjadi **88**.
+- **Bab 6 SUS dilengkapi lokasi tempel *screenshot* kuesioner** dan cara mengekspor data mentah Google Form
+  (Responses → Download .csv) untuk melengkapi tabel jawaban per butir (P1–P10) — data mentah itu tidak ada
+  di folder proyek, hanya skor akhir yang tersimpan.
+- **Pesan validasi berbahasa Inggris ditemukan** pada SR-12 (email duplikat), RP-04 (email tidak terdaftar),
+  dan AD-37 (tanggal kegiatan) — ketiganya memakai pesan bawaan Laravel (`unique`, `exists`, `after_or_equal`),
+  bukan pesan Indonesia kustom seperti tempat lain di kode. Belum diperbaiki, dicatat sebagai temuan.
+- Rincian lengkap ada di `docs/PDHUPL-CATATAN.md` (bagian "Bab 5 kini sudah terisi").
+
+### 4.12 Verifikasi silang PDHUPL Word, konsolidasi Bab IV, dan pelengkapan Bab 6 SUS (29–30 Sep)
+- **PDHUPL Word ("PDHUPL FX.pdf") diverifikasi terhadap `docs/PDHUPL.md`.** Ditemukan dua kekeliruan pada Word
+  itu: Bab 4.6 kurang 3 subbab (AD-28N, AD-30N, AD-32N — padahal ketiganya sudah ada di Bab 3.1 dan Bab 5 versi
+  Word yang sama) dan salah tulis "meliputi 12 butir uji" (seharusnya 15, konsisten dengan total 88). Setelah
+  dicek balik, **`docs/PDHUPL.md` sudah benar di kedua titik itu** — Word yang diserahkan penyusun ternyata
+  ekspor lama, dari sebelum ketiga subbab ditambahkan (§4.11). Kesimpulannya: ekspor ulang `docs/PDHUPL.md` ke
+  Word, jangan pakai salinan Word yang lama. Ditemukan pula salah ketik "epran" → "peran" pada Word (tidak ada
+  di `.md`).
+- **Bab IV laporan TA dikonsolidasi** menjadi `docs/laporan/BAB-IV-LENGKAP.md`, siap tempel ke Word:
+  - 5 rujukan **"FR SIKAS"** yang tersisa di draf lama (`docs/laporan/4.3-4.4-...md` dan
+    `4.3-Prototipe-dan-Evaluasi-Desain.md`) diganti **"FR Karinakas"** — persona Bimo (FR 512), persona Wulan
+    (FR 102), *pain points* dan bagian prototipe (FR 104/109–110).
+  - **Gaya "catatan revisi"** yang tersebar di banyak subbab (kalimat pola "naskah sebelumnya menyebutkan X,
+    ini tidak sesuai kode, berikut yang benar") ditulis ulang jadi prosa akademik langsung, tanpa mengubah
+    fakta apa pun di dalamnya — kalimat semacam itu membocorkan riwayat draf ke pembaca skripsi dan janggal
+    untuk naskah akhir.
+  - Penomoran subbab disamakan dengan Word (4.1 Pengantar … 4.6 Evaluasi Sistem), mengikuti struktur yang
+    sudah dipakai penyusun, bukan penomoran datar 4.3.x/4.4.x pada draf lama.
+  - **Jumlah antarmuka diputuskan 24** (11 publik, 5 pengguna terdaftar, 8 admin) — rekomendasi lama (§5 butir
+    15 versi sebelumnya) yang belum pernah benar-benar dijalankan, sekarang dipakai langsung di naskah. **SKPL
+    dan DPPL belum ikut disamakan ke angka ini.**
+- **`docs/PDHUPL.md` Bab 6 (SUS) dilengkapi data mentah.** Sebelumnya Bab 6 hanya memuat skor SUS akhir per
+  responden dan meminta penyusun mengekspor CSV dari Google Form untuk data mentah P1–P10. Data itu ternyata
+  **sudah ada** — sempat masuk ke PDHUPL Word ("PDHUPL FX.pdf") tapi tidak pernah dibawa balik ke `docs/PDHUPL.md`.
+  Ditambahkan: **6.2** 10 pernyataan SUS baku, **6.3** jawaban mentah 40 responden (dua tabel, Pengunjung Umum &
+  Admin/Super Admin), **6.4** rekapitulasi per pernyataan (distribusi skor 1–5, rata-rata jawaban, rata-rata
+  kontribusi). Subbab lama 6.2–6.4 (Hasil SUS per kelompok, Rekapitulasi) diberi nomor baru **6.5–6.7**. Seluruh
+  angka mentah dicocokkan ulang terhadap skor akhir yang sudah ada sebelum ditulis (tidak ada selisih).
+- **Dikonfirmasi:** `docs/PDHUPL.md` **tidak** memiliki bagian "Daftar Revisi" (tabel Revisi A–F + Ditulis/
+  Diperiksa/Disetujui oleh), berbeda dari templat Word resmi kampus yang punya halaman itu (kosong di templat).
+  Wajar karena PDHUPL belum pernah direview dosen pembimbing — kerangkanya ditawarkan ke penyusun tapi **belum**
+  ditambahkan, menunggu keputusan.
+
+### 4.13 Perbaikan validasi nomor KTP relawan (30 Sep)
+- **Akar masalah (temuan §4.11, UT-03):** `RelawanController::store` memvalidasi `nomor_ktp` sebagai
+  `nullable|string|max:20` (tanpa aturan panjang), dan `DaftarRelawan.jsx` hanya membatasi `maxLength={16}`
+  (batas maksimum, bukan mewajibkan tepat 16 digit) — nomor KTP kosong atau kurang dari 16 digit tetap bisa
+  dikirim dan tersimpan, bertentangan dengan label formulir yang menjanjikan "16 digit".
+- **Perbaikan backend:** `nomor_ktp` diubah jadi `required|digits:16` — menolak kosong, bukan-angka, atau
+  bukan tepat 16 digit dengan HTTP 422.
+- **Perbaikan frontend:** input diberi atribut `required`, `minLength={16}`, `maxLength={16}`,
+  `pattern="\d{16}"`, serta pemeriksaan `form.ktp.length !== 16` sebelum mengirim (pesan Indonesia
+  "Nomor KTP harus diisi tepat 16 digit."), dan pembersihan input dipotong ke 16 karakter di `onChange`.
+  Label diubah dari "(opsional, 16 digit)" menjadi wajib bertanda `*`.
+- **Keputusan skema:** kolom `nomor_ktp` di tabel `relawan` **tetap `nullable`** — tidak ada migrasi basis
+  data. Ini murni perbaikan validasi aplikasi; baris lama yang sudah terlanjur kosong/tidak lengkap tidak
+  disentuh, hanya pendaftaran baru yang wajib mengikuti aturan ini.
+- **Status:** perbaikan ini **hanya ada di berkas lokal**, belum di-commit maupun di-deploy — sama seperti
+  perbaikan §4.7, tinggal dikirim ke `karinakas.com`. Belum diuji lewat panggilan API sungguhan (baru
+  ditelusuri kodenya); disarankan uji manual sebelum atau sesudah deploy: kirim `nomor_ktp` kosong dan
+  15-digit lewat `POST /relawan`, harus 422.
+- **Dokumen yang ikut diperbarui:** `docs/PDHUPL.md` (UT-03: Tidak Handal → Handal), `docs/PDHUPL-CATATAN.md`,
+  `docs/PDHUPL-STATUS-DAN-KODE.md` (ringkasan Bab 5 dan tabel tindakan).
 
 ---
 
-## 7. Gotcha (hal yang mudah bikin bingung)
-- **Foto galeri kosong di publik tapi admin aman** → dulu bug reveal-animation + fetch 100. Sudah diperbaiki (fetch semua halaman, tanpa reveal). Bila masih blank: cek `VITE_API_URL`, `storage:link`, hard refresh.
-- **Upload > 20 foto terpotong** → limit PHP `max_file_uploads` (default 20). Diatasi **auto-batch 20/request** (frontend). php.ini dev sudah dinaikkan ke 100.
-- **`VITE_API_URL` wajib berakhiran `/api/v1`** — rute Laravel = prefix `/api` (bootstrap) + grup `v1` (routes/api.php). Akhiran itu juga dipakai `resources.js` untuk membentuk alamat `/storage`, jadi nilai yang salah membuat **API 404 sekaligus foto tidak tampil**. Satu domain: `/api/v1`. Domain terpisah: `https://api-anda.com/api/v1`.
-- **Ganti `VITE_API_URL` harus `npm run build` ulang** (dibakar saat build) — mengubahnya di peladen tidak berpengaruh sama sekali.
-- **Nama berkas PHP wajib sama persis dengan nama kelasnya.** Di Windows salah kapitalisasi tidak terasa; di hosting Linux langsung `500 Class not found`.
-- **JANGAN `migrate:fresh`** di data asli (mengosongkan tabel; foto di `storage/` jadi yatim).
-- **`/me` balikan `{success, user}`** (bukan `data`).
-- **Backend mati** → gejala "semua data kosong / gagal fetch". Jalankan `php artisan serve`.
-- **Email belum sampai inbox** → wajar, `MAIL_MAILER=log`. Isi SMTP dulu.
-- **Excel memperingatkan "format dan ekstensi tidak cocok"** saat membuka berkas rekapan → **normal**, tekan *Yes*. Berkasnya workbook HTML ber-ekstensi `.xls`; ini konsekuensi metode tanpa pustaka tambahan.
-- **PHP harus 8.3+**, bukan 8.2 (`composer.json` → `"php": "^8.3"`). Di PHP 8.2 `composer install` gagal.
-- **Jangan pakai `display:flex` pada kotak berisi kalimat campuran** (teks + `<strong>` + variabel) — tiap potongan jadi item terpisah dan tersusun berkolom. Ini pernah terjadi pada `.dr-privacy-note`; sekarang `display:block`.
-- **Istilahnya "responsif", bukan "mobile-first"** — 10 dari 11 *media query* di `index.css` memakai `max-width` (pola *desktop-first*).
+## 5. Masalah terbuka (diurutkan menurut prioritas)
+
+### 🔴 Tinggi
+1. **Surel reset belum terbukti terkirim dari peladen.** Langkah diagnosis: buka `storage/logs/laravel.log` di
+   peladen, cari baris `Gagal mengirim tautan pemulihan kata sandi:` — pesan setelahnya adalah penyebab pastinya.
+   Panel admin → Notifikasi juga menunjukkan status `gagal`.
+2. ~~**Admin biasa bisa melihat dan menghapus akun pengguna.**~~ **✅ Sudah diperbaiki 19 September** (lihat
+   §4.7) — `isSuperAdmin()` ditambahkan pada `users()` dan `deleteUser()`, diuji lolos lewat API sungguhan.
+   **Yang masih tersisa: perbaikan ini belum di-commit maupun di-deploy ke `karinakas.com`.**
+
+### 🟠 Sedang
+3. **Jejak audit tidak lengkap secara kode** — masih 11 fungsi kegiatan/berita/galeri tak tercatat, sama
+   seperti sebelumnya. **Diselesaikan lewat dokumen pada 19–20 September** (§4.8): NFR 3.4.4.8 dipersempit agar
+   cakupannya sama dengan FR SIKAS 516, sehingga klaim dokumen kini sesuai kode. Bila suatu saat cakupannya mau
+   diperluas ke konten publik, tinggal tambah satu baris `AuditLog::record()` per fungsi.
+4. **`nama_lengkap` > 100 aksara → galat 500.** `AdminController` memvalidasi `max:150`, kolom `varchar(100)`.
+   Perbaikan: samakan jadi `max:100`. *(belum dikerjakan)*
+5. **Relawan tanpa kegiatan bisa didaftarkan berulang.** `kegiatan_id` boleh `null`, dan batasan unik tidak berlaku
+   untuk `NULL`. Perbaikan: wajibkan `kegiatan_id` di `RelawanController::store`. *(belum dikerjakan)*
+6. **Warna aksen kuning belum diredupkan.** `--yellow: #FFD700` di `index.css` masih saturasi tinggi, padahal
+   pihak Karinakas secara eksplisit meminta warna tidak menyala (§4.9). Rekomendasi: ganti ke `#B8860B` (sudah
+   dipakai sistem untuk lencana Super Admin). **Belum dikerjakan — menunggu keputusan Anda.**
+
+### 🟡 Rendah
+7. **Data:** kegiatan "Pemeriksaan Kesehatan Gratis" mencatat `jumlah_relawan_terdaftar = 15` padahal relawan
+   diterima 0 (sisa data awal; per 1 Sep).
+8. **`.env` lokal backend memuat `FRONTEND_URL` dua kali** (baris 7 `localhost:5173` dan baris 73 `karinakas.com`) —
+   hapus salah satu; untuk lokal pakai `http://localhost:5173`.
+9. **11 galat ESLint** (`react-hooks/set-state-in-effect` × 9) — kualitas, bukan fungsi.
+10. `/admin/rekapan/*` tidak dipakai klien; `exportRekapan` masih kerangka (bila dihapus: **66 → 62** titik akhir
+    di SKPL/DPPL — angka sudah dikoreksi dari 65 pada 19 Sep, lihat §4.8).
+11. `SectionNotifikasi.saveTpl` hanya menyimpan templat ke `localStorage`.
+12. Satu berkas yatim `storage/app/public/galeri/hib1InD6Po2D9BQeRtyehzuqlqGfDpEtH0PEKfZK.jpg`.
+13. Kelas CSS `.fp-otp-demo` / `.fp-otp-code` masih bernama "otp" — sisa penamaan lama, bukan bug fungsional.
+14. ~~**Nomor KTP tidak divalidasi 16 digit, baik di layanan maupun di klien.**~~ **✅ Sudah diperbaiki 30
+    September** (§4.13) — `RelawanController` kini `required|digits:16`; `DaftarRelawan.jsx` kini `required` +
+    `minLength`/`maxLength={16}` + `pattern`. `docs/PDHUPL.md` UT-03 diperbarui jadi Handal. **Yang masih
+    tersisa: perbaikan ini belum di-commit maupun di-deploy ke `karinakas.com`.**
+15. ~~**Jumlah antarmuka belum direkonsiliasi** antardokumen~~ **✅ Diputuskan 24** pada `docs/laporan/BAB-IV-LENGKAP.md`
+    (§4.12), mengikuti angka yang sudah lebih dulu diverifikasi ke kode di DPPL. **Yang masih tersisa: SKPL
+    Subbab 3.1.4 dan DPPL Subbab 1.2.2 belum ikut disamakan ke 24** (SKPL masih menulis titik akhir, bukan
+    antarmuka — perlu dicek ulang apakah SKPL memang membahas jumlah antarmuka sama sekali).
+
+### 📄 Laporan Tugas Akhir (`Laporan Tugas Akhir/LAPORAN TUGAS AKHIR.docx`)
+- Bab IV menulis ekspor **"ke format PDF dan Excel"** — sistem hanya menghasilkan **Excel**. *(sudah diperbaiki
+  di draf `docs/laporan/...md`, tinggal dipindah ke Word)*
+- **Jejak audit tidak disebut sama sekali**; manajemen pengguna hanya satu butir. *(sudah ditambahkan di draf)*
+- Bab II §2.3.2 menulis "Hybrid REST API dan Blade PHP" — salah, bertentangan dengan Bab IV-nya sendiri.
+  *(sudah diperbaiki di draf, lihat §4.8)*
+- Bab 4.3/4.4 (Perancangan & Implementasi): **draf pengganti lengkap sudah ada**, lihat §4.9 dan
+  `docs/laporan/4.3-4.4-Perancangan-Implementasi-Pengujian.md`.
+- Subbab **Evaluasi (Bab V–VI)** masih teks templat untuk sebagian, tetapi Bab 4.4.8 (Evaluasi Desain
+  *High-Fidelity*) sudah terisi nyata di draf — hanya Evaluasi *Low-Fidelity* yang masih kosong menunggu
+  catatan Anda.
+- Tidak menyebut OTP maupun WhatsApp (dicek 17 Sep), tetapi masih memecah pemulihan jadi dua butir terpisah
+  — "Lupa kata sandi" dan "Reset kata sandi melalui email". Kini keduanya satu alur: tautan reset lewat surel.
+  *(sudah digabung jadi satu butir di draf kebutuhan fungsional)*
+- **PDHUPL (Bab uji)** — draf lengkap sudah ada di `docs/PDHUPL.md`, mengikuti template resmi + Bab 6 SUS.
+
+### 📄 Konsistensi dokumen lain
+- Diagram use case: UC-15 hanya terhubung ke Admin (super admin juga berwenang); judul batas "WEBSITE KARINAKAS" vs "SIKAS".
+- Kode `FR SIKAS 101…608` masih berawalan SIKAS, sedangkan DPPL memakai "Website Karinakas".
+- `TESTING.md` belum punya kasus uji penyaring bulan/kegiatan (±6–8 kasus), juga belum mencakup pemulihan kata
+  sandi/jejak audit/notifikasi seperti yang baru ditambahkan di `docs/PDHUPL.md` (§4.10) — pertimbangkan
+  menyamakan cakupan keduanya.
 
 ---
 
-## 8. Peta file kunci (untuk belajar cepat)
-**Frontend (`frontend_karinakas/src/`)**
-- Integrasi: `services/api.js`, `services/resources.js`, `hooks/useResource.js`, `context/AuthContext.jsx`
-- Util: `utils/excel.js` (helper export tabel Excel bersama: lebar kolom, header beku, format angka & teks)
-- Publik: `pages/{Home,Galeri,Kegiatan,Berita,BeritaDetail,Donasi,DaftarRelawan,Profil,Kontak,Login,Register}.jsx`
-- Admin: `pages/AdminDashboard.jsx` + `pages/admin/Section{Berita,Kegiatan,Relawan,Galeri,Donasi,Pengguna,Notifikasi,Audit}.jsx` + `pages/admin/shared/{AdminModal,ConfirmDelete}.jsx`
-- Komponen: `components/{Navbar,Footer,Hero,CTA,Galeri,Kegiatan,IntroScreen,PageHero,Breadcrumb}.jsx`
-- Data/konstanta: `data/store.js` · Style: `index.css`
+## 6. Menunggu tindakan penyusun
 
-**Backend (`tugas_akhir/`)**
-- Rute: `routes/api.php` · Middleware/alias: `bootstrap/app.php` · Ability: `app/Providers/AppServiceProvider.php`
-- Controller: `app/Http/Controllers/*Controller.php`
-- Model: `app/Models/*.php` · Email: `app/Mail/RelawanDiterima.php` + `resources/views/emails/`
-- Migrasi: `database/migrations/` (14 berkas) · Seeder: `database/seeders/DatabaseSeeder.php`
-- Config: `config/cors.php`, `config/logging.php`, `.env` (DB, MAIL)
-
-**Dokumen (`frontend_karinakas/`)**
-- `CONTEXT.md` arsitektur & endpoint · `HANDOFF.md` progres · `PROGRESS.md` checklist · `DEPLOY.md` hosting
-- `TESTING.md` — 179 kasus uji black-box beserta rekapitulasinya
-- `SKENARIO-TUGAS.md` — skenario tugas pengujian kebergunaan bersama pengguna nyata (15 tugas, lembar pengamatan, kuesioner SUS)
-- `SKENARIO-TUGAS.md` — skenario uji kebergunaan: 15 tugas, lembar pengamatan, kuesioner SUS
-- `DPPL.md` — naskah DPPL bagian depan, Bab 1, dan Subbab 2.1
-- `docs/dppl/` — naskah DPPL per subbab:
-  `CHECKLIST.md` (**baca ini dulu saat melanjutkan DPPL**) · `2.2-Perancangan-Rinci.md` (9 kelas kontroler, 75 tabel fungsi) ·
-  `2.3-Perancangan-Data.md` (9 tabel, 116 medan, PDM) · `class-diagram.drawio` · `pdm-diagram.drawio` ·
-  `_arsip-kelas-boundary-entity.md` (bukan naskah — bahan mentah Subbab 2.4)
-- `SKPL.md` — naskah SKPL Bab I & II + catatan penyusunan
-- `docs/skpl/` — naskah SKPL Bab III per subbab:
-  `3.1-Kebutuhan-Antarmuka-Eksternal.md` · `3.2-Kebutuhan-Fungsional.md` (71 butir) ·
-  `3.3-Diagram-Use-Case.md` (23 use case) · `3.4-Kebutuhan-Non-Fungsional.md` (32 butir) ·
-  `3.5-Kebutuhan-Data.md` (ERD + kamus data) · `README.md` (indeks + konvensi kode)
-- Diagram: `docs/skpl/use-case-diagram.{drawio,png}` dan `docs/skpl/erd-diagram.{drawio,png}`
-
-**Konvensi kode dokumen SKPL** (dipakai lintas bab, jangan tertukar):
-`F-01…F-21` fungsi produk · `K-01…K-20` kekangan · `A-01…A-08` asumsi · `D-01…D-06` kebergantungan ·
-`FR SIKAS 101…608` kebutuhan fungsional · `NFR 3.4.x.y` non-fungsional · `UC-01…UC-23` use case · `AK-01…AK-05` aktor.
+- [ ] **Commit & deploy `AdminController.php`** — perbaikan celah manajemen pengguna (§4.7) sudah teruji lokal
+  tapi belum sampai ke `karinakas.com`. Tidak perlu migrasi, tidak perlu build ulang frontend.
+- [ ] **Kabarkan hasil reset di situs live** (atau kirim baris galat dari `laravel.log` peladen).
+- [ ] **Ganti kata sandi kotak surel `noreply@karinakas.com`** — pernah tertulis di riwayat chat. Perbarui di `.env` lokal & peladen (tetap dikutip).
+- [ ] **Putuskan warna `--yellow`** — ganti ke `#B8860B` di kode sekarang, atau catat sebagai saran pengembangan lanjutan di Bab 6.2 laporan (§5 butir baru).
+- [ ] **Kirim catatan tinjauan wireframe *low-fidelity*** (siapa, kapan, temuan apa) agar Bab 4.4.8a bisa diisi — jangan dikarang.
+- [ ] **Samakan SKPL/DPPL ke 24 antarmuka** — sudah diputuskan dan dipakai di `docs/laporan/BAB-IV-LENGKAP.md`
+  (§4.12), tinggal disebarkan ke dokumen lain bila relevan.
+- [ ] **Jalankan `TESTING.md` (181 kasus) secara nyata** — kolom hasil masih kosong; Bab V laporan tidak bisa
+  ditulis jujur tanpa angka pengujian sungguhan.
+- [ ] **Verifikasi ulang `docs/PDHUPL.md` (88 butir) langsung di `karinakas.com`** — Bab 5 sudah terisi tapi lewat
+  penelusuran kode (§4.11), bukan eksekusi nyata; terutama untuk hal yang tidak bisa dipastikan dari kode saja
+  (tampilan visual, pengiriman surel sungguhan, unggah berkas nyata).
+- [x] ~~Putuskan nasib UT-03~~ **✅ Diperbaiki 30 Sept** (§4.13) — validasi `required|digits:16` ditambahkan
+  di `RelawanController` + `DaftarRelawan.jsx`; PDHUPL UT-03 kini Handal. **Tersisa:** commit & deploy, lalu
+  uji manual `POST /relawan` dengan KTP kosong/kurang dari 16 digit harus 422.
+- [x] ~~Ekspor data mentah kuesioner SUS~~ **✅ Sudah dilengkapi 29–30 Sep** — Bab 6.2–6.4 `docs/PDHUPL.md`
+  kini memuat jawaban P1–P10 seluruh 40 responden dan rekapitulasi per pernyataan (§4.12).
+- [ ] **Tempel *screenshot* bukti pengisian kuesioner** ke Bab 6 PDHUPL — lokasi dan daftar gambar yang
+  dibutuhkan sudah dicatat langsung di `docs/PDHUPL.md` pada akhir Subbab 6.4.
+- [ ] Sisipkan 4 tangkapan layar mockup *high-fidelity* dan padanannya di situs jadi ke
+  `docs/laporan/BAB-IV-LENGKAP.md` (Subbab 4.4.4/4.5.4).
+- [ ] **Putuskan apakah `docs/PDHUPL.md` perlu bagian "Daftar Revisi"** seperti templat Word resmi (§4.12) —
+  kerangkanya siap ditambahkan bila diminta.
+- [ ] **Ekspor ulang PNG** `docs/skpl/use-case-diagram.png` (sudah memuat UC-24 di berkas `.drawio`) dan Gambar 2.5 dari `docs/dppl/class-diagram.drawio`.
+- [ ] Timpa `public/karinakas-logo.png` dengan logo HD.
+- [ ] Konfirmasi NMID QRIS bila gambar QRIS sudah diganti ke rekening Mandiri.
+- [ ] Ganti sandi default `superadmin@` & `admin@karinakas.org` di produksi; `APP_DEBUG=false`; batasi CORS.
 
 ---
 
-## 9. Langkah berikutnya (saran urutan)
-1. ~~Simpan `public/qris-karinakas.png`~~ — **sudah tersedia**, blok TC-DON-10 sampai TC-DON-16 di TESTING.md kini dapat dijalankan.
-2. ~~Beresi temuan audit di §5~~ — **sudah selesai semua** (§3.12–§3.14), termasuk penyisiran naskah SKPL & TESTING.md. NFR 3.4.4.1 & 3.4.4.5 kini terpenuhi. Lampiran B pada `SKPL.md` **tidak lagi menyisakan hal yang perlu diputuskan penyusun**.
-3. **Aktifkan email nyata**: isi SMTP `.env` (Mailtrap untuk uji) → approve relawan → cek email masuk. **Ini juga prasyarat pengujian kebergunaan** — tanpa SMTP, tugas pemulihan kata sandi pada `SKENARIO-TUGAS.md` tidak dapat dikerjakan peserta karena kode OTP hanya masuk ke `storage/logs/laravel.log`.
-3b. **Selesaikan DPPL Subbab 2.4** — satu-satunya subbab yang tersisa. Butuh tangkapan layar 22 halaman; bahan uraiannya sudah tersedia di `docs/dppl/_arsip-kelas-boundary-entity.md`.
-4. **Jalankan pengujian** memakai TESTING.md, isi kolom Status, lalu salin rekapitulasinya ke bab pengujian skripsi.
-5. ~~**Pilih gateway WhatsApp**~~ — **dibatalkan**; seluruh pemberitahuan otomatis dikirim lewat surel (§3.21).
-6. (Opsional) email **donasi berhasil** mengikuti pola relawan (di `DonasiController.updateStatus`).
-7. **Deploy** sesuai DEPLOY.md: `VITE_API_URL`, `storage:link`, CORS, SPA fallback, `max_file_uploads`, `APP_DEBUG=false`.
+## 7. Cara bekerja dengan penyusun (penting untuk AI)
 
-> Untuk melanjutkan di room chat baru: cukup instruksikan *"baca CONTEXT.md & HANDOFF.md di frontend_karinakas"*.
+- **Bahasa Indonesia** untuk semua jawaban dan dokumen.
+- **Commit, push, dan hosting dikerjakan penyusun sendiri** — AI cukup mengarahkan langkahnya, jangan push.
+- Penyusun meminta **analisis yang valid dan berbasis bukti**: periksa kode/basis data/situs live sebelum menyimpulkan,
+  dan sebutkan bila sesuatu belum terverifikasi.
+- **Tanyakan dulu untuk keputusan desain** yang berdampak ke dokumen skripsi (contoh: Opsi A/B kunci donasi).
+- **Setiap perubahan kode wajib diselaraskan ke dokumen skripsi** yang terdampak: SKPL, DPPL (+ diagram `.drawio`),
+  TESTING (termasuk hitungan total), SKENARIO-TUGAS, CONTEXT, HANDOFF, DEPLOY.
+- **Jangan menyalin kata sandi atau kunci rahasia ke dokumen.** Tempatnya hanya `.env`.
+- Uji perubahan backend langsung lewat API bila memungkinkan, dan gunakan ID palsu agar data tidak rusak.
+
+---
+
+## 8. Langkah berikutnya (saran urutan)
+
+1. **Commit & deploy perbaikan `AdminController.php`** (§4.7) — sudah teruji, tinggal dikirim.
+2. **Selesaikan pengiriman surel dari peladen** (§5 butir 1).
+3. **Verifikasi ulang `docs/PDHUPL.md` di `karinakas.com` sungguhan** dan jalankan `TESTING.md` (181 kasus) —
+   Bab 5 PDHUPL sudah berisi draf kuat hasil penelusuran kode (§4.11), tapi Bab V laporan TA butuh angka
+   pengujian dari eksekusi nyata, bukan hanya pembacaan kode. Putuskan juga nasib UT-03 (Tidak Handal).
+4. **Ekspor data mentah kuesioner SUS dan tempel *screenshot*** ke Bab 6 PDHUPL (lokasi sudah disiapkan, §4.11).
+5. **Pindahkan `docs/laporan/BAB-IV-LENGKAP.md` ke Word** (§4.12) — sudah dalam bentuk siap tempel, penomoran
+   4.1–4.6 sudah sama dengan Word Anda; sisipkan tangkapan layar yang masih kurang (§6 daftar tindakan).
+6. **DPPL Subbab 2.4** — 23 halaman, bahan uraian di `docs/dppl/_arsip-kelas-boundary-entity.md` dan
+  `docs/laporan/...md` §4.3.7–4.3.9 (desain visual, wireframe, prototipe sudah tertulis di sana).
+7. Perbaiki `nama_lengkap max:100`, wajibkan `kegiatan_id` relawan, dan putuskan warna `--yellow` (§5 butir baru).
+8. **Jalankan uji kebergunaan** sesuai `SKENARIO-TUGAS.md` — SUS sudah punya hasil nyata (§4.10), giliran
+   pengujian tugas langsung (*task success rate*) yang belum dijalankan.
+9. **Selaraskan laporan TA `.docx`** dengan draf yang sudah siap di `docs/laporan/` dan `docs/PDHUPL.md`.
+
+---
+
+## 9. Gotcha (mudah bikin bingung)
+
+- **404 vs 500:** rute tidak cocok → 404; kelas tidak ditemukan → 500. Bila tercampur, ada dua masalah.
+- **Nama berkas PHP harus sama persis dengan kelas** — di Windows tidak terasa, di Linux langsung 500.
+  Ganti kapitalisasi pakai `git mv` dua langkah (`core.ignorecase=true`).
+- **`VITE_*` dibakar saat build** — ubah `.env` frontend lalu `npm run build` ulang.
+- **Ubah `.env` peladen → `php artisan config:clear`**, kalau tidak konfigurasi lama tetap dipakai.
+- **`MAIL_PASSWORD` bermuatan `#` wajib dikutip**; `MAIL_ENCRYPTION` tidak dibaca Laravel 13 (pakai `MAIL_SCHEME`).
+- **Layar lupa sandi selalu "berhasil"** walau surel gagal — cek log, bukan layar.
+- **Unggah `dist/` → jangan lupa `.htaccess`** (tersembunyi).
+- **JANGAN `migrate:fresh`** di data asli.
+- **`/me` membalas `{success, user}`**, bukan `data`.
+- **Unggah > 20 foto terpotong** karena `max_file_uploads` PHP → frontend memecah 20/permintaan.
+- **Excel memperingatkan "format dan ekstensi tidak cocok"** saat membuka rekap — normal, tekan *Yes*.
+- **Jangan `display:flex` pada kotak berisi kalimat campuran** (teks + `<strong>`) — potongannya tersusun berkolom.
+- **Ada DUA kuesioner berbeda, jangan tertukar.** (1) Kuesioner *analisis kebutuhan* — 27 responden, dipakai
+  untuk *user persona* dan *pain points* di `docs/laporan/...md` §4.3.1–4.3.3. (2) Kuesioner *SUS* — 40
+  responden, dipakai untuk skor usability di §4.10/`docs/PDHUPL.md` Bab 6. Keduanya instrumen dan tujuan yang
+  sama sekali berbeda, meski sama-sama tentang Website Karinakas.
+- **Jangan pernah mengisi kolom hasil pengujian (Handal/Tidak Handal, Sesuai/Tidak Sesuai) dengan asumsi
+  "pasti lolos" tanpa dasar** — itu fabrikasi data pengujian. `TESTING.md` masih sengaja kosong. Bab 5
+  `docs/PDHUPL.md` **sudah diisi** (28 Sep, §4.11), tapi lewat **penelusuran kode**, bukan eksekusi nyata di
+  `karinakas.com` — kedua metode itu berbeda dan penyusun perlu tahu bedanya bila ditanya dosen pembimbing.
+  Verifikasi nyata di situs live tetap wajib sebelum dianggap final, khususnya untuk hal yang tidak bisa
+  dipastikan dari kode saja (tampilan visual, surel sungguhan, unggah berkas nyata).

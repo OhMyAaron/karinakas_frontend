@@ -9,7 +9,7 @@ Bab I dan Bab II berada pada berkas induk: **[../../SKPL.md](../../SKPL.md)**
 |---|---|---|
 | 3.1 | [3.1-Kebutuhan-Antarmuka-Eksternal.md](3.1-Kebutuhan-Antarmuka-Eksternal.md) | 28 form, 4 report, antarmuka perangkat keras, perangkat lunak, komunikasi, dan sistem |
 | 3.2 | [3.2-Kebutuhan-Fungsional.md](3.2-Kebutuhan-Fungsional.md) | 71 kebutuhan fungsional, FR SIKAS 101–608 |
-| 3.3 | [3.3-Diagram-Use-Case.md](3.3-Diagram-Use-Case.md) | 5 aktor, diagram use case, 23 spesifikasi use case, tabel penelusuran |
+| 3.3 | [3.3-Diagram-Use-Case.md](3.3-Diagram-Use-Case.md) | 5 aktor, diagram use case, 24 spesifikasi use case, tabel penelusuran |
 | 3.4 | [3.4-Kebutuhan-Non-Fungsional.md](3.4-Kebutuhan-Non-Fungsional.md) | 32 kebutuhan terukur (NFR 3.4.1.1–3.4.7.2) + tabel status pemenuhan |
 | 3.5 | [3.5-Kebutuhan-Data.md](3.5-Kebutuhan-Data.md) | ERD, 9 entitas, kamus data lengkap, 8 relasi, aturan integritas |
 

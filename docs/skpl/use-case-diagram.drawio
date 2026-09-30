@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="SKPL SIKAS">
   <diagram id="usecase-sikas" name="Use Case SIKAS">
-    <mxGraphModel dx="2144" dy="1402" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="2339" pageHeight="1654" math="0" shadow="0">
+    <mxGraphModel dx="1437" dy="971" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="2339" pageHeight="1654" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -19,7 +19,7 @@
         <mxCell id="AK4" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=13;fontStyle=1;" value="Super Admin&#xa;(AK-04)" vertex="1">
           <mxGeometry height="80" width="60" x="120" y="910" as="geometry" />
         </mxCell>
-        <mxCell id="AK5" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=13;fontStyle=1;" value="Sistem Surel (SMTP)&#xa;(AK-05)" vertex="1">
+        <mxCell id="AK5" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=13;fontStyle=1;" value="Sistem Email (SMTP)&lt;br&gt;(AK-05)" vertex="1">
           <mxGeometry height="80" width="60" x="2060" y="1070" as="geometry" />
         </mxCell>
         <mxCell id="UC01" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FFF5F5;strokeColor=#C0392B;" value="UC-01&#xa;Melihat Informasi Lembaga" vertex="1">
@@ -45,6 +45,9 @@
         </mxCell>
         <mxCell id="UC10" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FFF5F5;strokeColor=#C0392B;" value="UC-10&#xa;Mendaftar Relawan" vertex="1">
           <mxGeometry height="86" width="210" x="1200" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="UC24" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FFF5F5;strokeColor=#C0392B;" value="UC-24&#xa;Memulihkan Kata Sandi" vertex="1">
+          <mxGeometry height="86" width="210" x="1700" y="930" as="geometry" />
         </mxCell>
         <mxCell id="UC11" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FFF5F5;strokeColor=#C0392B;" value="UC-11&#xa;Melihat Riwayat &amp; Notifikasi" vertex="1">
           <mxGeometry height="86" width="210" x="1720" y="790" as="geometry" />
@@ -106,6 +109,9 @@
         <mxCell id="a9" edge="1" parent="1" source="AK2" style="endArrow=none;html=1;strokeColor=#555555;exitX=0;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="UC10">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="a24" edge="1" parent="1" source="AK2" style="endArrow=none;html=1;strokeColor=#555555;exitX=0;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="UC24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="a10" edge="1" parent="1" source="AK2" style="endArrow=none;html=1;strokeColor=#555555;exitX=0;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="UC11">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -121,7 +127,6 @@
         <mxCell id="a14" edge="1" parent="1" source="AK3" style="endArrow=none;html=1;strokeColor=#555555;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="UC15">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        
         <mxCell id="a16" edge="1" parent="1" source="AK3" style="endArrow=none;html=1;strokeColor=#555555;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="UC17">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -140,7 +145,10 @@
         <mxCell id="a21" edge="1" parent="1" source="UC22" style="endArrow=none;html=1;strokeColor=#555555;" target="AK5">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e1" edge="1" parent="1" source="UC09" style="endArrow=open;endSize=12;dashed=1;html=1;strokeColor=#1d4ed8;fontColor=#1d4ed8;fontSize=12;" target="UC08" value="&amp;lt;e&lt;i&gt;xtend&lt;/i&gt;&amp;gt;">
+        <mxCell id="e1" edge="1" parent="1" source="UC09" style="endArrow=open;endSize=12;dashed=1;html=1;strokeColor=#1d4ed8;fontColor=#1d4ed8;fontSize=12;" target="UC08" value="&amp;lt;include&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="i5" edge="1" parent="1" source="UC24" style="endArrow=open;endSize=12;dashed=1;html=1;strokeColor=#1a6b3a;fontColor=#1a6b3a;fontSize=12;" target="UC22" value="&amp;lt;&lt;i&gt;include&lt;/i&gt;&amp;gt;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="i1" edge="1" parent="1" source="UC15" style="endArrow=open;endSize=12;dashed=1;html=1;strokeColor=#1a6b3a;fontColor=#1a6b3a;fontSize=12;" target="UC22" value="&amp;lt;&lt;i&gt;include&lt;/i&gt;&amp;gt;">
@@ -155,7 +163,7 @@
         <mxCell id="i4" edge="1" parent="1" source="UC19" style="endArrow=open;endSize=12;dashed=1;html=1;strokeColor=#1a6b3a;fontColor=#1a6b3a;fontSize=12;" target="UC23" value="&amp;lt;&lt;i&gt;include&lt;/i&gt;&amp;gt;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="legend" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=12;fillColor=#FAFAFA;strokeColor=#CCCCCC;spacing=8;" value="Keterangan:&#xa;&#xa;———  asosiasi aktor – use case&#xa;- - -&gt;  &lt;&lt;include&gt;&gt;  perilaku yang SELALU dijalankan&#xa;          sebagai bagian dari use case induk&#xa;- - -&gt;  &lt;&lt;extend&gt;&gt;  perluasan OPSIONAL dari&#xa;          use case induk" vertex="1">
+        <mxCell id="legend" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=12;fillColor=#FAFAFA;strokeColor=#CCCCCC;spacing=8;" value="Keterangan:&lt;br&gt;&lt;br&gt;———  asosiasi aktor – use case&lt;br&gt;- - -&amp;gt;  &amp;lt;include&amp;gt;  perilaku yang SELALU dijalankan&lt;br&gt;          sebagai bagian dari use case induk" vertex="1">
           <mxGeometry height="200" width="470" x="1400" y="1060" as="geometry" />
         </mxCell>
         <mxCell id="UC05" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FFF5F5;strokeColor=#C0392B;" value="UC-05&#xa;Mendaftar Akun" vertex="1">

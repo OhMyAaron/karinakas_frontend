@@ -43,6 +43,10 @@ function DaftarRelawan() {
   const handleSubmit = async e => {
     e.preventDefault()
     if (penuh || saving) return
+    if (form.ktp.length !== 16) {
+      setError('Nomor KTP harus diisi tepat 16 digit.')
+      return
+    }
     setSaving(true); setError('')
     try {
       await relawanService.create({ ...form, kegiatanId: kegiatan ? kegiatan.id : null })
@@ -183,9 +187,10 @@ function DaftarRelawan() {
                         </select>
                       </div>
                       <div className="col-12">
-                        <label className="kt-label">Nomor KTP <span className="text-muted fw-normal">(opsional, 16 digit)</span></label>
-                        <input className="kt-input" placeholder="Untuk verifikasi data relawan" inputMode="numeric" maxLength={16}
-                          value={form.ktp} onChange={e => setForm(f => ({ ...f, ktp: e.target.value.replace(/\D/g, '') }))} />
+                        <label className="kt-label">Nomor KTP <span className="text-danger">*</span> <span className="text-muted fw-normal">(16 digit)</span></label>
+                        <input required className="kt-input" placeholder="Untuk verifikasi data relawan" inputMode="numeric"
+                          minLength={16} maxLength={16} pattern="\d{16}" title="Nomor KTP harus 16 digit angka"
+                          value={form.ktp} onChange={e => setForm(f => ({ ...f, ktp: e.target.value.replace(/\D/g, '').slice(0, 16) }))} />
                       </div>
                       <div className="col-12">
                         <label className="kt-label">Keterbatasan Diri <span className="text-muted fw-normal">(penyakit / kondisi kesehatan)</span></label>

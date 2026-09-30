@@ -27,7 +27,7 @@
 | **2.5 Asumsi dan Kebergantungan** | ✅ Selesai |
 | **3.1 Kebutuhan Antarmuka Eksternal** | ✅ Selesai — [docs/skpl/3.1-Kebutuhan-Antarmuka-Eksternal.md](docs/skpl/3.1-Kebutuhan-Antarmuka-Eksternal.md) |
 | **3.2 Kebutuhan Fungsional** | ✅ Selesai — [docs/skpl/3.2-Kebutuhan-Fungsional.md](docs/skpl/3.2-Kebutuhan-Fungsional.md) · 71 butir, FR SIKAS 101–608 |
-| **3.3 Diagram Use Case** | ✅ Selesai — [docs/skpl/3.3-Diagram-Use-Case.md](docs/skpl/3.3-Diagram-Use-Case.md) · 23 use case |
+| **3.3 Diagram Use Case** | ✅ Selesai — [docs/skpl/3.3-Diagram-Use-Case.md](docs/skpl/3.3-Diagram-Use-Case.md) · 24 use case |
 | **3.4 Kebutuhan Non-Fungsional** | ✅ Selesai — [docs/skpl/3.4-Kebutuhan-Non-Fungsional.md](docs/skpl/3.4-Kebutuhan-Non-Fungsional.md) · 32 butir terukur |
 | **3.5 Kebutuhan Data (ERD)** | ✅ Selesai — [docs/skpl/3.5-Kebutuhan-Data.md](docs/skpl/3.5-Kebutuhan-Data.md) · 9 entitas + kamus data |
 | **A. Lampiran** | ✅ Selesai |
@@ -53,7 +53,7 @@ Dokumen ini ditujukan kepada empat kelompok pembaca berikut.
 3. **Pengelola Yayasan Karinakas**, sebagai sarana untuk memastikan kebutuhan lembaga telah terwakili sebelum pembangunan sistem dilaksanakan.
 4. **Pelaksana pengujian**, sebagai dasar penyusunan kasus uji dan penentuan kriteria keberterimaan.
 
-Selain itu, dokumen ini menyediakan penelusuran kebutuhan secara berjenjang, yaitu dari fungsi produk (F-01 sampai F-21) menuju kebutuhan fungsional (FR SIKAS 101 sampai 608), lalu ke use case (UC-01 sampai UC-23), hingga kasus uji pada dokumen pengujian. Penelusuran tersebut memungkinkan setiap kebutuhan diperiksa keterpenuhannya dan setiap fungsi yang dibangun ditelusuri asal kebutuhannya.
+Selain itu, dokumen ini menyediakan penelusuran kebutuhan secara berjenjang, yaitu dari fungsi produk (F-01 sampai F-21) menuju kebutuhan fungsional (FR SIKAS 101 sampai 608), lalu ke use case (UC-01 sampai UC-24), hingga kasus uji pada dokumen pengujian. Penelusuran tersebut memungkinkan setiap kebutuhan diperiksa keterpenuhannya dan setiap fungsi yang dibangun ditelusuri asal kebutuhannya.
 
 ## 1.2 Lingkup
 
@@ -187,7 +187,7 @@ flowchart TB
     subgraph EKS["Antarmuka Eksternal"]
         MAIL["Peladen Surel (SMTP)"]
         PAY["Kanal Pembayaran<br/>QRIS / GPN &amp; Bank"]
-        SOS["Media Sosial Lembaga<br/>Instagram, YouTube, WhatsApp"]
+        SOS["Media Sosial Lembaga<br/>Instagram, YouTube, WhatsApp, Linktree"]
     end
 
     A1 & A2 & A3 & A4 -- "peramban (HTTPS)" --> FE
@@ -199,7 +199,7 @@ flowchart TB
 > Untuk disisipkan ke naskah Word: salin kode di atas ke <https://mermaid.live>, lalu unduh sebagai PNG.
 > Garis putus-putus pada jalur pembayaran sengaja dibedakan untuk menegaskan bahwa aliran tersebut berada **di luar batas sistem**.
 
-Antarmuka antara sistem yang lebih besar dengan perangkat lunak diidentifikasi sebagai berikut. **Antarmuka pengguna** menghubungkan seluruh kategori pengguna dengan aplikasi web melalui peramban dengan protokol HTTP/HTTPS. **Antarmuka aplikasi dengan layanan** menghubungkan aplikasi web dengan REST API melalui pertukaran data berformat JSON yang diamankan dengan token *bearer*. **Antarmuka layanan dengan basis data** menghubungkan REST API dengan MySQL melalui koneksi PDO yang dikelola ORM Eloquent, sedangkan **antarmuka layanan dengan penyimpanan berkas** menangani penyimpanan foto galeri dan bukti pembayaran yang selanjutnya dapat diakses publik melalui alamat berkas statis. Pada sisi eksternal, **antarmuka surel** menghubungkan layanan dengan peladen SMTP untuk pengiriman notifikasi otomatis kepada relawan yang diterima; **antarmuka kanal pembayaran** merupakan jalur transaksi donatur melalui kanal QRIS maupun jaringan perbankan yang seluruhnya berlangsung di luar batas sistem sehingga sistem hanya menerima berkas bukti pembayaran untuk diverifikasi pengelola; dan **antarmuka kanal informasi lembaga** berupa tautan keluar dari aplikasi web menuju akun Instagram, YouTube, serta WhatsApp lembaga.
+Antarmuka antara sistem yang lebih besar dengan perangkat lunak diidentifikasi sebagai berikut. **Antarmuka pengguna** menghubungkan seluruh kategori pengguna dengan aplikasi web melalui peramban dengan protokol HTTP/HTTPS. **Antarmuka aplikasi dengan layanan** menghubungkan aplikasi web dengan REST API melalui pertukaran data berformat JSON yang diamankan dengan token *bearer*. **Antarmuka layanan dengan basis data** menghubungkan REST API dengan MySQL melalui koneksi PDO yang dikelola ORM Eloquent, sedangkan **antarmuka layanan dengan penyimpanan berkas** menangani penyimpanan foto galeri dan bukti pembayaran yang selanjutnya dapat diakses publik melalui alamat berkas statis. Pada sisi eksternal, **antarmuka surel** menghubungkan layanan dengan peladen SMTP untuk pengiriman notifikasi otomatis kepada relawan yang diterima; **antarmuka kanal pembayaran** merupakan jalur transaksi donatur melalui kanal QRIS maupun jaringan perbankan yang seluruhnya berlangsung di luar batas sistem sehingga sistem hanya menerima berkas bukti pembayaran untuk diverifikasi pengelola; dan **antarmuka kanal informasi lembaga** berupa tautan keluar dari aplikasi web menuju akun Instagram, YouTube, WhatsApp, serta Linktree lembaga.
 
 Perancangan SIKAS menerapkan pendekatan *Human-Centered Design* (HCD), yaitu kebutuhan, karakteristik, dan keterbatasan pengguna menjadi pertimbangan utama dalam perancangan. Mengingat sebagian besar penerima layanan dan sebagian pengguna lembaga berusia lanjut, antarmuka dirancang **responsif** (*responsive web design*) agar tetap terbaca pada berbagai ukuran layar, dengan ukuran huruf yang diperbesar serta kontras warna yang ditingkatkan. Dengan demikian, SIKAS tidak hanya berfungsi sebagai media informasi, tetapi juga sebagai sarana interaksi yang mudah digunakan oleh pengguna dengan tingkat literasi digital yang beragam.
 

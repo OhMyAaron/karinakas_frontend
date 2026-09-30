@@ -212,7 +212,7 @@ Bila ❌/⚠️, tulis temuan di kolom **Catatan** (nomor error, pesan, atau per
 | TC-REL-07 | Kuota penuh | Daftar pada kegiatan yang kuotanya sudah penuh | Muncul pemberitahuan kuota penuh, tidak bisa mendaftar | | |
 | TC-REL-08 | Riwayat relawan | `/profil` → tab Kegiatan Relawan | Pendaftaran tampil dengan status Pending | | |
 | TC-REL-09 | Verifikasi admin | Login admin → Relawan → ubah status jadi **Diterima** | Status berubah; `jumlah_relawan_terdaftar` kegiatan bertambah 1 | | |
-| TC-REL-10 | Email relawan diterima | Setelah TC-REL-09, buka `tugas_akhir/storage/logs/laravel.log` | Isi email "Relawan Diterima" tercatat lengkap. **Belum masuk inbox** karena `MAIL_MAILER=log` (lihat §12) | | |
+| TC-REL-10 | Email relawan diterima | Setelah TC-REL-09, periksa kotak masuk relawan tersebut | Surel "Relawan Diterima" **benar-benar sampai**. Untuk menguji tanpa mengirim, set sementara `MAIL_MAILER=log` lalu periksa `storage/logs/laravel.log` | | |
 | TC-REL-11 | Notifikasi tercatat | Panel admin → Notifikasi | Muncul satu catatan notifikasi **surel** untuk relawan tadi; tidak ada baris WhatsApp | | |
 | TC-REL-12 | Status ditolak | Ubah status pendaftar lain jadi Ditolak | Status berubah, jumlah relawan terdaftar **tidak** bertambah | | |
 
@@ -397,10 +397,10 @@ Bagian ini penting ditulis apa adanya di laporan agar penguji tidak menganggapny
 
 | Fitur | Kondisi saat ini | Cara menguji sejauh yang bisa |
 |---|---|---|
-| **Email nyata** | `MAIL_MAILER=log` — email ditulis ke `storage/logs/laravel.log`, belum masuk inbox | Verifikasi isi email di berkas log (TC-REL-10). Untuk uji nyata, isi SMTP (Mailtrap) di `.env` |
+| **Email nyata** | ✅ **Aktif sejak 16 September 2026** — SMTP kotak surel hosting `noreply@karinakas.com` (`mail.karinakas.com`, porta 587 STARTTLS) | Uji dengan alamat surel yang benar-benar dapat dibuka; periksa juga folder Spam pada kiriman pertama |
 | **WhatsApp** | **Ditiadakan 16 September 2026** — seluruh pemberitahuan otomatis dikirim lewat surel | Tidak ada kasus uji WhatsApp. Pastikan riwayat notifikasi hanya berkanal surel (TC-REL-11, TC-NOT-01) |
 | **Pembayaran otomatis** | QRIS bersifat **statis** — tidak ada konfirmasi otomatis | Uji alur manual: bayar → unggah bukti → admin verifikasi |
-| **Lupa password** | ✅ **Berfungsi nyata.** Sejak 16 September 2026 memakai **tautan sekali pakai** yang dikirim ke surel dan berlaku 60 menit | Uji penuh lewat TC-AUT-13 s.d. TC-AUT-20. Surel harus benar-benar terkirim, jadi `RESEND_API_KEY` dan `FRONTEND_URL` wajib terisi pada `.env` peladen |
+| **Lupa password** | ✅ **Berfungsi nyata.** Sejak 16 September 2026 memakai **tautan sekali pakai** yang dikirim ke surel dan berlaku 60 menit | Uji penuh lewat TC-AUT-13 s.d. TC-AUT-20. Surel dikirim lewat SMTP kotak surel hosting, dan `FRONTEND_URL` wajib menunjuk domain situs |
 | **Form Kontak** | ✅ **Tidak lagi menjadi keterbatasan** (23 Agustus) — formulirnya **dihapus**, pertanyaan pengunjung diarahkan ke WhatsApp yang sudah aktif | Uji kanal WhatsApp lewat TC-PUB-09 |
 | **Template notifikasi admin** | Masih konfigurasi teks lokal, bukan data transaksional | Cukup uji tampilan formulirnya |
 
