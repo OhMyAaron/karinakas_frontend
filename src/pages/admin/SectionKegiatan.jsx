@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import AdminModal from './shared/AdminModal'
 import ConfirmDelete from './shared/ConfirmDelete'
+import usePaging from './shared/usePaging'
+import { AdminSort, AdminPager } from './shared/AdminPager'
 import { STATUS_KEGIATAN, KATEGORI_KEGIATAN, KATEGORI_LABEL, JENIS_RELAWAN, MINAT_RELAWAN, fmtTanggal } from '../../data/store'
 import useResource from '../../hooks/useResource'
 import { kegiatanService } from '../../services/resources'
@@ -73,6 +75,7 @@ function SectionKegiatan() {
      (it.lokasi || '').toLowerCase().includes(search.toLowerCase())) &&
     (!filterStatus || it.status === filterStatus)
   )
+  const pg = usePaging(filtered, it => it.tanggal, `${search}|${filterStatus}`)
 
   const openAdd  = () => { setForm(empty); setFormErr(''); setModal({ mode: 'add' }) }
   const openEdit = it => { setForm({ ...empty, ...it }); setFormErr(''); setModal({ mode: 'edit', item: it }) }
@@ -111,6 +114,7 @@ function SectionKegiatan() {
           <option value="">Semua Status</option>
           {Object.entries(statusMap).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
+        <AdminSort pg={pg} />
         <span className="ad-filter-count">{filtered.length} data</span>
       </div>
 
@@ -125,7 +129,7 @@ function SectionKegiatan() {
                 ? <tr><td colSpan={7} className="ad-empty-row"><i className="bi bi-wifi-off me-2"></i>{error}</td></tr>
                 : filtered.length === 0
                 ? <tr><td colSpan={7} className="ad-empty-row"><i className="bi bi-inbox me-2"></i>Tidak ada data</td></tr>
-                : filtered.map(it => (
+                : pg.pageItems.map(it => (
                   <tr key={it.id}>
                     <td><span className="ad-td-bold">{it.judul}</span></td>
                     <td className="ad-td-muted">{KATEGORI_LABEL[it.kategori] || it.kategori}</td>
@@ -152,6 +156,7 @@ function SectionKegiatan() {
             </tbody>
           </table>
         </div>
+        {!loading && !error && <AdminPager pg={pg} satuan="kegiatan" />}
       </div>
 
       {modal && (

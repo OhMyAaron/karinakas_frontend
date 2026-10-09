@@ -1,6 +1,8 @@
 ﻿import { useState } from 'react'
 import AdminModal from './shared/AdminModal'
 import ConfirmDelete from './shared/ConfirmDelete'
+import usePaging from './shared/usePaging'
+import { AdminSort, AdminPager } from './shared/AdminPager'
 import { BERITA_KATEGORI, LABEL_UMUM } from '../../data/store'
 import useResource from '../../hooks/useResource'
 import { beritaService } from '../../services/resources'
@@ -36,6 +38,7 @@ function SectionBerita() {
      (it.author || '').toLowerCase().includes(search.toLowerCase())) &&
     (!filterKat || it.category === filterKat)
   )
+  const pg = usePaging(filtered, it => it.publishedAt, `${search}|${filterKat}`)
 
   const openAdd  = () => { setForm(empty); setModal({ mode: 'add' }) }
   const openEdit = it => {
@@ -94,6 +97,7 @@ function SectionBerita() {
           <option value="">Semua Kategori</option>
           {BERITA_KATEGORI.map(k => <option key={k} value={k}>{LABEL_UMUM[k]}</option>)}
         </select>
+        <AdminSort pg={pg} />
         <span className="ad-filter-count">{filtered.length} data</span>
       </div>
 
@@ -108,7 +112,7 @@ function SectionBerita() {
                 ? <tr><td colSpan={6} className="ad-empty-row"><i className="bi bi-wifi-off me-2"></i>{error}</td></tr>
                 : filtered.length === 0
                 ? <tr><td colSpan={6} className="ad-empty-row"><i className="bi bi-inbox me-2"></i>Tidak ada data</td></tr>
-                : filtered.map(it => (
+                : pg.pageItems.map(it => (
                   <tr key={it.id}>
                     <td><span className="ad-td-bold">{it.title}</span></td>
                     <td><span className="ad-badge" style={{ background: kc(it.category).bg, color: kc(it.category).color }}>{it.categoryLabel || it.category}</span></td>
@@ -124,6 +128,7 @@ function SectionBerita() {
             </tbody>
           </table>
         </div>
+        {!loading && !error && <AdminPager pg={pg} satuan="berita" />}
       </div>
 
       {modal && (

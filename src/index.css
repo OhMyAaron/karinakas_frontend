@@ -3397,6 +3397,55 @@ body {
   margin-left: auto;
 }
 
+/* Rekap donasi per kegiatan */
+.ad-keg-rekap { margin-bottom: 1rem; }
+.ad-keg-rekap-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 0.5rem 1rem; flex-wrap: wrap; padding: 0.9rem 1rem 0.4rem;
+}
+.ad-keg-rekap-title { font-size: 0.95rem; font-weight: 800; color: #1a1a1a; margin: 0; }
+.ad-keg-rekap-note { font-size: 0.75rem; color: #666666; }
+.ad-keg-rekap tfoot td { border-top: 2px solid #ebebeb; background: #fafafa; }
+.ad-keg-row-aktif td { background: #FFF8F6; }
+.ad-keg-bar { height: 5px; margin-top: 5px; border-radius: 99px; background: #f0f0f0; overflow: hidden; min-width: 90px; }
+.ad-keg-bar > span { display: block; height: 100%; border-radius: 99px; background: #1a6b3a; }
+.ad-keg-rekap-foot { padding: 0.75rem 1rem; border-top: 1px solid #f0f0f0; }
+
+/* Paging tabel admin */
+.ad-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid #f0f0f0;
+  font-size: 0.82rem;
+  color: #555;
+}
+.ad-pager-info { font-weight: 600; }
+.ad-pager-nav { display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; }
+.ad-pager-btn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 0.6rem;
+  border: 1.5px solid #ebebeb;
+  border-radius: 9px;
+  background: white;
+  color: #444;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.ad-pager-btn:hover:not(:disabled):not(.active) { border-color: var(--red); color: var(--red); }
+.ad-pager-btn.active { background: var(--red); border-color: var(--red); color: white; cursor: default; }
+.ad-pager-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.ad-pager-gap { padding: 0 0.2rem; color: #888; }
+.ad-pager-size { display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; }
+.ad-pager-size .ad-filter-select { padding: 0.35rem 0.6rem; }
+
 /* Empty row */
 .ad-empty-row {
   text-align: center;

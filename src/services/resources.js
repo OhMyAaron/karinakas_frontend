@@ -66,8 +66,7 @@ const kegiatanBE = (f) => ({
 
 export const kegiatanService = {
   async list(params = {}) {
-    const qs = new URLSearchParams({ per_page: 100, ...params }).toString()
-    return unwrapList(await api.get(`/kegiatan?${qs}`)).map(kegiatanFE)
+    return (await ambilSemuaHalaman('/kegiatan', params)).map(kegiatanFE)
   },
   async get(id)        { return kegiatanFE(unwrapOne(await api.get(`/kegiatan/${id}`))) },
   async create(data)   { return api.post('/admin/kegiatan', kegiatanBE(data)) },
@@ -110,8 +109,7 @@ const beritaBE = (f) => ({
 
 export const beritaService = {
   async list(params = {}) {
-    const qs = new URLSearchParams({ per_page: 100, ...params }).toString()
-    return unwrapList(await api.get(`/kampanye?${qs}`)).map(beritaFE)
+    return (await ambilSemuaHalaman('/kampanye', params)).map(beritaFE)
   },
   async get(id)        { return beritaFE(unwrapOne(await api.get(`/kampanye/${id}`))) },
   async create(data)   { return api.post('/admin/kampanye', beritaBE(data)) },
@@ -220,6 +218,7 @@ const donasiFE = (d) => ({
   email: d.user?.email || '',
   tujuan: d.tujuan_donasi || '',
   kegiatan: d.kegiatan?.judul || null,
+  kegiatanId: d.kegiatan_id || d.kegiatan?.id || null,   // untuk rekap per kegiatan
   nominal: Number(d.jumlah) || 0,
   metode: d.metode_pembayaran || '',
   status: d.status_pembayaran,
@@ -260,12 +259,12 @@ const notifikasiFE = (n) => ({
   trigger: n.trigger || '',
   status: n.status || 'terkirim',
   tanggal: fmtWaktu(n.created_at),
+  createdAt: n.created_at || '',        // bentuk asli untuk pengurutan
 })
 
 export const notifikasiService = {
   async listAdmin(params = {}) {
-    const qs = new URLSearchParams({ per_page: 100, ...params }).toString()
-    return unwrapList(await api.get(`/admin/notifikasi?${qs}`)).map(notifikasiFE)
+    return (await ambilSemuaHalaman('/admin/notifikasi', params)).map(notifikasiFE)
   },
   async myNotifications() {
     return unwrapList(await api.get('/notifikasi/my-notifications')).map(notifikasiFE)
@@ -279,12 +278,12 @@ const auditFE = (a) => ({
   aksi: a.aksi || '',
   target: a.target || '',
   tanggal: fmtWaktu(a.created_at),
+  createdAt: a.created_at || '',        // bentuk asli untuk pengurutan
 })
 
 export const auditService = {
   async list(params = {}) {
-    const qs = new URLSearchParams({ per_page: 100, ...params }).toString()
-    return unwrapList(await api.get(`/admin/audit?${qs}`)).map(auditFE)
+    return (await ambilSemuaHalaman('/admin/audit', params)).map(auditFE)
   },
 }
 
@@ -313,12 +312,12 @@ const penggunaFE = (u) => ({
   kota: u.kota || '',
   paroki: u.asal_paroki || '',
   tanggal: u.created_at ? fmtTanggal(u.created_at) : '',
+  createdAt: u.created_at || '',        // bentuk asli untuk pengurutan
 })
 
 export const penggunaService = {
   async list(params = {}) {
-    const qs = new URLSearchParams({ per_page: 100, ...params }).toString()
-    return unwrapList(await api.get(`/admin/users?${qs}`)).map(penggunaFE)
+    return (await ambilSemuaHalaman('/admin/users', params)).map(penggunaFE)
   },
   async create(data) {
     return api.post('/admin/users', {

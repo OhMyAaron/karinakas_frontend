@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { auditService } from '../../services/resources'
+import usePaging from './shared/usePaging'
+import { AdminSort, AdminPager } from './shared/AdminPager'
 
 function SectionAudit() {
   const [logs,    setLogs]    = useState([])
@@ -20,6 +22,7 @@ function SectionAudit() {
     (l.aksi || '').toLowerCase().includes(search.toLowerCase()) ||
     (l.target || '').toLowerCase().includes(search.toLowerCase())
   )
+  const pg = usePaging(filtered, l => l.createdAt, search)
 
   return (
     <div>
@@ -41,6 +44,7 @@ function SectionAudit() {
           <i className="bi bi-search ad-sf-icon"></i>
           <input className="ad-sf-input" placeholder="Cari user / aksi / target..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
+        <AdminSort pg={pg} />
         <span className="ad-filter-count">{filtered.length} log</span>
       </div>
 
@@ -55,7 +59,7 @@ function SectionAudit() {
                 ? <tr><td colSpan={4} className="ad-empty-row"><i className="bi bi-wifi-off me-2"></i>{error}</td></tr>
                 : filtered.length === 0
                 ? <tr><td colSpan={4} className="ad-empty-row"><i className="bi bi-inbox me-2"></i>Belum ada catatan</td></tr>
-                : filtered.map(l => (
+                : pg.pageItems.map(l => (
                   <tr key={l.id}>
                     <td>
                       <div className="ad-donor">
@@ -71,6 +75,7 @@ function SectionAudit() {
             </tbody>
           </table>
         </div>
+        {!loading && !error && <AdminPager pg={pg} satuan="log" />}
         <p className="ad-table-note"><i className="bi bi-shield-lock-fill me-1"></i>Log tercatat otomatis di server saat admin mengubah status, mengelola pengguna, atau menghapus data.</p>
       </div>
     </div>

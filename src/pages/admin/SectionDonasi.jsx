@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import AdminModal from './shared/AdminModal'
 import ConfirmDelete from './shared/ConfirmDelete'
+import usePaging from './shared/usePaging'
+import { AdminSort, AdminPager } from './shared/AdminPager'
 import { useAuth } from '../../context/AuthContext'
 import { TUJUAN_DONASI, METODE_BAYAR, STATUS_DONASI, fmtRp, fmtTanggal } from '../../data/store'
 import { donasiService } from '../../services/resources'
@@ -22,6 +24,7 @@ function SectionDonasi() {
   const [saving,       setSaving]       = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [detailTarget, setDetailTarget] = useState(null)
+  const [tampilSemuaKeg, setTampilSemuaKeg] = useState(false)   // rekap per kegiatan: 5 teratas / semua
 
   const load = useCallback(async () => {
     setLoading(true); setError('')
@@ -58,6 +61,8 @@ function SectionDonasi() {
       (!filterBulan    || bulanSaja(it.tanggal) === filterBulan)
     )
   })
+  // Paging hanya untuk tampilan; Export Rekap tetap memakai seluruh `filtered`
+  const pg = usePaging(filtered, it => it.tanggal, `${search}|${filterStatus}|${filterKegiatan}|${filterBulan}`)
 
   const adaPenyaring = Boolean(search || filterStatus || filterKegiatan || filterBulan)
   const resetPenyaring = () => {
@@ -66,6 +71,28 @@ function SectionDonasi() {
 
   const totalBerhasil = items.filter(d => d.status === 'berhasil').reduce((s, d) => s + Number(d.nominal), 0)
   const countPending  = items.filter(d => d.status === 'pending').length
+
+  // Rekap donasi per kegiatan (Super Admin). Dikelompokkan menurut ID kegiatan, dihitung dari
+  // seluruh data (semua periode). "Diterima" hanya donasi berstatus berhasil.
+  const rekapKegiatan = (() => {
+    const peta = new Map()
+    items.forEach(d => {
+      const kunci = d.kegiatanId || d.kegiatan || '__umum'
+      if (!peta.has(kunci)) {
+        peta.set(kunci, {
+          kunci, nama: d.kegiatan || 'Donasi Umum (tanpa kegiatan)', umum: !d.kegiatan,
+          transaksi: 0, berhasil: 0, pending: 0, gagal: 0, diterima: 0,
+        })
+      }
+      const r = peta.get(kunci)
+      r.transaksi++
+      if (d.status === 'berhasil') { r.berhasil++; r.diterima += Number(d.nominal) || 0 }
+      else if (d.status === 'pending') r.pending++
+      else if (d.status === 'gagal') r.gagal++
+    })
+    return [...peta.values()].sort((a, b) => b.diterima - a.diterima || b.transaksi - a.transaksi)
+  })()
+  const rekapTampil = tampilSemuaKeg ? rekapKegiatan : rekapKegiatan.slice(0, 5)
   // Admin biasa tidak mendapat kolom Ubah Status, Detail, dan Aksi — verifikasi khusus Super Admin
   const jumlahKolom = isSuper ? 8 : 6
 
@@ -205,6 +232,67 @@ function SectionDonasi() {
         </div>
       </div>
 
+      {/* Rekap donasi per kegiatan (Super Admin: nominal terkunci bagi admin biasa) */}
+      {isSuper && !loading && !error && rekapKegiatan.length > 0 && (
+        <div className="ad-card ad-keg-rekap">
+          <div className="ad-keg-rekap-head">
+            <h3 className="ad-keg-rekap-title"><i className="bi bi-bar-chart-fill me-2"></i>Donasi per Kegiatan</h3>
+            <span className="ad-keg-rekap-note">Total diterima = donasi berstatus Berhasil, semua periode</span>
+          </div>
+          <div className="ad-table-wrap">
+            <table className="ad-table">
+              <thead><tr>
+                <th>Kegiatan</th><th>Transaksi</th><th>Menunggu</th><th>Berhasil</th><th>Total Diterima</th><th></th>
+              </tr></thead>
+              <tbody>
+                {rekapTampil.map(r => {
+                  const aktif = !r.umum && filterKegiatan === r.nama
+                  const persen = totalBerhasil > 0 ? Math.round((r.diterima / totalBerhasil) * 100) : 0
+                  return (
+                    <tr key={r.kunci} className={aktif ? 'ad-keg-row-aktif' : ''}>
+                      <td className="ad-td-bold">{r.nama}</td>
+                      <td className="ad-td-muted">{r.transaksi}</td>
+                      <td className="ad-td-muted">{r.pending}</td>
+                      <td className="ad-td-muted">{r.berhasil}</td>
+                      <td>
+                        <span className="ad-amount">{fmtRp(r.diterima)}</span>
+                        <div className="ad-keg-bar" title={`${persen}% dari total diterima`}><span style={{ width: `${persen}%` }}></span></div>
+                      </td>
+                      <td>
+                        {!r.umum && (
+                          <button className="ad-bukti-btn" onClick={() => setFilterKegiatan(aktif ? '' : r.nama)}
+                            title="Saring tabel donasi di bawah menurut kegiatan ini">
+                            <i className={`bi ${aktif ? 'bi-x-circle' : 'bi-funnel'} me-1`}></i>{aktif ? 'Lepas' : 'Lihat'}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td className="ad-td-bold">Total ({rekapKegiatan.length} kegiatan/kelompok)</td>
+                  <td className="ad-td-bold">{items.length}</td>
+                  <td className="ad-td-bold">{countPending}</td>
+                  <td className="ad-td-bold">{items.filter(d => d.status === 'berhasil').length}</td>
+                  <td className="ad-td-bold"><span className="ad-amount">{fmtRp(totalBerhasil)}</span></td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          {rekapKegiatan.length > 5 && (
+            <div className="ad-keg-rekap-foot">
+              <button className="ad-bukti-btn" onClick={() => setTampilSemuaKeg(v => !v)}>
+                <i className={`bi ${tampilSemuaKeg ? 'bi-chevron-up' : 'bi-chevron-down'} me-1`}></i>
+                {tampilSemuaKeg ? 'Tampilkan 5 teratas' : `Tampilkan semua (${rekapKegiatan.length})`}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="ad-filter-bar">
         <div className="ad-sf-wrap">
           <i className="bi bi-search ad-sf-icon"></i>
@@ -229,6 +317,7 @@ function SectionDonasi() {
             <i className="bi bi-x-circle me-1"></i>Reset
           </button>
         )}
+        <AdminSort pg={pg} />
         <span className="ad-filter-count">{filtered.length} dari {items.length} data</span>
       </div>
 
@@ -248,7 +337,7 @@ function SectionDonasi() {
                 ? <tr><td colSpan={jumlahKolom} className="ad-empty-row"><i className="bi bi-wifi-off me-2"></i>{error}</td></tr>
                 : filtered.length === 0
                 ? <tr><td colSpan={jumlahKolom} className="ad-empty-row"><i className="bi bi-inbox me-2"></i>Belum ada donasi</td></tr>
-                : filtered.map(it => (
+                : pg.pageItems.map(it => (
                   <tr key={it.id}>
                     <td>
                       <div className="ad-donor">
@@ -294,6 +383,7 @@ function SectionDonasi() {
             </tbody>
           </table>
         </div>
+        {!loading && !error && <AdminPager pg={pg} satuan="donasi" />}
       </div>
 
       {/* Edit (Super Admin) */}

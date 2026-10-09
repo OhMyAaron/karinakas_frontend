@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { notifikasiService } from '../../services/resources'
+import usePaging from './shared/usePaging'
+import { AdminSort, AdminPager } from './shared/AdminPager'
 
 const DEFAULT_TEMPLATES = {
   relawan: {
@@ -33,6 +35,8 @@ function SectionNotifikasi() {
   }, [])
   useEffect(() => { loadHistory() }, [loadHistory])
 
+  const pg = usePaging(history, n => n.createdAt)
+
   const saveTpl = () => {
     localStorage.setItem('kk_notif_templates', JSON.stringify(tpl))
     setSavedMsg(true)
@@ -54,6 +58,11 @@ function SectionNotifikasi() {
       </div>
 
       {tab === 'history' && (
+        <>
+        <div className="ad-filter-bar">
+          <AdminSort pg={pg} />
+          <span className="ad-filter-count">{history.length} notifikasi</span>
+        </div>
         <div className="ad-card">
           <div className="ad-table-wrap">
             <table className="ad-table">
@@ -65,7 +74,7 @@ function SectionNotifikasi() {
                   ? <tr><td colSpan={6} className="ad-empty-row"><i className="bi bi-wifi-off me-2"></i>{error}</td></tr>
                   : history.length === 0
                   ? <tr><td colSpan={6} className="ad-empty-row"><i className="bi bi-inbox me-2"></i>Belum ada notifikasi terkirim</td></tr>
-                  : history.map(n => (
+                  : pg.pageItems.map(n => (
                     <tr key={n.id}>
                       <td>
                         <span className={`ad-badge ${n.tipe === 'email' ? 'blue' : 'gray'}`}>
@@ -82,8 +91,10 @@ function SectionNotifikasi() {
               </tbody>
             </table>
           </div>
+          {!loading && !error && <AdminPager pg={pg} satuan="notifikasi" />}
           <p className="ad-table-note"><i className="bi bi-info-circle me-1"></i>Pemberitahuan dikirim melalui surel. Riwayat pengiriman dicatat otomatis oleh sistem.</p>
         </div>
+        </>
       )}
 
       {tab === 'template' && (

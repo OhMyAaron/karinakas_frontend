@@ -13,7 +13,6 @@ const categories = [
   { id: 'sosial',     label: 'Sosial',      icon: 'bi-heart' },
   { id: 'pendidikan', label: 'Pendidikan',  icon: 'bi-book' },
   { id: 'kesehatan',  label: 'Kesehatan',   icon: 'bi-heart-pulse' },
-  { id: 'kegiatan',   label: 'Kegiatan',    icon: 'bi-calendar-event' },
   { id: 'pengumuman', label: 'Pengumuman',  icon: 'bi-megaphone' },
 ]
 

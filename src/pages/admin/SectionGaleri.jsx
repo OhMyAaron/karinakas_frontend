@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import AdminModal from './shared/AdminModal'
 import ConfirmDelete from './shared/ConfirmDelete'
+import usePaging from './shared/usePaging'
+import { AdminSort, AdminPager } from './shared/AdminPager'
 import useResource from '../../hooks/useResource'
 import { galeriService } from '../../services/resources'
 import { fmtTanggal } from '../../data/store'
@@ -35,11 +37,16 @@ function SectionGaleri() {
     photos,
     cover: photos[0]?.img,
     count: photos.length,
+    latest: photos.reduce((m, p) => (p.tanggal && (!m || p.tanggal > m) ? p.tanggal : m), ''),
   }))
   const albumNames = albums.map(a => a.name)
 
   const filteredAlbums = albums.filter(a => a.name.toLowerCase().includes(search.toLowerCase()))
   const currentPhotos  = activeAlbum ? (albumMap[activeAlbum] || []) : []
+
+  // Paging terpisah untuk daftar album dan foto di dalam album (12 kartu per halaman)
+  const pgAlbum = usePaging(filteredAlbums, a => a.latest, search, 12)
+  const pgFoto  = usePaging(currentPhotos, p => p.tanggal, activeAlbum || '', 12)
 
   // ── Navigasi ──
   const openAlbum   = name => { setActiveAlbum(name); setView('detail') }
@@ -139,7 +146,16 @@ function SectionGaleri() {
             <i className="bi bi-search ad-sf-icon"></i>
             <input className="ad-sf-input" placeholder="Cari nama kegiatan..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
+          <AdminSort pg={pgAlbum} />
           <span className="ad-filter-count">{filteredAlbums.length} album</span>
+        </div>
+      )}
+
+      {/* ── Urutan foto (hanya di dalam album) ── */}
+      {view === 'detail' && !loading && !error && currentPhotos.length > 0 && (
+        <div className="ad-filter-bar">
+          <AdminSort pg={pgFoto} />
+          <span className="ad-filter-count">{currentPhotos.length} foto</span>
         </div>
       )}
 
@@ -152,8 +168,9 @@ function SectionGaleri() {
         filteredAlbums.length === 0 ? (
           <div className="ad-card"><div className="ad-empty-row" style={{ padding: '3rem' }}><i className="bi bi-collection me-2"></i>Belum ada album. Klik "Tambah Kegiatan".</div></div>
         ) : (
+          <>
           <div className="ad-galeri-grid">
-            {filteredAlbums.map(al => (
+            {pgAlbum.pageItems.map(al => (
               <div key={al.name} className="ad-galeri-card" style={{ cursor: 'pointer' }} onClick={() => openAlbum(al.name)}>
                 <div className="ad-galeri-thumb">
                   <img src={al.cover || PLACEHOLDER} alt={al.name} onError={e => { e.target.src = PLACEHOLDER }} />
@@ -169,14 +186,17 @@ function SectionGaleri() {
               </div>
             ))}
           </div>
+          <div className="ad-card mt-3"><AdminPager pg={pgAlbum} satuan="album" /></div>
+          </>
         )
       ) : (
         /* ── Detail album: foto-foto di dalamnya ── */
         currentPhotos.length === 0 ? (
           <div className="ad-card"><div className="ad-empty-row" style={{ padding: '3rem' }}><i className="bi bi-images me-2"></i>Belum ada foto. Klik "Tambah Foto".</div></div>
         ) : (
+          <>
           <div className="ad-galeri-grid">
-            {currentPhotos.map(it => (
+            {pgFoto.pageItems.map(it => (
               <div key={it.id} className="ad-galeri-card">
                 <div className="ad-galeri-thumb">
                   <img src={it.img || PLACEHOLDER} alt={it.judul} onError={e => { e.target.src = PLACEHOLDER }} />
@@ -192,6 +212,8 @@ function SectionGaleri() {
               </div>
             ))}
           </div>
+          <div className="ad-card mt-3"><AdminPager pg={pgFoto} satuan="foto" /></div>
+          </>
         )
       )}
 

@@ -1,6 +1,8 @@
 ﻿import { useState, useEffect, useCallback } from 'react'
 import AdminModal from './shared/AdminModal'
 import ConfirmDelete from './shared/ConfirmDelete'
+import usePaging from './shared/usePaging'
+import { AdminSort, AdminPager } from './shared/AdminPager'
 import { useAuth } from '../../context/AuthContext'
 import { penggunaService } from '../../services/resources'
 
@@ -41,6 +43,7 @@ function SectionPengguna() {
      (it.username || '').toLowerCase().includes(search.toLowerCase())) &&
     (!filterRole || it.role === filterRole)
   )
+  const pg = usePaging(filtered, it => it.createdAt, `${search}|${filterRole}`)
 
   const openAdd  = () => { setForm(emptyAdd); setFormErr(''); setModal({ mode: 'add' }) }
   const openEdit = it => { setForm({ nama: it.nama, email: it.email, username: it.username, role: it.role, password: '' }); setFormErr(''); setModal({ mode: 'edit', item: it }) }
@@ -106,6 +109,7 @@ function SectionPengguna() {
           <option value="">Semua Role</option>
           {Object.entries(roleMap).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
+        <AdminSort pg={pg} />
         <span className="ad-filter-count">{filtered.length} data</span>
       </div>
 
@@ -120,9 +124,9 @@ function SectionPengguna() {
                 ? <tr><td colSpan={6} className="ad-empty-row"><i className="bi bi-wifi-off me-2"></i>{error}</td></tr>
                 : filtered.length === 0
                 ? <tr><td colSpan={6} className="ad-empty-row"><i className="bi bi-inbox me-2"></i>Tidak ada data</td></tr>
-                : filtered.map((it, i) => (
+                : pg.pageItems.map((it, i) => (
                   <tr key={it.id}>
-                    <td className="ad-td-muted">{i + 1}</td>
+                    <td className="ad-td-muted">{pg.from + i}</td>
                     <td>
                       <div className="ad-donor">
                         <div className={`ad-donor-av role-${it.role}`}>{(it.nama || '?')[0]}</div>
@@ -151,6 +155,7 @@ function SectionPengguna() {
             </tbody>
           </table>
         </div>
+        {!loading && !error && <AdminPager pg={pg} satuan="pengguna" />}
       </div>
 
       {/* Add / Edit */}

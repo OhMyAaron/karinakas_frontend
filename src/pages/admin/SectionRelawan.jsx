@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import AdminModal from './shared/AdminModal'
 import ConfirmDelete from './shared/ConfirmDelete'
+import usePaging from './shared/usePaging'
+import { AdminSort, AdminPager } from './shared/AdminPager'
 import { useAuth } from '../../context/AuthContext'
 import { JENIS_RELAWAN, STATUS_RELAWAN } from '../../data/store'
 import { relawanService } from '../../services/resources'
@@ -59,6 +61,8 @@ function SectionRelawan() {
       (!filterBulan    || bulanSaja(it.tanggalRaw) === filterBulan)
     )
   })
+  // Paging hanya untuk tampilan; Export Rekap tetap memakai seluruh `filtered`
+  const pg = usePaging(filtered, it => it.tanggalRaw, `${search}|${filterStatus}|${filterJenis}|${filterKegiatan}|${filterBulan}`)
 
   const adaPenyaring = Boolean(search || filterStatus || filterJenis || filterKegiatan || filterBulan)
   const resetPenyaring = () => {
@@ -201,6 +205,7 @@ function SectionRelawan() {
             <i className="bi bi-x-circle me-1"></i>Reset
           </button>
         )}
+        <AdminSort pg={pg} />
         <span className="ad-filter-count">{filtered.length} dari {items.length} data</span>
       </div>
 
@@ -215,7 +220,7 @@ function SectionRelawan() {
                 ? <tr><td colSpan={6} className="ad-empty-row"><i className="bi bi-wifi-off me-2"></i>{error}</td></tr>
                 : filtered.length === 0
                 ? <tr><td colSpan={6} className="ad-empty-row"><i className="bi bi-inbox me-2"></i>Belum ada pendaftar relawan</td></tr>
-                : filtered.map(it => (
+                : pg.pageItems.map(it => (
                   <tr key={it.id}>
                     <td>
                       <div className="ad-donor">
@@ -244,6 +249,7 @@ function SectionRelawan() {
             </tbody>
           </table>
         </div>
+        {!loading && !error && <AdminPager pg={pg} satuan="pendaftar" />}
       </div>
 
       {/* Detail (lihat data personal) */}

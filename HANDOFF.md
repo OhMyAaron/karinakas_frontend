@@ -3,10 +3,33 @@
 Berkas ini menjawab *"sudah sampai mana, apa yang masih bermasalah, dan apa langkah berikutnya"*.
 Gambaran sistem (arsitektur, endpoint, konfigurasi) ada di **[CONTEXT.md](CONTEXT.md)** — baca itu lebih dulu.
 
-**Diperbarui:** 30 September 2026
+**Diperbarui:** 5 Oktober 2026
 
 > **Untuk AI / room chat baru:** baca `CONTEXT.md` → berkas ini → bila menyentuh DPPL, `docs/dppl/CHECKLIST.md`.
 > Bagian §7 menjelaskan cara bekerja yang disukai penyusun — ikuti itu.
+
+> 🔴 **PENTING — baca sebelum menyentuh Bab IV/V/VI laporan TA:** ada **dua naskah Bab V/VI yang
+> kini tidak identik**, masing-masing lebih maju di sisi berbeda — jangan asumsikan salah satunya
+> usang begitu saja:
+> 1. **`D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\Laporan Tugas Akhir\LAPORAN TUGAS AKHIR TERBARU.docx`**
+>    (satu tingkat di luar folder `Project TA\`) — satu-satunya yang punya **43 tangkapan layar
+>    sungguhan tertanam**. Sudah direvisi ke 2 tujuan, dan 2 dari 3 inkonsistensi §4.16 sudah
+>    diperbaiki langsung di berkas ini 2 Okt malam (lihat §4.17); **1 sisanya ("35 vs 27
+>    responden") masih menunggu konfirmasi Anda**. Backup pra-sunting ada di folder yang sama:
+>    `LAPORAN TUGAS AKHIR TERBARU.backup-20261002-210355.docx`. **Belum** memakai gaya penelusuran
+>    4 tahap HCD maupun kebijakan hapus-rujukan-Subbab di bawah ini.
+> 2. **`docs/laporan/BAB-V-LENGKAP.md`** dan **`BAB-VI-LENGKAP.md`** di repo ini — direvisi
+>    terpisah 2–3 Okt atas permintaan Anda (§4.18–§4.19): kerangka 2 tujuan, Pembahasan Bab V
+>    menelusuri **keempat tahap HCD (ISO 9241-210)** secara eksplisit, **seluruh rujukan
+>    "(Subbab X.Y)" dihapus**, dan paragraf usability tidak lagi membandingkan skor SUS dengan
+>    studi lain. **Belum** punya screenshot asli (masih penanda *Sisipkan Gambar*), dan **belum
+>    disebarkan** ke `TERBARU.docx` — pertanyaan ini masih terbuka, lihat §6. Sejak 4 Okt, Pembahasan
+>    5.2.4 di `.md` ini juga memuat **penjelasan 10 grafik SUS (Gambar 5.21–5.30)** — lihat §4.20.
+> 3. **`Laporan Tugas Akhir\REVISI\LAPORAN TUGAS AKHIR TERBARU.docx`** (+ salinan di `REVISI\nest\`) —
+>    🆕 **ditemukan 4 Okt, diubah 3 Okt 21:43, 12 MB** (lebih kecil dari `TERBARU.docx` di folder induk
+>    yang 16 MB, 2 Okt 21:14). **Belum dibuka/dibandingkan** — belum diketahui apakah ini versi terbaru,
+>    hasil revisi dosen, atau salinan kerja. **Tanyakan ke penyusun mana yang aktif sebelum menyunting
+>    `.docx` apa pun.**
 
 ---
 
@@ -22,15 +45,26 @@ Gambaran sistem (arsitektur, endpoint, konfigurasi) ada di **[CONTEXT.md](CONTEX
 | **SKPL** | ✅ Bab I–III selesai, **disinkronkan ulang 19–20 Sept** (lihat §4.8): 66 titik akhir, UC-24 Memulihkan Kata Sandi, NFR 3.4.4.8 dipersempit sesuai FR 516 |
 | **DPPL** | ✅ Bab 1, 2.1, 2.2, 2.3 (juga disinkronkan 19–20 Sept) · ⬜ **2.4 Perancangan Antarmuka belum** — draf materi sudah ada di `docs/laporan/4.3-4.4-...md` §4.3.7–4.3.9 |
 | **Bab IV Laporan TA** | ✅ **Naskah siap tempel** di `docs/laporan/BAB-IV-LENGKAP.md` (§4.12) — konsolidasi draf lama, penomoran final 4.1–4.6 disamakan dengan Word, "catatan revisi" (gaya "naskah sebelumnya salah...") ditulis ulang jadi prosa langsung, jumlah antarmuka **diputuskan 24** (11 publik/5 terdaftar/8 admin) · ⬜ SKPL/DPPL belum ikut memakai angka 24 ini |
+| **Bab IV/V/VI Laporan TA** | 🔴 **Dua naskah Bab V/VI tidak identik, baca §4.16–§4.19 sebelum menyentuh.** `TERBARU.docx` (di luar repo): punya 43 screenshot nyata; 2 dari 3 inkonsistensi §4.16 sudah diperbaiki 2 Okt (✅ "tujuan ketiga" & selisih 87/87 vs 86/87); ⬜ "35 vs 27 responden" masih menunggu konfirmasi Anda. `docs/laporan/BAB-V/VI-LENGKAP.md`: direvisi terpisah 2–3 Okt — 2 tujuan, 4 tahap HCD ditelusuri eksplisit di Pembahasan, rujukan Subbab dihapus, paragraf usability tidak lagi membandingkan ke studi lain; ⬜ belum disebarkan ke `TERBARU.docx`, belum punya screenshot asli. **4 Okt:** Pembahasan 5.2.4 `.md` kini memuat penjelasan 10 grafik SUS (Gambar 5.21–5.30, §4.20) — grafiknya dipindah dari Hasil ke Pembahasan. 🆕 Ada folder `REVISI/` berisi `.docx` lain (3 Okt) yang belum diperiksa. |
 | **PDHUPL** | ✅ **88 butir uji, Bab 5 & Bab 6 (SUS) lengkap** di `docs/PDHUPL.md` (§4.10–§4.13) — Bab 5 lewat **penelusuran kode**; **UT-03 (validasi KTP) diperbaiki 30 Sept, kini Handal** (§4.13, kode lokal belum di-deploy); **Bab 6 kini memuat data mentah P1–P10 seluruh 40 responden** (§4.12), bukan hanya skor akhir · ⬜ **verifikasi nyata di situs live masih perlu dilakukan sebelum dianggap final**. ⚠️ Berkas Word terpisah yang pernah diserahkan penyusun ("PDHUPL FX.pdf") adalah **ekspor lama** — sempat kurang 3 subbab (AD-28N/30N/32N di Bab 4.6); `docs/PDHUPL.md` sudah benar, tinggal ekspor ulang |
 | **TESTING.md** | ✅ 181 kasus tersusun · ⬜ belum dijalankan/diisi |
 | **Uji kebergunaan (SUS)** | ✅ **Sudah dijalankan — 40 responden nyata, skor rata-rata 72,56** (Baik/*Acceptable*), lihat §4.10 |
 | **Laporan TA (.docx)** | ⚠️ Belum selaras dengan SKPL/DPPL — draf perbaikan sudah siap di `docs/laporan/`, tinggal dipindahkan |
 
-**Yang paling mendesak:** (1) **commit & deploy perbaikan `AdminController.php`** (§4.7) — sudah teruji lokal
-tapi belum sampai ke situs live; (2) memastikan surel reset kata sandi terkirim dari peladen (§5 butir lama 1);
-(3) eksekusi nyata `TESTING.md` dan `docs/PDHUPL.md` supaya Bab V laporan punya angka hasil sungguhan, bukan
-rencana uji kosong.
+**Yang paling mendesak:** (1) **konfirmasi angka 35 vs 27 responden** (§4.17/§6) — satu-satunya
+inkonsistensi `TERBARU.docx` yang masih tersisa; (2) **putuskan apakah `docs/laporan/BAB-V/VI-LENGKAP.md`
+yang sudah direvisi (2 tujuan, 4 tahap HCD, tanpa rujukan Subbab) perlu disebarkan ke `TERBARU.docx`**
+(§4.18–§4.19, §6) — saat ini isi keduanya sengaja dibiarkan berbeda konvensi menunggu keputusan Anda;
+(3) **commit & deploy perbaikan `AdminController.php`** (§4.7) — sudah teruji lokal tapi belum sampai
+ke situs live; (4) memastikan surel reset kata sandi terkirim dari peladen (§5 butir lama 1);
+(5) eksekusi nyata `TESTING.md` dan `docs/PDHUPL.md` supaya Bab V laporan punya angka hasil sungguhan,
+bukan rencana uji kosong.
+
+> **Tambahan 4–5 Okt (sesi chat terakhir sebelum pindah room):** (a) **cek folder `REVISI/`** dan
+> tentukan `.docx` mana yang aktif (§6); (b) angka responden kuesioner kebutuhan **tidak hanya beda di
+> Word, tapi juga di repo**: `BAB-IV-LENGKAP.md` memakai **27**, `BAB-V/VI-LENGKAP.md` memakai **35** —
+> harus dipastikan dari data mentah Google Form (§4.20, §6); (c) paragraf Bab IV 4.5.2 sudah dirapikan
+> di chat tapi **belum diterapkan** ke `BAB-IV-LENGKAP.md` (§4.20).
 
 ---
 
@@ -90,6 +124,13 @@ php artisan storage:link
 | 25 | 29 Sep | **Kesalahan pada PDHUPL Word ("PDHUPL FX.pdf") ditemukan dan dicek balik ke `docs/PDHUPL.md`:** Bab 4.6 pada Word itu kurang 3 subbab (AD-28N, AD-30N, AD-32N) dan salah tulis "12 butir uji" (seharusnya 15) — **`docs/PDHUPL.md` sudah benar**, jadi Word itu ternyata ekspor lama, bukan `.md` yang salah. Ditemukan pula typo "epran" → "peran" di Word (tidak ada di `.md`). **Bab 4 laporan TA dikonsolidasi** jadi `docs/laporan/BAB-IV-LENGKAP.md`: 5 rujukan "FR SIKAS" tersisa diganti "FR Karinakas" (di dua berkas draf lama sekaligus), gaya "naskah sebelumnya keliru..." ditulis ulang jadi prosa langsung tanpa mengubah fakta, dan jumlah antarmuka diputuskan **24** (rekomendasi lama, belum pernah dieksekusi) |
 | 26 | 29–30 Sep | **`docs/PDHUPL.md` Bab 6 dilengkapi data mentah SUS.** Data jawaban P1–P10 milik 40 responden (yang sebelumnya diminta diekspor manual via CSV) ternyata sudah tersedia — sempat tersalin ke PDHUPL Word ("PDHUPL FX.pdf") tapi belum pernah dibawa balik ke `docs/PDHUPL.md`. Ditambahkan Bab 6.2 (10 pernyataan SUS), 6.3 (jawaban mentah per responden, dua tabel), 6.4 (rekapitulasi per pernyataan — distribusi 1–5, rata-rata, kontribusi); Bab 6.2–6.4 lama diberi nomor baru 6.5–6.7. Seluruh angka dicocokkan ulang terhadap skor akhir di 6.5/6.6 sebelum ditulis (tidak ada beda). Dikonfirmasi ke penyusun: `docs/PDHUPL.md` **tidak** punya bagian "Daftar Revisi" (beda dari templat Word resmi) — kerangkanya ditawarkan tapi belum ditambahkan, menunggu keputusan |
 | 27 | 30 Sep | **Perbaikan validasi nomor KTP relawan (menutup UT-03).** `RelawanController::store` diubah dari `nomor_ktp` => `nullable\|string\|max:20` menjadi `required\|digits:16`; `DaftarRelawan.jsx` diberi `required`, `minLength`/`maxLength={16}`, `pattern="\d{16}"`, dan pemeriksaan panjang sisi klien sebelum kirim. Kolom `nomor_ktp` di tabel `relawan` **tetap nullable** (tidak ada migrasi) supaya baris lama tak terdampak — hanya pendaftaran baru yang kini wajib 16 digit. `docs/PDHUPL.md` (UT-03), `docs/PDHUPL-CATATAN.md`, `docs/PDHUPL-STATUS-DAN-KODE.md` diperbarui dari Tidak Handal menjadi Handal. **Belum di-commit/deploy.** |
+| 28 | 30 Sep | **Bab V laporan TA disusun pertama kali** (`docs/laporan/BAB-V-LENGKAP.md`, §4.14) — ditemukan bahwa Bab V pada `docs/LAPORAN TUGAS AKHIR.docx` ternyata masih 100% teks instruksi templat kampus (belum pernah ditulis penyusun), bukan sekadar "kurang detail". Naskah baru disusun dari bahan yang sudah ada: `BAB-IV-LENGKAP.md` dan `docs/PDHUPL.md`, mengikuti struktur pembanding contoh PDHUPL teman (walkthrough per-antarmuka + rekap pengujian + tabel SUS + pembahasan yang menjawab tujuan penelitian) |
+| 29 | 30 Sep | **Bab V diperdalam per permintaan penyusun** (`docs/laporan/BAB-V-LENGKAP.md`, §4.14) — kedua puluh subbab 5.2.1 diperluas dari 2–4 kalimat menjadi beberapa paragraf dengan rincian kolom data model, aturan ON DELETE, dan kaitan eksplisit ke persona Bab IV. **Bab VI (Kesimpulan dan Saran) disusun pertama kali** (`docs/laporan/BAB-VI-LENGKAP.md`, §4.15) — sama seperti Bab V, Bab VI pada `docs/LAPORAN TUGAS AKHIR.docx` juga masih teks templat; naskah baru menyintesis kesimpulan dari 3 tujuan penelitian dan menyusun saran dua audiens (pengembang selanjutnya, pihak Karinakas) dari temuan nyata §5/§6, bukan saran generik |
+| 30 | 1–2 Okt | **Bab VI ditulis ulang dengan nada *forward-looking*** (§4.15) — penyusun meminta saran tidak terkesan "menjatuhkan" progres proyek. Kesimpulan dan kelima belas butir Saran disusun ulang: dibuka dengan capaian ("berhasil mencapai ketiga tujuan"), dan tiap butir saran diubah dari bingkai "perbaiki celah/belum selesai" menjadi "lanjutkan/perkuat/tingkatkan" — **substansi teknis tiap butir tidak berubah sama sekali**, hanya framing-nya. Bab V sengaja **tidak** ikut diubah karena pengakuan keterbatasan pengujian di sana memang harus apa adanya. `HANDOFF.md`/`CONTEXT.md` disinkronkan ulang agar siap dipakai di room chat baru. |
+| 31 | 2 Okt | **Ditemukan `TERBARU.docx` (di luar repo) jauh lebih maju** dari ketiga draf `.md` — sudah punya 43 screenshot nyata dan Bab I 2 tujuan, tapi punya 3 inkonsistensi nyata (§4.16). |
+| 32 | 2 Okt (malam) | **2 dari 3 inkonsistensi diperbaiki langsung di `TERBARU.docx`** lewat unzip + sunting `word/document.xml` + zip ulang (§4.17) — ditemukan juga bug isi lebih serius di sana (5.2.1.19 "Riwayat Notifikasi" ternyata salinan persis "Kelola Pengguna"; paragraf 5.2.2 rusak teknis, hilang huruf "L" dari "PDHUPL"), ikut diperbaiki. Backup pra-sunting dibuat sebelum menimpa berkas hidup. |
+| 33 | 2–3 Okt | **`docs/laporan/BAB-V-LENGKAP.md` dan `BAB-VI-LENGKAP.md` direvisi terpisah** atas permintaan penyusun (§4.18–§4.19): kerangka 3 tujuan → 2 tujuan, Pembahasan Bab V kini menelusuri **4 tahap HCD (ISO 9241-210)** eksplisit dengan buktinya masing-masing, **seluruh rujukan "(Subbab X.Y)" dihapus** (±63 kemunculan, kode butir uji PU-xx/AD-xx dst. dipertahankan), dan paragraf "Tujuan kedua" (usability) ditulis ulang agar tidak membandingkan skor SUS dengan studi lain — paragraf "Keterbatasan sistem" dihapus dari Pembahasan karena isinya sudah tercakup di Saran Bab VI. Kedua `.md` ini sekarang **sengaja berbeda konvensi** dari `TERBARU.docx`, menunggu keputusan apakah perlu disebarkan ke sana juga. |
+| 34 | 4–5 Okt | **Grafik SUS dipindah ke Pembahasan Bab V + paragraf Bab IV 4.5.2 dirapikan** (§4.20): penanda gambar 5.21–5.30 dihapus dari Hasil 5.2.3 dan dijelaskan satu per satu di Pembahasan 5.2.4 (`BAB-V-LENGKAP.md`), seluruh persentase dicocokkan ke data mentah PDHUPL Bab 6.4; paragraf 4.5.2 ("dibakar" dst.) ditulis ulang dan diverifikasi ke kode; folder `REVISI/` ditemukan; konflik 35 vs 27 responden terlacak ke repo. |
 
 ---
 
@@ -291,11 +332,294 @@ Pengujian) sudah ditulis lengkap dalam bentuk narasi (bukan poin-poin) di
 - **Dokumen yang ikut diperbarui:** `docs/PDHUPL.md` (UT-03: Tidak Handal → Handal), `docs/PDHUPL-CATATAN.md`,
   `docs/PDHUPL-STATUS-DAN-KODE.md` (ringkasan Bab 5 dan tabel tindakan).
 
+### 4.14 Bab V laporan TA disusun pertama kali (30 Sep)
+- **Penyusun membandingkan Bab V miliknya dengan contoh milik teman** (Putra Palampang Tarung,
+  Bab V "SIGO Dental" — walkthrough per-fitur dengan screenshot, hasil pengujian 144 butir, tabel SUS
+  per responden, pembahasan yang mengaitkan ke Bab I/II) dan bertanya kenapa punya sendiri "sangat simpel".
+- **Diagnosis setelah membuka `docs/LAPORAN TUGAS AKHIR.docx`:** Bab V pada berkas itu **bukan simpel,
+  tapi memang belum pernah ditulis** — isinya 100% teks instruksi templat kampus ("Subbab ini berisi
+  pemaparan hasil... Mahasiswa wajib menyajikan hasil secara faktual..."), bukan konten Karinakas. Bagian
+  akhir Bab IV (Perancangan Sistem/Implementasi dan Pengujian/Evaluasi Sistem) di berkas yang sama juga
+  masih placeholder — hanya Identifikasi Masalah s.d. Daftar Aktor Sistem yang sudah diisi nyata. Ini
+  konsisten dengan catatan lama bahwa "Subbab Evaluasi (Bab V–VI) masih teks templat".
+- **Naskah baru disusun** di `docs/laporan/BAB-V-LENGKAP.md`, mengikuti kerangka yang sama dengan contoh
+  Putra (5.1 Pengantar → 5.2.1 hasil implementasi per antarmuka → 5.2.2 hasil pengujian fungsional →
+  5.2.3 hasil SUS → 5.2.4 pembahasan), tapi seluruh isinya ditarik dari bahan yang sudah nyata ada di
+  proyek — **bukan dikarang**:
+  - 5.2.1: 20 subbab walkthrough (Publik/Pengguna Terdaftar/Admin & Super Admin) ditarik dari
+    `BAB-IV-LENGKAP.md` dan `CONTEXT.md`, masing-masing diberi penanda *(Sisipkan Gambar ...)* karena
+    belum ada tangkapan layar situs live yang bisa disisipkan dari sesi ini.
+  - 5.2.2: rekap 88 butir PDHUPL per kelas uji (Tabel 5.1), termasuk AD-34 Tidak Berlaku dan perbaikan
+    UT-03, **plus pengakuan eksplisit bahwa `TESTING.md` (181 kasus) belum dieksekusi** — tidak ditutupi
+    seperti draf lama sempat mengisyaratkan.
+  - 5.2.3: tabel skor SUS per responden (29 pengunjung umum + 11 admin/super admin) disalin apa adanya
+    dari `docs/PDHUPL.md` Bab 6, termasuk catatan *straight-lining* R19.
+  - 5.2.4: pembahasan yang secara eksplisit menyatakan tujuan 1 dan 2 (Bab I) **tercapai** dengan bukti
+    tertelusur ke persona Bab IV, tapi tujuan 3 (pengujian & kepuasan) **tercapai sebagian** — usability
+    sudah terukur nyata, fungsionalitas baru sebagian (PDHUPL) sementara TESTING.md belum jalan — dan
+    kelebihan/keterbatasan sistem ditulis eksplisit di akhir.
+- **Yang masih tersisa:** placeholder screenshot (Gambar 5.1–5.30) belum diisi — perlu tangkapan layar
+  `karinakas.com` sungguhan dari penyusun; setelah itu draf ini siap ditempel ke Word menyusul
+  `BAB-IV-LENGKAP.md`.
+- **Diperdalam 30 Sep (permintaan penyusun):** kedua puluh subbab 5.2.1 (walkthrough per antarmuka)
+  diperluas dari 2–4 kalimat menjadi beberapa paragraf per subbab, menambahkan rincian kolom data
+  model (mis. `jenis_relawan`/`bidang_minat` JSON per kegiatan, lima medan keuangan donasi yang
+  disembunyikan, sembilan titik pemanggilan `AuditLog::record()`), aturan ON DELETE antar tabel, dan
+  kaitan eksplisit tiap fitur ke persona/pain point Bab IV — tanpa mengarang fakta baru, seluruhnya
+  ditarik dari `CONTEXT.md` dan `BAB-IV-LENGKAP.md` yang sudah ada.
+
+### 4.15 Bab VI (Kesimpulan dan Saran) laporan TA disusun pertama kali (30 Sep)
+- Penyusun menempelkan teks instruksi templat kampus untuk subbab Saran dan meminta isinya
+  dilengkapi. Pengecekan ke `docs/LAPORAN TUGAS AKHIR.docx` mengonfirmasi **Bab VI juga masih
+  100% teks templat**, sama seperti temuan Bab V pada §4.14 — belum pernah ditulis dengan
+  konten Karinakas.
+- **Naskah baru disusun** di `docs/laporan/BAB-VI-LENGKAP.md`:
+  - **6.1 Kesimpulan** — menyintesis capaian tiga tujuan penelitian Bab I: tujuan 1 (bangun
+    sistem) dan tujuan 2 (terapkan HCD) dinyatakan **tercapai penuh**, tujuan 3 (uji fungsionalitas
+    & usability) dinyatakan **tercapai sebagian** — konsisten dengan kesimpulan yang sudah
+    dibangun pada Bab V Subbab 5.2.4, tidak mengulang isi pembahasan melainkan meringkasnya.
+  - **6.2.1 Saran bagi Pengembang Selanjutnya** (8 butir) — seluruhnya ditarik dari temuan nyata
+    pada §5/§6 di atas: deploy perbaikan `AdminController`/validasi KTP yang masih tertahan
+    lokal, tuntaskan verifikasi email produksi, jalankan `TESTING.md` dan verifikasi dinamis
+    PDHUPL, perbaiki celah `nama_lengkap max:150` vs kolom `varchar(100)` dan `kegiatan_id`
+    nullable tanpa batasan unik, redupkan warna `--yellow`, putuskan nasib endpoint
+    `/admin/rekapan/*` yang tak terpakai, perkuat keamanan produksi (kata sandi demo, APP_DEBUG,
+    CORS), dan opsi perluasan cakupan jejak audit.
+  - **6.2.2 Saran bagi Pihak Karinakas** (7 butir) — pelatihan Super Admin untuk alur verifikasi
+    donasi, jadwal pembaruan konten rutin (menjawab keluhan responden SUS soal konten tidak
+    diperbarui), ganti kata sandi kotak surel yang sempat tertulis di riwayat chat, pencadangan
+    basis data berkala, konfirmasi ulang rekening/QRIS, narasi dampak kegiatan (menjawab
+    kebutuhan persona "Bimo"), dan penunjukan penanggung jawab teknis notifikasi gagal kirim.
+- **Status:** siap ditempel ke Word menyusul `BAB-IV-LENGKAP.md` dan `BAB-V-LENGKAP.md` — tidak
+  ada placeholder *screenshot* pada bab ini karena sifatnya naratif/rekomendasi, bukan walkthrough
+  visual.
+- **Pembaruan 1–2 Okt (permintaan penyusun):** nada 6.1 dan 6.2 ditulis ulang supaya tidak terkesan
+  "menjatuhkan" progres proyek — **substansi 15 butir saran tidak berubah**, hanya bingkainya:
+  dari "perbaiki celah/belum dieksekusi" menjadi "lanjutkan/perkuat/tingkatkan" sebagai arah
+  pengembangan berkelanjutan. Bab V sengaja dibiarkan apa adanya karena pengakuan keterbatasan
+  pengujian di sana memang tempatnya untuk jujur, bukan di Bab VI yang memang konvensinya
+  forward-looking.
+
+### 4.16 Penemuan: naskah Word `TERBARU.docx` sudah jauh lebih maju dari draf `.md` — 3 inkonsistensi ditemukan (2 Okt)
+- **Konteks:** saat menyiapkan ringkasan untuk pindah room chat, ditemukan bahwa di luar `Project TA/`
+  ada folder `TUGAS AKHIR/Laporan Tugas Akhir/` berisi **tiga** salinan `.docx`: `LAPORAN TUGAS AKHIR.docx`
+  (17 Sep, usang), `~$PORAN TUGAS AKHIR.docx` (berkas kunci sementara Word, abaikan), dan
+  **`LAPORAN TUGAS AKHIR TERBARU.docx`** (diubah **1 Okt 2026**, 17 MB) — inilah naskah yang
+  sesungguhnya sedang dikerjakan penyusun, bukan salinan mana pun di `docs/`.
+- **Isi `TERBARU.docx` sejauh ditelusuri** (diekstrak lewat `unzip` + Node.js, karena tidak ada
+  `pandoc`/`soffice` terpasang — lihat §9 gotcha baru bila perlu mengulang):
+  - **Bab I direvisi:** Rumusan Masalah, Pertanyaan Penelitian, dan Tujuan Penelitian **dipadatkan
+    jadi 2 tujuan** — (1) mengembangkan website dengan pendekatan HCD, (2) mengevaluasi usability
+    dengan SUS. Tujuan lama #3 ("menguji fungsionalitas") **tidak lagi berdiri sendiri** — berbeda
+    dari versi yang dipakai BAB-V/VI-LENGKAP.md (3 tujuan). Kapan dan oleh siapa perubahan ini
+    dibuat belum diketahui sesi ini — tanyakan ke penyusun bila perlu konteks (kemungkinan masukan
+    dosen pembimbing).
+  - **Bab IV** jauh lebih lengkap dari `docs/LAPORAN TUGAS AKHIR.docx` versi lama — mencakup s.d.
+    4.5 Implementasi dan Pengujian, sejalan dengan `BAB-IV-LENGKAP.md`.
+  - **Bab V sudah memuat 20 subbab 5.2.1 walkthrough + Tabel 5.1 PDHUPL + tabel SUS**, hampir
+    identik kata-per-kata dengan `docs/laporan/BAB-V-LENGKAP.md` (§4.14) — penyusun sudah
+    menyalinnya ke Word **dan menambahkan 43 tangkapan layar sungguhan** (Gambar 5.1 dst., dicek
+    lewat folder `word/media/` dalam arsip `.docx`). Bab V 5.2.4 Pembahasan **belum disesuaikan**
+    dengan Bab I 2-tujuan baru — lihat inkonsistensi (a) di bawah.
+  - **Bab VI Kesimpulan ditulis ulang total** (bukan dari draf saya) mengikuti struktur 2-tujuan
+    baru, dengan angka-angka baru — lihat inkonsistensi (b) dan (c) di bawah.
+  - **Bab VI Saran** memakai nada *forward-looking* hasil tulis ulang saya (§4.15) tapi **tampak
+    hanya sebagian butir yang disalin**: pada "Saran bagi Pengembang Selanjutnya" hanya terlihat
+    butir 7 (hardening) dan 8 (perluasan audit) dari 8 butir asli; pada "Saran bagi Pihak
+    Karinakas" hanya terlihat 3 dari 7 butir (pencadangan data, tinjau rekening/QRIS, penanggung
+    jawab notifikasi). **Belum jelas** apakah ini trim sengaja oleh penyusun atau belum selesai
+    ditempel — tanyakan ke penyusun, jangan diasumsikan salah satu.
+- **🔴 Tiga inkonsistensi nyata ditemukan, perlu diperbaiki sebelum naskah final:**
+  1. **Bab V Subbab 5.2.4 Pembahasan masih menyebut "Tujuan ketiga... tercapai sebagian"** —
+     padahal Bab I sekarang cuma punya 2 tujuan. Pembahasan ini perlu ditulis ulang mengikuti pola
+     yang sudah dipakai Bab V 5.1 Pengantar sendiri (tujuan 1 = HCD, dibuktikan lewat implementasi
+     + pengujian fungsional; tujuan 2 = usability, dibuktikan lewat SUS) — bukan menghapus
+     pengakuan bahwa `TESTING.md` 181 kasus belum dieksekusi, hanya mengubah pemetaannya ke 2
+     tujuan.
+  2. **Angka keberhasilan pengujian tidak konsisten.** Bab V (5.2.2 dan 5.2.4) secara eksplisit
+     menyatakan **87 Handal + 1 Tidak Berlaku dari 88 butir PDHUPL** (artinya 87/87 = 100% dari
+     butir yang berlaku). Bab VI Kesimpulan yang baru ditulis menyatakan **"tingkat keberhasilan
+     98,85% (86 dari 87 butir uji yang berlaku dinyatakan Handal)"** — angka ini **tidak cocok**
+     dengan klaim 87 Handal di Bab V. Perlu dicek ulang: apakah ada 1 butir tambahan yang kini
+     dianggap tidak Handal (lalu Bab V juga perlu diperbarui), atau Bab VI salah hitung (lalu
+     ganti jadi "87 dari 87 (100%)"). **Jangan asal pilih salah satu tanpa mengecek `docs/PDHUPL.md`
+     Bab 5 ulang.**
+  3. **Jumlah responden kuesioner analisis kebutuhan salah ketik di Bab VI.** Bab IV (Subbab 4.3.3,
+     dicek lagi di `TERBARU.docx` baris konsisten dengan draf) secara konsisten menyebut **27
+     responden** untuk kuesioner *persona*/*pain points*. Bab VI Kesimpulan yang baru menulis
+     **"35 responden kuesioner"** — kemungkinan tertukar dengan angka lain atau salah ketik.
+     Perbaiki jadi 27, kecuali penyusun memang punya data tambahan yang belum diberitahukan ke
+     sesi sebelumnya (tanyakan dulu, jangan asumsi).
+- **Implikasi untuk sesi berikutnya:** `docs/laporan/BAB-V-LENGKAP.md` dan `BAB-VI-LENGKAP.md` di
+  repo ini **sudah tertinggal** dari `TERBARU.docx` — jangan jadikan acuan utama lagi untuk status
+  Bab V/VI, gunakan sebagai referensi riwayat saja. Perbaikan atas tiga inkonsistensi di atas
+  sebaiknya dilakukan **langsung di `TERBARU.docx`** (lewat skrip `unzip` + sunting `word/document.xml`
+  + `zip` ulang, karena `pandoc`/`soffice` tidak tersedia di mesin ini — lihat catatan skill `docx`
+  tentang pendekatan edit berkas yang sudah ada), bukan di berkas markdown.
+
+### 4.17 Perbaikan langsung di `TERBARU.docx`: 2 dari 3 inkonsistensi §4.16 ditutup, plus bug isi baru ditemukan (2 Okt malam)
+- Penyusun menempelkan isi lengkap Bab I–VI dari `TERBARU.docx` (lewat ekspor PDF) ke sesi chat dan
+  mengeluhkan tata bahasa Bab V/VI yang terasa janggal. Penelusuran kalimat per kalimat terhadap
+  **`word/document.xml` asli** (bukan hasil ekspor PDF, yang ternyata sempat menyamarkan sebagian
+  kerusakan) menemukan masalah yang lebih parah dari sekadar gaya bahasa:
+  - **Subbab 5.2.2 (Hasil Pengujian Fungsional) paragraf pembuka rusak secara teknis** — satu run
+    XML terpotong sehingga kata "PDHUPL" kehilangan huruf terakhirnya ("PDHUP"), dan kalimat
+    terpecah jadi dua klausa yang tidak nyambung ("...memuat 88 butir uji yang sudah dilaksanakan.
+    hasilnya lewat penelusuran kode..."). Paragraf ini juga merujuk **"Subbab 5.2.4" yang tidak ada**
+    (naskah cuma sampai 5.2.3 lalu 5.3) — sisa penomoran draf lama yang tidak ikut disesuaikan.
+  - **Subbab 5.2.1.19 "Riwayat Notifikasi" isinya adalah salinan persis dari 5.2.1.18 "Kelola
+    Pengguna"** (membahas AD-27 s.d. AD-32, celah `AdminController`) — judul dan gambar (Gambar 5.19,
+    tangkapan layar panel Notifikasi) sudah benar, tapi dua paragraf teks di bawahnya salah total,
+    kemungkinan besar sisa copy-paste yang lupa diganti.
+  - Dua kalimat comma-splice (anak kalimat disambung koma tanpa konjungsi, bikin alur kalimat
+    kabur) di Subbab 5.2.1.5 (Berita) dan 5.2.2 (kalimat UT-03).
+  - Typo murni: "Sebagai kelanjutakn dari capaian..." dan "Saran bagi Pengmbang Selanjutnya" di Bab
+    VI 6.2.
+  - **Temuan baru, bukan dari catatan lama:** di dalam Bab IV sendiri ada kontradiksi jumlah
+    responden kuesioner kebutuhan — Subbab 4.3.1 dan 4.3.2 menyebut **35 responden**, tapi Subbab
+    4.3.3 (Pain Points) masih menyebut **27 responden**. Ini membalikkan dugaan lama di §4.16(c):
+    "35 responden" di Bab VI kemungkinan besar **sudah benar** (konsisten dengan mayoritas Bab IV),
+    dan yang perlu dikoreksi justru satu angka "27" yang tersisa di 4.3.3. **Belum diperbaiki** —
+    menunggu konfirmasi penyusun bahwa ini memang salah ketik, bukan dua kelompok data yang sengaja
+    dibedakan (lihat §6).
+- **Diperbaiki langsung di `TERBARU.docx`** (unzip `word/document.xml` → cari paragraf lewat
+  `w14:paraId` unik → ganti isi `<w:t>` → zip ulang dengan path forward-slash secara manual karena
+  `System.IO.Compression.ZipFile.CreateFromDirectory` di PowerShell 5.1 ternyata menulis path
+  berbackslash yang tidak valid untuk OOXML — divalidasi well-formed lewat `[xml]` .NET parser
+  sebelum ditimpakan):
+  1. Paragraf pembuka 5.2.2 ditulis ulang bersih, rujukan "Subbab 5.2.4" diperbaiki jadi "Subbab 5.3".
+  2. Kalimat Berita (5.2.1.5) dan kalimat UT-03 (5.2.2) dipecah agar tidak comma-splice.
+  3. **Subbab 5.2.1.19 ditulis ulang total** sesuai subjeknya yang benar (panel Notifikasi, kolom
+     `NotifikasiLog`, butir uji NL-01, dan catatan bahwa panel ini — beda dari Pengguna/Audit —
+     bisa diakses admin **dan** super admin karena `authorize('viewAdminDashboard', ...)`).
+  4. Pembahasan (5.3): paragraf "Tujuan ketiga" **dihapus** (Bab I sekarang cuma 2 tujuan) — bukti
+     pengujian fungsional (88 butir PDHUPL, pengakuan TESTING.md 181 kasus belum jalan) dipindah
+     jadi penguat paragraf "Tujuan pertama"; hasil pengukuran SUS (72,56, perbandingan ke studi
+     Kurniawan/Husseini, catatan *straight-lining*) dipindah jadi paragraf baru menyusul "Tujuan
+     kedua". Ditambahkan satu kalimat reflektif yang menghubungkan siklus revisi 4.4.2↔4.6.2 sebagai
+     bukti HCD iteratif benar-benar jalan di dalam kerangka Waterfall — closing-loop ke Bab III,
+     bukan pengulangan definisi metodologi.
+  5. Bab VI 6.1: angka **"98,85% (86 dari 87 Handal)" diganti "100% dari butir yang berlaku (87 dari
+     87 Handal, 1 Tidak Berlaku)"**, konsisten dengan Bab V dan `docs/PDHUPL.md` (digrep ulang: 0
+     baris "Tidak Handal" di `docs/PDHUPL.md` per sesi sebelumnya).
+  6. Typo "kelanjutakn" → "kelanjutan", "Pengmbang" → "Pengembang" di Bab VI 6.2.
+- **Sengaja TIDAK diubah:** angka "27 responden" di Subbab 4.3.3 — ini perlu konfirmasi penyusun
+  dulu (lihat §6), bukan keputusan AI sepihak karena menyangkut data, bukan cuma bahasa.
+- **Verifikasi sebelum ditimpakan:** XML hasil sunting dicek *well-formed* lewat `[xml]` .NET
+  parser, jumlah berkas dalam paket zip (76 berkas) dan ukuran seluruh bagian lain (styles, media,
+  dll.) dipastikan identik dengan versi asli lewat `diff`, dan isi `word/document.xml` hasil susun
+  ulang diverifikasi cocok 100% sebelum menimpa berkas hidup. Backup pra-sunting disimpan di folder
+  yang sama: `LAPORAN TUGAS AKHIR TERBARU.backup-20261002-210355.docx`.
+
+### 4.18 `docs/laporan/BAB-V-LENGKAP.md` dan `BAB-VI-LENGKAP.md` direvisi: 2 tujuan, 4 tahap HCD ditelusuri eksplisit, seluruh rujukan "Subbab X.Y" dihapus (2 Okt malam)
+- Penyusun meminta draf `.md` ini (bukan `TERBARU.docx`) ikut disamakan ke kerangka 2 tujuan, dan
+  secara eksplisit meminta Pembahasan Bab V menelusuri tahap *understand and specify the context
+  of use* pada HCD, bukan cuma tahap perumusan kebutuhan dan evaluasi seperti draf sebelumnya.
+- **Bab V** (5.1 Pengantar dan 5.2.4 Pembahasan): paragraf "Tujuan ketiga" dihapus, isinya
+  disebar ke "Tujuan pertama" (bukti pengujian fungsional) dan "Tujuan kedua" (bukti SUS).
+  Pembahasan "Tujuan pertama" ditulis ulang menelusuri **keempat tahap HCD berbasis ISO 9241-210
+  satu per satu dengan buktinya masing-masing**: tahap *understand & specify context of use*
+  (wawancara pengurus Karinakas 20 Okt 2025, observasi kanal komunikasi lama, kuesioner 35
+  responden), *specify user requirements* (5 persona, *pain points*, kebutuhan fungsional/
+  nonfungsional), *produce design solutions* (wireframe, mockup), dan *evaluate designs* (evaluasi
+  *high-fidelity* yang terbukti memicu revisi nyata ke ukuran huruf & warna — bukti siklus HCD
+  iteratif berjalan di dalam kerangka Waterfall yang linear).
+- **Bab VI** (6.1 Kesimpulan): "berhasil mencapai ketiga tujuan" → "kedua tujuan", poin HCD dan
+  poin fungsional lama digabung jadi satu poin.
+- **Seluruh rujukan "(Subbab X.Y...)" dan "(lihat HANDOFF.md §X)" dihapus dari kedua berkas** (±63
+  kemunculan) atas permintaan eksplisit penyusun, supaya tiap paragraf bisa dibaca berdiri sendiri
+  tanpa perlu melompat ke bagian lain. **Kode butir uji (PU-xx, AD-xx, SR-xx, UT-xx, RP-xx, AL-xx,
+  NL-xx) dan kode FR/NFR/K sengaja dipertahankan** — itu bukti ke PDHUPL/SKPL, bukan sekadar
+  penunjuk bagian, jadi tidak termasuk permintaan ini. Referensi ke Bab I/II/III/IV sebagai satu
+  kesatuan (bukan ke subbab tertentu) juga dipertahankan karena berfungsi sebagai kerangka
+  argumen, bukan sekadar "lihat di sana".
+- **Catatan penting:** kebijakan hapus-rujukan-subbab ini **baru diterapkan ke kedua berkas `.md`
+  ini, belum ke `TERBARU.docx`** — `TERBARU.docx` masih memuat banyak "(Subbab X.Y)" peninggalan
+  dari sebelum permintaan ini. Tanyakan ke penyusun apakah kebijakan yang sama perlu disebar ke
+  `TERBARU.docx` juga sebelum melakukannya (pekerjaan XML yang jauh lebih besar, >50 kemunculan).
+- **Status:** `docs/laporan/BAB-V-LENGKAP.md` dan `BAB-VI-LENGKAP.md` kini punya kerangka tujuan
+  dan gaya rujukan yang **berbeda** dari `TERBARU.docx` (yang masih pakai rujukan Subbab dan belum
+  menelusuri 4 tahap HCD eksplisit) — jangan asumsikan keduanya identik lagi saat membandingkan.
+
+### 4.19 Paragraf "Tujuan kedua" di `BAB-V-LENGKAP.md` ditulis ulang agar tidak terkesan membela skor SUS (3 Okt)
+- Penyusun meminta paragraf "Tujuan kedua" (usability) di Pembahasan Bab V tidak lagi membandingkan
+  skor SUS 72,56 terhadap studi Kurniawan (2022)/Husseini dkk. (2021) yang lebih tinggi (84,5–94%)
+  dengan nada "Perbedaan ini beralasan, bukan tanda kegagalan..." — nada itu terasa seperti membela
+  kekurangan, padahal yang diinginkan adalah pembahasan yang lebih mendalam tentang *website yang
+  sudah dikembangkan* itu sendiri.
+- **Ditulis ulang** untuk menjelaskan skor SUS lewat bukti pengembangan nyata: rincian per
+  pernyataan (P3 kemudahan penggunaan, P5 keterpaduan fungsi — keduanya skor tertinggi) dikaitkan
+  ke keputusan desain HCD yang sudah diimplementasikan (navigasi datar, integrasi riwayat donasi/
+  relawan/notifikasi ke satu halaman Profil), dan selisih skor admin (75,68) vs pengunjung umum
+  (71,38) dibingkai positif (kompleksitas panel admin tidak banyak mengorbankan kenyamanan),
+  bukan sebagai perbandingan yang mengecilkan hasil sendiri.
+- **Paragraf "Keterbatasan sistem" dihapus dari Pembahasan Bab V** — keempat poinnya (perbaikan
+  `AdminController`/validasi KTP belum *deploy*, email reset belum terverifikasi, warna kuning
+  belum diredupkan, `TESTING.md`/verifikasi PDHUPL belum dijalankan) **sudah seluruhnya tercakup**
+  di Bab VI Saran 1/2/3/5 — dicek satu per satu sebelum dihapus, tidak ada informasi yang hilang,
+  hanya dipindah sesuai permintaan agar Bab V fokus membahas capaian, bukan kekurangan. "Kelebihan
+  sistem" ditutup dengan satu kalimat penunjuk ke Bab VI untuk hal yang masih perlu ditindaklanjuti.
+- **Catatan konsistensi:** perubahan ini hanya pada `BAB-V-LENGKAP.md`. Bab VI Kesimpulan di
+  berkas yang sama **tidak perlu diubah** — poin "Kedua" di sana memang sudah positif sejak awal,
+  tidak pernah memuat perbandingan dengan studi lain. `TERBARU.docx` juga belum disentuh dengan
+  perubahan ini.
+
+### 4.20 Grafik SUS dipindah ke Pembahasan, paragraf 4.5.2 dirapikan, dan dua temuan baru (4–5 Okt)
+- **Latar:** atas arahan revisi, 10 diagram lingkaran jawaban SUS (tangkapan layar tab *Summary* Google
+  Form, **Gambar 5.21–5.30**, satu per pernyataan P1–P10, n=40) yang semula di bagian Hasil dipindah ke
+  Pembahasan. Penyusun mengirim gambarnya (P1–P8 dulu, lalu P9–P10) dan meminta penjelasan serta
+  kalimat pengantar ("untuk hasil grafik dapat dilihat pada gambar berikut").
+- **Dikerjakan di `docs/laporan/BAB-V-LENGKAP.md`** (bukan di `.docx`):
+  - Penanda *Sisipkan Gambar 5.21 s.d. 5.30* **dihapus dari Hasil 5.2.3** (Tabel 5.2–5.5 dan catatan
+    *straight-lining* R19 tetap di Hasil).
+  - **Pembahasan 5.2.4**, sesudah paragraf "Tujuan kedua": paragraf pengantar yang merujuk "Gambar 5.21
+    sampai Gambar 5.30" + cara membaca butir positif vs negatif, lalu **satu penanda gambar + satu
+    paragraf penjelasan per grafik** (persentase, jumlah responden, makna), lalu paragraf penutup.
+  - **Verifikasi:** setiap persentase di kesepuluh grafik dicocokkan ke distribusi mentah
+    `docs/PDHUPL.md` Bab 6.4 — **semuanya cocok** (mis. P1 = 9/20/11 → 22,5/50/27,5%; P10 = 3/22/6/6/3 →
+    7,5/55/15/15/7,5%). Angka turunan ("85% (34 dari 40)") dihitung dari data itu, bukan ditebak.
+  - **Temuan isi:** 8 dari 10 butir dinilai baik ≥77,5% responden; **P4 (50% baik) dan P10 (62,5% baik)**
+    paling terbuka — keduanya soal bantuan/pembelajaran awal; P10 punya penilaian buruk tertinggi (22,5%)
+    dan kontribusi terendah (2,40). Pada tiap butir negatif ada satu jawaban "Sangat Setuju" dari R19
+    (*straight-lining*, §4.10). Tafsiran P4 → persona "Pak Herman" adalah **dugaan penulis naskah**, bukan
+    temuan data; hapus bila dosen menilai terlalu spekulatif.
+- **Paragraf Bab IV 4.5.2 (arsitektur & integrasi komponen) ditulis ulang di chat, BELUM diterapkan ke
+  `BAB-IV-LENGKAP.md`** (paragraf itu ditempel penyusun dari Word). Perubahan: "dibakar" (terjemahan
+  harfiah *baked in*) → "ditanamkan ke dalam berkas hasil pembangunan" (sama dengan kata di SKPL K-07);
+  ditambah nilai `VITE_API_URL` dev (`http://127.0.0.1:8000/api/v1`) dan produksi
+  (`/api/index.php/api/v1`); kalimat CORS diperjelas (tidak berlaku pada alur normal produksi
+  same-origin; autentikasi dijaga token Sanctum). **Diverifikasi ke kode:** `kk_token` di `api.js:8`,
+  `GET /me` di `AuthContext.jsx:37`, `config/cors.php` `allowed_origins => ['*']` +
+  `supports_credentials => false`. **Sengaja tidak ditulis** bahwa CORS produksi sudah dibatasi —
+  konfigurasinya masih `*` (sudah masuk Saran Bab VI 6.2.1 butir 7).
+- **Dua temuan baru:**
+  1. **Folder `Laporan Tugas Akhir\REVISI\`** (lihat blok 🔴 di awal berkas) — isi belum diperiksa.
+  2. **Konflik "35 vs 27 responden" juga ada di repo**: `BAB-IV-LENGKAP.md` (dan draf lama `4.3-4.4-...md`,
+     yang menyebut "27 responden dari target awal 40") memakai **27**; `BAB-V-LENGKAP.md` §5.2.4 dan
+     `BAB-VI-LENGKAP.md` §6.1 memakai **35**. Dugaan §4.17 (35 yang benar) **belum terbukti** — draf lama
+     justru menghitung 27 dari data mentah. Tentukan dari Google Form kuesioner kebutuhan, lalu samakan
+     di Bab IV, V, VI (`.md` dan `.docx`).
+- **Sisa kecil:** `BAB-V-LENGKAP.md` §5.1 masih menulis pembahasan "ditutup dengan analisis kelebihan
+  dan keterbatasan sistem", padahal paragraf Keterbatasan sudah dihapus 3 Okt (§4.19). Belum diperbaiki
+  (penyusun ditawari, belum menjawab).
+- **Tidak ada commit/push.** `.docx` tidak disentuh sama sekali pada sesi ini.
+
 ---
 
 ## 5. Masalah terbuka (diurutkan menurut prioritas)
 
 ### 🔴 Tinggi
+0. ~~**Tiga inkonsistensi di `TERBARU.docx`**~~ (§4.16) — **✅ 2 dari 3 sudah diperbaiki langsung di
+   `TERBARU.docx` pada 2 Okt malam (§4.17):** (a) paragraf "tujuan ketiga" di Pembahasan sudah
+   dihapus/digabung ke tujuan 1 & 2; (b) angka Bab VI sudah diseragamkan jadi "100% (87 dari 87
+   Handal)" mengikuti Bab V. **Yang masih tersisa: (c) "35 vs 27 responden"** — ternyata terbalik
+   dari dugaan semula: 35 kemungkinan yang benar (konsisten di Bab IV 4.3.1/4.3.2), dan "27" di
+   4.3.3 yang jadi outlier. **Butuh konfirmasi Anda dulu sebelum diubah** (lihat §6) karena ini
+   menyangkut data kuesioner, bukan sekadar bahasa. Sesi yang sama juga menemukan dan memperbaiki
+   **bug isi yang lebih serius**: Subbab 5.2.1.19 "Riwayat Notifikasi" ternyata berisi salinan
+   persis dari 5.2.1.18 "Kelola Pengguna" (subjek salah total), dan paragraf pembuka 5.2.2 rusak
+   secara teknis (huruf hilang dari "PDHUPL", kalimat terpecah, rujukan ke subbab yang tidak ada) —
+   keduanya sudah ditulis ulang, detail lengkap di §4.17.
 1. **Surel reset belum terbukti terkirim dari peladen.** Langkah diagnosis: buka `storage/logs/laravel.log` di
    peladen, cari baris `Gagal mengirim tautan pemulihan kata sandi:` — pesan setelahnya adalah penyebab pastinya.
    Panel admin → Notifikasi juga menunjukkan status `gagal`.
@@ -363,6 +687,35 @@ Pengujian) sudah ditulis lengkap dalam bentuk narasi (bukan poin-poin) di
 
 ## 6. Menunggu tindakan penyusun
 
+- [ ] 🆕 **Tentukan `.docx` mana yang aktif:** `Laporan Tugas Akhir\LAPORAN TUGAS AKHIR TERBARU.docx`
+  (2 Okt 21:14, 16 MB, sudah diperbaiki di §4.17) atau `Laporan Tugas Akhir\REVISI\LAPORAN TUGAS AKHIR
+  TERBARU.docx` (3 Okt 21:43, 12 MB, belum diperiksa). Bila yang `REVISI` lebih baru, AI perlu
+  membandingkannya dulu (lewat `unzip` + Node.js, §9) sebelum menyunting apa pun.
+- [ ] 🆕 **Terapkan paragraf 4.5.2 yang sudah dirapikan** (§4.20) ke `BAB-IV-LENGKAP.md` dan/atau Word —
+  teksnya ada di riwayat chat 4 Okt; minta AI menyusunnya ulang bila perlu.
+- [ ] 🆕 **Sebarkan penjelasan grafik SUS (§4.20) ke Word**: di `.docx`, Gambar 5.21–5.30 sudah ada tetapi
+  penjelasan per grafik dan kalimat pengantarnya baru ada di `BAB-V-LENGKAP.md` Pembahasan 5.2.4.
+- [ ] 🆕 **Perbaiki kalimat usang §5.1 `BAB-V-LENGKAP.md`** ("ditutup dengan analisis kelebihan dan
+  keterbatasan sistem") — Keterbatasan sudah dihapus dari Pembahasan.
+- [ ] 🆕 **Kembalikan satu angka responden kuesioner kebutuhan (35 atau 27) dari data mentah Google Form**
+  — konflik sekarang ada di repo (`BAB-IV` = 27, `BAB-V/VI` = 35) dan di `TERBARU.docx`.
+- [ ] **Konfirmasi angka responden kuesioner kebutuhan: 35 atau 27?** (§4.17) — Bab IV Subbab 4.3.1
+  dan 4.3.2 di `TERBARU.docx` menyebut 35 responden, tapi 4.3.3 (Pain Points) masih menyebut 27.
+  Dugaan sesi ini: 35 yang benar (sudah konsisten dengan Bab VI) dan "27" di 4.3.3 adalah sisa angka
+  lama sebelum data bertambah — tapi belum diubah karena ini keputusan data, bukan bahasa. Tolong
+  pastikan sebelum sesi berikutnya mengubahnya.
+- [x] ~~Perbaiki 3 inkonsistensi di `TERBARU.docx`~~ **✅ 2 dari 3 sudah diperbaiki langsung di
+  `TERBARU.docx` 2 Okt malam** (§4.17: paragraf "tujuan ketiga" dihapus, angka Bab VI diseragamkan
+  ke "100%/87 dari 87"); butir ketiga ("35 vs 27 responden") jadi item terpisah di atas.
+- [ ] **Putuskan: sebarkan revisi `docs/laporan/BAB-V/VI-LENGKAP.md` ke `TERBARU.docx` juga, atau
+  biarkan keduanya beda konvensi?** (§4.18–§4.19) — `.md` kini pakai 2 tujuan + penelusuran 4 tahap
+  HCD eksplisit + tanpa rujukan "(Subbab X.Y)" + paragraf usability tanpa perbandingan ke studi
+  lain; `TERBARU.docx` belum punya semua itu tapi punya 43 screenshot nyata yang `.md` tidak
+  punya. Kalau ingin disamakan, pekerjaannya di `TERBARU.docx` jauh lebih besar (edit XML
+  langsung, >50 kemunculan rujukan Subbab).
+- [ ] **Konfirmasi status Bab VI Saran di `TERBARU.docx`** (§4.16) — tampaknya hanya sebagian dari
+  15 butir saran yang tersalin (2 dari 8 bagi pengembang, 3 dari 7 bagi Karinakas). Beri tahu AI sesi
+  berikutnya apakah ini trim sengaja atau belum selesai ditempel, supaya tidak salah tebak.
 - [ ] **Commit & deploy `AdminController.php`** — perbaikan celah manajemen pengguna (§4.7) sudah teruji lokal
   tapi belum sampai ke `karinakas.com`. Tidak perlu migrasi, tidak perlu build ulang frontend.
 - [ ] **Kabarkan hasil reset di situs live** (atau kirim baris galat dari `laravel.log` peladen).
@@ -385,6 +738,9 @@ Pengujian) sudah ditulis lengkap dalam bentuk narasi (bukan poin-poin) di
   dibutuhkan sudah dicatat langsung di `docs/PDHUPL.md` pada akhir Subbab 6.4.
 - [ ] Sisipkan 4 tangkapan layar mockup *high-fidelity* dan padanannya di situs jadi ke
   `docs/laporan/BAB-IV-LENGKAP.md` (Subbab 4.4.4/4.5.4).
+- [ ] **Sisipkan tangkapan layar Gambar 5.1–5.20** ke `docs/laporan/BAB-V-LENGKAP.md` (§4.14) — satu per
+  antarmuka pada Subbab 5.2.1. **Gambar 5.21–5.30 (grafik SUS) kini ada di Pembahasan 5.2.4**, bukan lagi
+  di Hasil 5.2.3 (§4.20). Di `.docx` seluruh gambar ini sudah tertanam; hanya `.md` yang masih penanda.
 - [ ] **Putuskan apakah `docs/PDHUPL.md` perlu bagian "Daftar Revisi"** seperti templat Word resmi (§4.12) —
   kerangkanya siap ditambahkan bila diminta.
 - [ ] **Ekspor ulang PNG** `docs/skpl/use-case-diagram.png` (sudah memuat UC-24 di berkas `.drawio`) dan Gambar 2.5 dari `docs/dppl/class-diagram.drawio`.
@@ -414,10 +770,12 @@ Pengujian) sudah ditulis lengkap dalam bentuk narasi (bukan poin-poin) di
 2. **Selesaikan pengiriman surel dari peladen** (§5 butir 1).
 3. **Verifikasi ulang `docs/PDHUPL.md` di `karinakas.com` sungguhan** dan jalankan `TESTING.md` (181 kasus) —
    Bab 5 PDHUPL sudah berisi draf kuat hasil penelusuran kode (§4.11), tapi Bab V laporan TA butuh angka
-   pengujian dari eksekusi nyata, bukan hanya pembacaan kode. Putuskan juga nasib UT-03 (Tidak Handal).
+   pengujian dari eksekusi nyata, bukan hanya pembacaan kode.
 4. **Ekspor data mentah kuesioner SUS dan tempel *screenshot*** ke Bab 6 PDHUPL (lokasi sudah disiapkan, §4.11).
-5. **Pindahkan `docs/laporan/BAB-IV-LENGKAP.md` ke Word** (§4.12) — sudah dalam bentuk siap tempel, penomoran
-   4.1–4.6 sudah sama dengan Word Anda; sisipkan tangkapan layar yang masih kurang (§6 daftar tindakan).
+5. **Putuskan nasib dua naskah Bab V/VI yang sekarang beda konvensi** (§4.18–§4.19, §6) — kalau
+   `docs/laporan/BAB-V/VI-LENGKAP.md` (2 tujuan, 4 tahap HCD, tanpa rujukan Subbab) mau jadi acuan
+   final, sebarkan juga ke `TERBARU.docx` (atau sebaliknya); `BAB-IV-LENGKAP.md` masih siap tempel
+   seperti sebelumnya (§4.12), Bab IV/V masih perlu tangkapan layar disisipkan.
 6. **DPPL Subbab 2.4** — 23 halaman, bahan uraian di `docs/dppl/_arsip-kelas-boundary-entity.md` dan
   `docs/laporan/...md` §4.3.7–4.3.9 (desain visual, wireframe, prototipe sudah tertulis di sana).
 7. Perbaiki `nama_lengkap max:100`, wajibkan `kegiatan_id` relawan, dan putuskan warna `--yellow` (§5 butir baru).
@@ -446,6 +804,19 @@ Pengujian) sudah ditulis lengkap dalam bentuk narasi (bukan poin-poin) di
   untuk *user persona* dan *pain points* di `docs/laporan/...md` §4.3.1–4.3.3. (2) Kuesioner *SUS* — 40
   responden, dipakai untuk skor usability di §4.10/`docs/PDHUPL.md` Bab 6. Keduanya instrumen dan tujuan yang
   sama sekali berbeda, meski sama-sama tentang Website Karinakas.
+- **Tidak ada `pandoc` maupun `soffice` (LibreOffice) terpasang di mesin ini**, jadi skill `docx`
+  bawaan yang biasanya pakai `pandoc -t markdown` untuk membaca `.docx` tidak akan jalan. Cara yang
+  terbukti berhasil (dipakai untuk temuan §4.16): `unzip file.docx -d folder/`, lalu skrip Node.js
+  kecil yang mencocokkan regex `/<w:t[^>]*>([\s\S]*?)<\/w:t>/g` per paragraf (dipisah dengan
+  `split('</w:p>')`) untuk menarik teks polos dari `word/document.xml` — tulis hasilnya ke berkas di
+  scratchpad lalu baca dengan `Grep`/`Read` biasa. Tabel dan beberapa paragraf kompleks (field TOC,
+  sel tabel dengan gaya campuran) masih bisa menyisakan XML mentah di output; jangan panik bila
+  terlihat tag aneh, cari baris bersih di sekitarnya.
+- **Ada BEBERAPA salinan `.docx` laporan TA yang gampang tertukar** — lihat §4.16. `docs/LAPORAN
+  TUGAS AKHIR.docx` di repo ini **bukan** yang aktif dikerjakan; yang aktif ada di
+  `TUGAS AKHIR/Laporan Tugas Akhir/LAPORAN TUGAS AKHIR TERBARU.docx` (satu tingkat di luar folder
+  proyek frontend). Cek tanggal ubah berkas (`ls -la`) sebelum percaya salinan mana yang terbaru —
+  jangan asumsi dari nama folder saja.
 - **Jangan pernah mengisi kolom hasil pengujian (Handal/Tidak Handal, Sesuai/Tidak Sesuai) dengan asumsi
   "pasti lolos" tanpa dasar** — itu fabrikasi data pengujian. `TESTING.md` masih sengaja kosong. Bab 5
   `docs/PDHUPL.md` **sudah diisi** (28 Sep, §4.11), tapi lewat **penelusuran kode**, bukan eksekusi nyata di
