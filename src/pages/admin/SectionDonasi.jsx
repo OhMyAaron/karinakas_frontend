@@ -74,13 +74,15 @@ function SectionDonasi() {
 
   // Rekap donasi per kegiatan (Super Admin). Dikelompokkan menurut ID kegiatan, dihitung dari
   // seluruh data (semua periode). "Diterima" hanya donasi berstatus berhasil.
+  // Donasi baru wajib terikat kegiatan (DonasiController::store). Baris "tanpa kegiatan" hanya
+  // muncul bila ada data lama atau kegiatannya sudah dihapus (donasi.kegiatan_id ON DELETE SET NULL).
   const rekapKegiatan = (() => {
     const peta = new Map()
     items.forEach(d => {
       const kunci = d.kegiatanId || d.kegiatan || '__umum'
       if (!peta.has(kunci)) {
         peta.set(kunci, {
-          kunci, nama: d.kegiatan || 'Donasi Umum (tanpa kegiatan)', umum: !d.kegiatan,
+          kunci, nama: d.kegiatan || 'Tanpa kegiatan (data lama / kegiatan dihapus)', umum: !d.kegiatan,
           transaksi: 0, berhasil: 0, pending: 0, gagal: 0, diterima: 0,
         })
       }
