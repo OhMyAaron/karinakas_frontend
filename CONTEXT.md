@@ -3,11 +3,16 @@
 Referensi **keadaan sistem saat ini** (frontend + backend). Isi berkas ini menjawab *"sistemnya seperti apa"*.
 Untuk riwayat pengerjaan, masalah terbuka, dan langkah berikutnya, baca **[HANDOFF.md](HANDOFF.md)**.
 
-**Diperbarui:** 5 Oktober 2026
+**Diperbarui:** 11 Oktober 2026
 
-> **Untuk AI / room chat baru:** baca berkas ini lalu `HANDOFF.md`. Semua pernyataan teknis di sini
+> **Untuk AI / room chat baru:** baca berkas ini lalu `HANDOFF.md` (blok 🆕 di awalnya merangkum sesi 6–11 Okt) lalu
+> `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\final\_PROGRES.md`. Semua pernyataan teknis di sini
 > sudah diverifikasi langsung ke kode, basis data, atau situs yang berjalan — bukan dari ingatan.
 > Bila berbeda dengan kode, **kode yang benar**; laporkan perbedaannya.
+>
+> 📁 **Folder `docs/` tidak lagi di repo ini** (dipindah penyusun 9 Okt) — kini `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\`.
+> Semua jalur `docs/...` di berkas ini berarti lokasi baru itu.
+> ⚠️ Hal yang ditulis di sini adalah **kode di repo (commit 9 Okt)**; **apakah sudah aktif di karinakas.com belum terverifikasi**.
 
 ---
 
@@ -107,6 +112,7 @@ src/
 ├── data/lembaga.js         # ALAMAT, ALAMAT_LENGKAP, PETA_SEMATAN, PETA_TAUTAN
 ├── pages/                  # halaman publik
 ├── pages/admin/Section*.jsx# panel admin
+├── pages/admin/shared/     # AdminModal, ConfirmDelete, useCrud, usePaging.js (paging+urutan), AdminPager.jsx (AdminSort, AdminPager)
 └── components/             # Navbar, Footer, KarinakasLogo, IntroScreen, ...
 public/
 ├── .htaccess               # SPA fallback Apache (ikut tersalin ke dist/)
@@ -119,7 +125,12 @@ public/
 - **Panel admin:** `AdminDashboard.jsx` merender `Section{Berita,Kegiatan,Relawan,Galeri,Donasi,Pengguna,Notifikasi,Audit}.jsx`.
 - **Service:** `kegiatanService`, `beritaService`, `galeriService`, `donasiService`, `relawanService`,
   `penggunaService`, `notifikasiService`, `auditService`, `adminService`.
-- **Daftar admin Donasi & Relawan memuat seluruh halaman** (`ambilSemuaHalaman()`), karena penyaringan dikerjakan di peramban.
+- **Semua daftar admin memuat seluruh halaman** (`ambilSemuaHalaman()`: kegiatan, berita, donasi, relawan, pengguna, notifikasi, audit; galeri
+  punya pemuat sendiri 300/halaman), karena penyaringan dikerjakan di peramban. (Sebelum 9 Okt kegiatan/berita/notifikasi/audit/pengguna hanya
+  memuat 100 baris pertama dan pengguna 20.)
+- **Paging + urutan di 8 bagian admin** (`usePaging(items, getDate, resetKey, ukuranAwal)` + `<AdminSort>`/`<AdminPager>`): 10/20/50 per halaman
+  (Galeri 12 kartu), urutan **Terbaru/Terlama** menurut `tanggal`/`publishedAt`/`tanggalRaw`/`createdAt`. Hanya memengaruhi tampilan;
+  **Export Rekap tetap memakai seluruh data tersaring**. State halaman disesuaikan saat render (bukan `useEffect`).
 
 ---
 
@@ -130,9 +141,9 @@ tugas_akhir/
 ├── app/Models/              # User, Kegiatan, Kampanye, Galeri, Donasi, Relawan, AuditLog, NotifikasiLog
 ├── app/Http/Controllers/    # Auth, Kegiatan, Kampanye, Galeri, Donasi, Relawan, Admin, Notifikasi
 ├── app/Http/Middleware/     # RoleMiddleware (alias `role` di bootstrap/app.php)
-├── app/Mail/                # RelawanDiterima, TautanResetSandi
+├── app/Mail/                # RelawanDiterima, TautanResetSandi, DonasiDiverifikasi (baru 7 Okt)
 ├── app/Providers/           # AppServiceProvider: Gate::before + pembatas laju bernama
-├── resources/views/emails/  # relawan-diterima, tautan-reset-sandi
+├── resources/views/emails/  # relawan-diterima, tautan-reset-sandi, donasi-diverifikasi
 ├── config/app.php           # frontend_url ← FRONTEND_URL
 ├── routes/api.php
 └── database/{migrations,seeders}
@@ -151,7 +162,7 @@ tugas_akhir/
 | **DonasiController** | `store, uploadBukti, myDonations, index, report, update, destroy, updateStatus, search` + privat `sembunyikanKeuangan, wajibSuperAdmin` |
 | **RelawanController** | `store, myRegistrations, status, cancel, index, pending, byKegiatan, updateStatus, destroy` |
 | **AdminController** | `dashboard, users, storeUser, updateUser, resetUserPassword, deleteUser, auditLogs, notifikasiLogs, rekapanRelawan, rekapanKegiatan, rekapanDonasi, exportRekapan` |
-| **NotifikasiController** | `myNotifications, kirimNotifikasiDonasi` + kerangka `kirimNotifikasiRegistrasi/Relawan/PembatalanKegiatan/KeAdmin` |
+| **NotifikasiController** | `myNotifications, kirimNotifikasiDonasi` (**kini mengirim surel nyata** sejak 7 Okt; `null` bila sudah terkirim, 422 bila status bukan `berhasil`) + privat `kirimEmail` (`Mail::to()->send(DonasiDiverifikasi)`), `getTemplate` (tak dipanggil lagi), `logNotifikasi` (kanal log `notifikasi`) + kerangka `kirimNotifikasiRegistrasi/Relawan/PembatalanKegiatan/KeAdmin` (masih TODO) |
 
 ---
 
@@ -181,6 +192,9 @@ add_relawan_options_to_kegiatan, + cache & jobs. **Jangan pernah `migrate:fresh`
 ---
 
 ## 7. Endpoint (`/api/v1`)
+
+> 🔒 **Rute publik `/kegiatan` dan `/kegiatan/{id}` tidak boleh memuat relasi `relawan`** (nomor KTP, telepon, surel, alamat). Sebelum 11 Okt keduanya memuatnya (terbukti di situs live);
+> diperbaiki di kode 11 Okt (belum di-commit/deploy) dengan tes regresi `tests/Feature/KegiatanPublikTidakMembocorkanRelawanTest.php`. Jumlah relawan publik = kolom `jumlah_relawan_terdaftar`.
 
 ### Publik
 | Method | Path | Keterangan |
@@ -228,8 +242,17 @@ Webhook: `POST /v1/webhook/payment/callback`, `POST /v1/webhook/notifikasi/donas
   (`wajibSuperAdmin()` → 403). Untuk admin biasa, `index` dan `search` menyembunyikan `jumlah`,
   `biaya_transfer`, `kode_transaksi`, `rekening_pengirim`, `bukti_transfer` (`sembunyikanKeuangan()`).
   Bukti ikut disembunyikan karena nominal terbaca di gambarnya.
-- **Donasi wajib terikat kegiatan** yang aktif dan `butuh_donasi`. Metode: **QRIS statis** (default) atau
-  **Transfer Mandiri** — keduanya manual, donatur unggah bukti, super admin memverifikasi.
+- **Donasi wajib terikat kegiatan** yang aktif dan `butuh_donasi` (`kegiatan_id` `required|uuid|exists`; frontend menolak kosong). Metode: **QRIS statis**
+  (default) atau **Transfer Mandiri** — keduanya manual, donatur unggah bukti, super admin memverifikasi. Kolom `donasi.kegiatan_id` tetap **nullable**
+  dengan `ON DELETE SET NULL`: donasi "tanpa kegiatan" hanya data lama atau kegiatan yang dihapus (donasi = bukti penerimaan dana, tidak ikut terhapus).
+  "Donasi Umum" di `store.js` adalah pilihan **tujuan**, bukan kegiatan.
+- **Surel donasi terverifikasi (7 Okt):** `DonasiController::updateStatus` — saat status berubah ke `berhasil` dari status lain memanggil
+  `NotifikasiController::kirimNotifikasiDonasi` → `Mail::to(surel donatur)->send(new DonasiDiverifikasi(nama, jumlah, tanggal ID, metode, tujuan,
+  kegiatan atau "-", ID transaksi))`; sukses → `notifikasi_terkirim=true`; gagal → galat ditangkap, flag tetap false; riwayat `notifikasi_logs`
+  (`trigger=donasi_verified`) berstatus `terkirim`/`gagal` sesuai hasil nyata. Donasi yang sudah `notifikasi_terkirim=true` tidak dikirim ulang.
+  ⚠️ Layar Notifikasi admin masih menampilkan "✓ Terkirim" statis (tidak membaca status).
+- **Rekap donasi per kegiatan (9 Okt, hanya super admin):** kartu di atas filter menu Donasi, dihitung di peramban per ID kegiatan (transaksi, menunggu,
+  berhasil, total diterima = status `berhasil`), semua periode; tombol "Lihat" menyaring tabel.
 - **Relawan diterima** → `jumlah_relawan_terdaftar` dijaga event model `Relawan` (`created`, `updated`,
   `deleted`) + surel `RelawanDiterima` + catat `NotifikasiLog`. Opsi jenis/minat ditentukan per kegiatan.
 - **Pemberitahuan hanya lewat surel.** Kanal WhatsApp **ditiadakan** (16 September 2026).
@@ -239,7 +262,9 @@ Webhook: `POST /v1/webhook/payment/callback`, `POST /v1/webhook/notifikasi/donas
   seluruh tindakan pengelola (lihat HANDOFF §4.8).
 - **Galeri:** foto dikelompokkan jadi album menurut `judul`; unggah massal otomatis dipecah **20 berkas/permintaan**.
 - **Penyaringan admin** Donasi & Relawan di peramban: cari, status, kegiatan, **bulan** (+ jenis untuk relawan).
-  Ekspor rekap mengikuti penyaring aktif.
+  Ekspor rekap mengikuti penyaring aktif (bukan halaman yang tampil) — paging hanya tampilan.
+- **Filter publik Berita:** Semua, Sosial, Pendidikan, Kesehatan, Pengumuman (tombol "Kegiatan" dihapus 9 Okt; kategori `kegiatan` tetap ada di backend/admin
+  dan berita lamanya tetap tampil di "Semua").
 - **Halaman Kontak tanpa formulir** — sengaja; pertanyaan diarahkan ke WhatsApp. Tidak ada tabel/endpoint pesan.
 
 ---
@@ -285,13 +310,18 @@ FRONTEND_URL=https://karinakas.com          # lokal: http://localhost:5173
 - `.env` **tidak dilacak Git** (sudah di `.gitignore`, tidak pernah masuk riwayat).
 - Kata sandi kotak surel **pernah tertulis di riwayat chat** → sebaiknya diganti.
 
-### Langkah deploy ringkas (rinci di `DEPLOY.md`)
-1. **Backend:** commit & push → di peladen `git pull`, `composer install --no-dev --optimize-autoloader`,
-   `php artisan config:clear`, `php artisan route:clear`. Isi `.env` peladen seperti di atas.
-2. **Frontend:** `npm run build` → unggah **seluruh isi `dist/` termasuk berkas tersembunyi `.htaccess`**.
+### Langkah deploy ringkas (rinci di `DEPLOY.md`; prosedur lengkap + pengujian di `HANDOFF.md` §4.26)
+Hosting = **cPanel**, satu domain `karinakas.com` (API di `/api/index.php/api/v1`, foto di `/api/storage`).
+1. **Backend:** commit & push → cPanel **Git™ Version Control → Update from Remote** (setara `git pull`) → Terminal: `php artisan config:clear`,
+   `route:clear`, `view:clear` (tambah `composer install --no-dev --optimize-autoloader` hanya bila `composer.json` berubah; `migrate --force` hanya bila ada
+   migrasi baru — **tidak pernah `migrate:fresh`**). Isi `.env` peladen seperti di atas. Backup DB + `.env` dulu.
+2. **Frontend:** `.env` → `VITE_API_URL=/api/index.php/api/v1`, `VITE_STORAGE_URL=/api/storage` → `npm ci` → `npm run build` → ZIP **isi** `dist/`
+   (klik kanan *Compress*, bukan `Compress-Archive` PS 5.1) → unggah & Extract ke web root, **jangan timpa folder `api`**; **`.htaccess` (tersembunyi, dari
+   `public/`) wajib ikut**. `dist` ada di `.gitignore` (tapi `dist.zip` terlacak).
 3. **Urutan:** backend dulu, baru frontend.
 4. **Cek:** `https://karinakas.com/reset-password` harus menampilkan "Tautan Tidak Berlaku" (bukan 404);
-   `.../api/index.php/api/v1/kegiatan` harus JSON.
+   `.../api/index.php/api/v1/kegiatan` harus JSON; ubah satu donasi uji ke Berhasil → surel diterima donatur.
+- ⚠️ `DEPLOY.md` memakai contoh domain terpisah (`api.karinakas.org`) — **bukan** konfigurasi produksi sebenarnya (satu domain); ikuti bagian ini.
 
 ---
 
@@ -299,12 +329,33 @@ FRONTEND_URL=https://karinakas.com          # lokal: http://localhost:5173
 
 - Bukti pembayaran maks **4 MB** · foto galeri maks **5 MB** per berkas · unggah massal **20 berkas/permintaan**.
 - Tautan reset berlaku **60 menit**, sekali pakai.
-- Paginasi admin: `per_page` dibatasi **1–100**; klien mengambil semua halaman.
+- Paginasi admin: `per_page` dibatasi **1–100** untuk donasi/relawan; **`users()` selalu `paginate(20)`** (mengabaikan `per_page`); audit/notifikasi tanpa batas atas.
+  Klien mengambil **semua halaman** lalu menampilkan per halaman 10/20/50 (Galeri 12) di peramban.
 - **PHP ≥ 8.3** (`composer.json`); di PHP 8.2 `composer install` gagal.
 
 ---
 
 ## 12. Dokumen proyek
+
+> 📁 **Sejak 9 Okt 2026 folder `docs/` ada di `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\`** (di luar repo; Git frontend tidak melacaknya). Baris bertanda `docs/...`
+> di bawah merujuk ke sana. **Naskah aktif:** laporan = `Laporan Tugas Akhir\Terbaru Lagi\LAPORAN_TUGAS_AKHIR_Rev2.docx`; pendukung =
+> `Dokumentasi Selama TA\{SKPL,DPPL,PDHUPL}_Aaron.docx` — baris `TERBARU.docx`/`REVISI\` di bawah **usang**.
+> Dokumen `.md` lama (`SKPL.md`, `DPPL.md`, `docs/PDHUPL.md`, `docs/skpl|dppl|laporan/*`) **tidak diubah** sesi 6–11 Okt dan sebagian sudah usang terhadap versi final di `docs\final\`.
+
+### 🆕 Dokumen final sesi 6–11 Okt — `D:\...\TUGAS AKHIR\docs\final\`
+| Berkas | Isi |
+|---|---|
+| `_PROGRES.md` | **titik simpan** pekerjaan: fakta/keputusan penyusun, status tiap berkas, pertanyaan terbuka, cara melanjutkan |
+| `PANDUAN-PERBAIKAN-LAPORAN.md` (421 butir), `-SKPL.md` (304), `-DPPL.md` (219), `-PDHUPL.md` (243) | panduan edit `.docx`: penanda, **halaman Word nyata**, kutipan Ctrl+F, saran, penjelasan kesesuaian kode, pertanyaan konfirmasi, teks siap tempel. Sebagian butir usang akibat surel donasi (HANDOFF §6) |
+| `SKPL-LENGKAP.md` | SKPL final: 80 FR, 24 UC, **21 NFR**, 28 antarmuka bernomor, 66 titik akhir, Lampiran A (keterunutan) & B (Catatan Kesesuaian, 33 butir) |
+| `DPPL-LENGKAP.md` | DPPL final: 2.1.3 deployment, 78 fungsi/9 kontroler, 39 kelas, 9 tabel/116 kolom, **2.4 28 antarmuka** (A1–A13, B1–B6, C9), keterunutan, Lampiran A (29 butir) |
+| `PDHUPL-LENGKAP.md` | PDHUPL final: 88 butir semua kolom, Bab 4 88 subbab, Bab 6 Tabel 6.1–6.11; **87 Handal + 1 Tidak Berlaku**; tanpa kata "penelusuran kode" |
+| `CATATAN-PERUBAHAN-{SKPL,DPPL,PDHUPL}.md` | apa yang berubah dari versi lama, jawaban *default* yang dipakai agen, hal tak terverifikasi |
+| `PANDUAN-HAPUS-NFR-SKPL-DOCX.md` | penghapusan 11 NFR + K-20 di `SKPL_Aaron.docx` (halaman, pemetaan nomor lama→baru) |
+| `PDHUPL-11-BUTIR-SIAP-TEMPEL.md` | teks siap tempel + lokasi 11 butir PDHUPL yang bertentangan dengan kode |
+| `PENEMPATAN-USECASE-DAN-PDM-LAPORAN.md` | revisi dosen: penempatan diagram use case (4.3.7) & PDM (4.4.6), penomoran gambar, teks siap tempel |
+| `SLIDE-PRESENTASI-TA.md` | slide sidang (Marp), 22 slide + Q&A + daftar periksa |
+| `tools\find-pages.ps1` | skrip Word COM: nomor halaman fisik tiap kutipan di `.docx` (membuka **salinan**) |
 
 | Berkas | Isi |
 |---|---|
@@ -312,14 +363,14 @@ FRONTEND_URL=https://karinakas.com          # lokal: http://localhost:5173
 | `DEPLOY.md` | panduan hosting |
 | `PROGRESS.md` | checklist fitur |
 | `TESTING.md` | **181 kasus uji** black-box + rekapitulasi — ⬜ belum dieksekusi |
-| `docs/PDHUPL.md` | PDHUPL resmi (Bab 1–5 + Bab 6 SUS), **88 butir uji** (disusun 26 Sept, format & Bab 5 diperbarui 28 Sept, **Bab 6 dilengkapi data mentah P1–P10 seluruh 40 responden 29–30 Sept**) — Bab 5 terisi lewat **penelusuran kode** (bukan eksekusi langsung), satu butir **UT-03 Tidak Handal**; catatan lengkap di `docs/PDHUPL-CATATAN.md`; **skor SUS nyata dari 40 responden: 72,56** — ⬜ verifikasi nyata di `karinakas.com` masih perlu dilakukan; tempat tempel *screenshot* kuesioner ada di akhir Subbab 6.4. **Tidak ada bagian "Daftar Revisi"** (beda dari templat Word resmi) — belum ditambahkan, menunggu keputusan penyusun. ⚠️ Berkas Word terpisah "PDHUPL FX.pdf" yang pernah diserahkan penyusun adalah **ekspor lama** (sempat kurang 3 subbab di Bab 4.6) — jangan dipakai, ekspor ulang dari berkas ini |
+| `docs/PDHUPL.md` | ⚠️ **Sebagian usang (6 Okt):** penyusun mengonfirmasi black-box **dilakukan nyata** bersama Karinakas, semua Handal (UT-03 sudah Handal) → dokumen final **tidak boleh** menyebut "penelusuran kode"; versi final = `docs\final\PDHUPL-LENGKAP.md`. Masih berisi nilai kata sandi bawaan di butir AD-32 (hapus). Isi lama: PDHUPL resmi (Bab 1–5 + Bab 6 SUS), **88 butir uji** (disusun 26 Sept, format & Bab 5 diperbarui 28 Sept, **Bab 6 dilengkapi data mentah P1–P10 seluruh 40 responden 29–30 Sept**) — Bab 5 terisi lewat **penelusuran kode** (bukan eksekusi langsung), satu butir **UT-03 Tidak Handal**; catatan lengkap di `docs/PDHUPL-CATATAN.md`; **skor SUS nyata dari 40 responden: 72,56** — ⬜ verifikasi nyata di `karinakas.com` masih perlu dilakukan; tempat tempel *screenshot* kuesioner ada di akhir Subbab 6.4. **Tidak ada bagian "Daftar Revisi"** (beda dari templat Word resmi) — belum ditambahkan, menunggu keputusan penyusun. ⚠️ Berkas Word terpisah "PDHUPL FX.pdf" yang pernah diserahkan penyusun adalah **ekspor lama** (sempat kurang 3 subbab di Bab 4.6) — jangan dipakai, ekspor ulang dari berkas ini |
 | `docs/PDHUPL-CATATAN.md` | Catatan kerja PDHUPL (bukan bagian naskah) — perbedaan dengan contoh PDHUPL teman, metode penelusuran kode, temuan UT-03, dan daftar isian yang masih perlu dilengkapi penyusun |
 | `SKENARIO-TUGAS.md` | uji kebergunaan: 15 tugas, lembar pengamatan, kuesioner SUS *(instrumen lama; SUS yang sudah punya hasil nyata ada di `docs/PDHUPL.md`)* |
-| `docs/laporan/BAB-IV-LENGKAP.md` | **baru (29–30 Sept)** — naskah Bab IV laporan TA lengkap dan siap tempel ke Word, penomoran final 4.1–4.6 (sama dengan Word penyusun), dikonsolidasi dari kedua berkas di bawah ini: 5 *user persona*, *pain points*, kebutuhan fungsional/nonfungsional, arsitektur, desain visual, implementasi, pengujian, evaluasi. Jumlah antarmuka **24** (diputuskan, belum disebarkan ke SKPL/DPPL). ⚠️ Memakai **27** responden kuesioner kebutuhan (selaras data mentah di draf lama), beda dari `BAB-V/VI-LENGKAP.md` (35). Paragraf 4.5.2 (arsitektur & integrasi, istilah "dibakar") sudah dirapikan di chat 4 Okt tetapi **belum diterapkan** ke berkas ini (`HANDOFF.md` §4.20) |
+| `docs/laporan/BAB-IV-LENGKAP.md` | ⚠️ **Usang untuk angka responden: kini 35 (konfirmasi penyusun 6 Okt), bukan 27.** Naskah aktif adalah `Rev2.docx`. **baru (29–30 Sept)** — naskah Bab IV laporan TA lengkap dan siap tempel ke Word, penomoran final 4.1–4.6 (sama dengan Word penyusun), dikonsolidasi dari kedua berkas di bawah ini: 5 *user persona*, *pain points*, kebutuhan fungsional/nonfungsional, arsitektur, desain visual, implementasi, pengujian, evaluasi. Jumlah antarmuka **24** (diputuskan, belum disebarkan ke SKPL/DPPL). ⚠️ Memakai **27** responden kuesioner kebutuhan (selaras data mentah di draf lama), beda dari `BAB-V/VI-LENGKAP.md` (35). Paragraf 4.5.2 (arsitektur & integrasi, istilah "dibakar") sudah dirapikan di chat 4 Okt tetapi **belum diterapkan** ke berkas ini (`HANDOFF.md` §4.20) |
 | `docs/laporan/BAB-V-LENGKAP.md` | **direvisi ulang 2–3 Okt** (`HANDOFF.md` §4.18–§4.19) — kini memakai kerangka **2 tujuan** (sama dengan Bab I `TERBARU.docx`), Pembahasan menelusuri **keempat tahap HCD (ISO 9241-210)** satu per satu dengan buktinya, seluruh rujukan "(Subbab X.Y)" dihapus, dan paragraf usability tidak lagi membandingkan skor SUS dengan studi lain. ⚠️ **Sudah berbeda konvensi dari `TERBARU.docx`** (yang masih 3-tujuan sebagian & masih pakai rujukan Subbab) — jangan asumsikan salah satu usang begitu saja, screenshot nyata (43 buah) baru ada di `TERBARU.docx`, tapi struktur argumen yang lebih baru ada di `.md` ini. **4 Okt:** Pembahasan 5.2.4 kini memuat **penjelasan 10 grafik SUS (Gambar 5.21–5.30)** yang dipindah dari Hasil 5.2.3, persentasenya dicocokkan ke `docs/PDHUPL.md` Bab 6.4 (`HANDOFF.md` §4.20). ⚠️ Masih menyebut **35** responden kuesioner kebutuhan, sedangkan `BAB-IV-LENGKAP.md` memakai **27** — belum dipastikan; kalimat §5.1 tentang "keterbatasan sistem" juga sudah usang |
 | `docs/laporan/BAB-VI-LENGKAP.md` | **direvisi ulang 2 Okt** (`HANDOFF.md` §4.18) — kini **2 tujuan** juga, konsisten dengan `BAB-V-LENGKAP.md` di atas, rujukan Subbab dihapus. Kesimpulan di `TERBARU.docx` ditulis terpisah (bukan dari draf ini) dan masih 3-tujuan sebagian; Saran di `TERBARU.docx` tampak hanya sebagian butir tersalin dari draf ini — **untuk isi Saran paling lengkap (8+7 butir) pakai `.md` ini, untuk angka Kesimpulan cek `TERBARU.docx`** |
 | `docs/laporan/4.3-4.4-Perancangan-Implementasi-Pengujian.md`, `4.3-Prototipe-dan-Evaluasi-Desain.md` | draf sumber lama (21–25 Sept) yang dikonsolidasi menjadi `BAB-IV-LENGKAP.md` di atas — masih berguna sebagai riwayat, tapi untuk ditempel ke Word pakai `BAB-IV-LENGKAP.md` |
-| `SKPL.md` + `docs/skpl/` | SKPL Bab I–III (71 FR, 32 NFR, **24** use case, ERD) — disinkronkan ulang 19–20 Sept (UC-24 ditambahkan, 66 titik akhir) |
+| `SKPL.md` + `docs/skpl/` | SKPL Bab I–III (71 FR, 32 NFR, **24** use case, ERD) — disinkronkan ulang 19–20 Sept (UC-24 ditambahkan, 66 titik akhir). ⚠️ **Digantikan `docs\final\SKPL-LENGKAP.md`** (80 FR, 21 NFR); angka 71/72 FR dan 32 NFR di sini usang |
 | `DPPL.md` + `docs/dppl/` | DPPL Bab 1, 2.1, 2.2 (75 tabel fungsi), 2.3 (+ `2.3.2-Physical-Data-Model.md`); **2.4 belum** — draf materinya ada di `docs/laporan/...md` §4.3.7–4.3.9 |
 | `docs/dppl/CHECKLIST.md` | **baca dulu bila melanjutkan DPPL** |
 | `../../Laporan Tugas Akhir/LAPORAN TUGAS AKHIR TERBARU.docx` | 🔴 **naskah laporan yang sesungguhnya aktif** (di luar repo, path lengkap `TUGAS AKHIR/Laporan Tugas Akhir/`, diubah terakhir **1 Okt 2026**) — **bukan** `docs/LAPORAN TUGAS AKHIR.docx` (usang, 17 Sept) atau `LAPORAN TUGAS AKHIR.docx` tanpa akhiran TERBARU di folder yang sama (juga usang, 17 Sept). Sudah memuat Bab V dengan 43 screenshot nyata dan Bab I yang direvisi jadi 2 tujuan penelitian, tapi punya 3 inkonsistensi belum diperbaiki — baca `HANDOFF.md` §4.16–§4.17 sebelum menyentuh (2 dari 3 inkonsistensi sudah diperbaiki 2 Okt). 🆕 **Ada folder `Laporan Tugas Akhir\REVISI\`** berisi `LAPORAN TUGAS AKHIR TERBARU.docx` lain (diubah 3 Okt 21:43, 12 MB, + salinan di `REVISI\nest\`) yang **belum diperiksa** — tanyakan ke penyusun mana yang aktif. `docs/laporan/BAB-IV/V/VI-LENGKAP.md` di repo ini adalah draf sumber yang sebagian isinya sudah disalin ke sana, bukan status terkini |

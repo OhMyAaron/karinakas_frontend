@@ -64,13 +64,52 @@ const orgStats = [
   { end: 500, suffix: '+', label: 'Relawan Aktif', icon: 'bi-heart-fill' },
 ]
 
-const pengurus = [
-  { foto: 'https://randomuser.me/api/portraits/men/32.jpg', nama: 'Rm. Yohanes Surya', jabatan: 'Pelindung' },
-  { foto: 'https://randomuser.me/api/portraits/men/44.jpg', nama: 'Bpk. Andreas Wibowo', jabatan: 'Ketua Pengurus' },
-  { foto: 'https://randomuser.me/api/portraits/women/47.jpg', nama: 'Ibu Maria Susanti', jabatan: 'Sekretaris' },
-  { foto: 'https://randomuser.me/api/portraits/men/55.jpg', nama: 'Bpk. Petrus Haryanto', jabatan: 'Bendahara' },
-  { foto: 'https://randomuser.me/api/portraits/women/68.jpg', nama: 'Ibu Theresia Dewi', jabatan: 'Koordinator Program' },
+// Susunan sesuai Organigram Yayasan Karinakas 2026 (materi "Mengenal Karinakas").
+// Belum ada foto resmi, jadi kartu memakai inisial; tambahkan `foto` bila sudah tersedia.
+const pengurusYayasan = [
+  { nama: 'Uskup Agung Keuskupan Agung Semarang', jabatan: 'Pembina', inisial: 'KAS' },
+  { nama: 'Rm. Robertus Budi Haryana, Pr', jabatan: 'Ketua Pengurus' },
+  { nama: 'Ibu E. Imma Indra Dewi W.', jabatan: 'Sekretaris' },
+  { nama: 'Ibu F. Reni Retno A.', jabatan: 'Bendahara' },
+  { nama: 'Ibu Njiauw Janti', jabatan: 'Pengawas (Ekonom KAS)' },
 ]
+
+const pelaksanaHarian = [
+  { nama: 'Rm. Bernardus Himawan, Pr', jabatan: 'Direktur' },
+  { nama: 'Pramono Murdoko', jabatan: 'Elderly Project Manager' },
+  { nama: 'Felicitas Gita Andriyani', jabatan: 'Finance Manager, HR, GA' },
+  { nama: 'Vinsensius Sudrajat', jabatan: 'Elderly / ER / DRR & RT' },
+  { nama: 'Ag. Heri Purwadi', jabatan: 'ER / DRR / DEV & RT' },
+]
+
+// Dua huruf awal dari nama, tanpa gelar/sapaan
+const inisialNama = (nama) =>
+  nama.replace(/^(Rm\.|Ibu|Bpk\.)\s+/, '')
+    .split(/\s+/).filter(Boolean).slice(0, 2)
+    .map(k => k[0].toUpperCase()).join('')
+
+function KartuOrang({ p, i }) {
+  return (
+    <div className="col-6 col-md-4 col-lg reveal-item" style={{ transitionDelay: `${i * 0.1}s` }}>
+      <div className="tk-person-card">
+        <div
+          className="tk-person-photo-wrapper"
+          style={p.foto ? undefined : {
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'linear-gradient(135deg, #C0392B, #8B0000)', color: '#fff', fontWeight: 700,
+            fontSize: (p.inisial || inisialNama(p.nama)).length > 2 ? '1.2rem' : '1.7rem',
+          }}
+        >
+          {p.foto
+            ? <img src={p.foto} alt={p.nama} className="tk-person-photo" />
+            : (p.inisial || inisialNama(p.nama))}
+        </div>
+        <p className="tk-person-name">{p.nama}</p>
+        <p className="tk-person-role">{p.jabatan}</p>
+      </div>
+    </div>
+  )
+}
 
 /* ══════════════════════════════════════════ */
 function TentangKami() {
@@ -159,8 +198,7 @@ function TentangKami() {
                 </div>
                 <h4 className="fw-bold mb-3">VISI</h4>
                 <p className="tk-vm-text">
-                  Menjadi lembaga sosial yang menghadirkan kasih dan harapan bagi masyarakat
-                  melalui pelayanan yang berkelanjutan.
+                  Terwujudnya Peradaban Kasih di Indonesia yang Sejahtera, Bermartabat dan Beriman.
                 </p>
               </div>
             </div>
@@ -171,10 +209,10 @@ function TentangKami() {
                 </div>
                 <h4 className="fw-bold mb-3">MISI</h4>
                 <ol className="tk-misi-list">
-                  <li>Memberikan bantuan dan pelayanan sosial kepada masyarakat.</li>
-                  <li>Meningkatkan kesejahteraan dan kualitas hidup komunitas.</li>
-                  <li>Mengembangkan program pendidikan dan pemberdayaan.</li>
-                  <li>Mengajak partisipasi aktif masyarakat dalam kebaikan.</li>
+                  <li>Membangun gerakan belarasa untuk kemanusiaan, keadilan dan keutuhan ciptaan.</li>
+                  <li>Membangun jejaring pelayanan kemanusiaan di tingkat lokal, regional, nasional, dan internasional.</li>
+                  <li>Menggalang sumber daya untuk pelayanan kemanusiaan.</li>
+                  <li>Mengembangkan pelayanan terpadu untuk kemandirian masyarakat.</li>
                 </ol>
               </div>
             </div>
@@ -226,18 +264,15 @@ function TentangKami() {
             <p className="tk-section-label">STRUKTUR ORGANISASI</p>
             <h2 className="section-title">Pengurus Karinakas</h2>
           </div>
-          <div className="row g-4 justify-content-center" ref={pengurusRef}>
-            {pengurus.map((p, i) => (
-              <div key={p.jabatan} className="col-6 col-md-4 col-lg reveal-item" style={{ transitionDelay: `${i * 0.1}s` }}>
-                <div className="tk-person-card">
-                  <div className="tk-person-photo-wrapper">
-                    <img src={p.foto} alt={p.nama} className="tk-person-photo" />
-                  </div>
-                  <p className="tk-person-name">{p.nama}</p>
-                  <p className="tk-person-role">{p.jabatan}</p>
-                </div>
-              </div>
-            ))}
+          <div ref={pengurusRef}>
+            <p className="tk-section-label text-center mb-3">PENGURUS YAYASAN</p>
+            <div className="row g-4 justify-content-center mb-5">
+              {pengurusYayasan.map((p, i) => <KartuOrang key={p.jabatan} p={p} i={i} />)}
+            </div>
+            <p className="tk-section-label text-center mb-3">DIREKTUR DAN PELAKSANA HARIAN</p>
+            <div className="row g-4 justify-content-center">
+              {pelaksanaHarian.map((p, i) => <KartuOrang key={p.jabatan} p={p} i={i} />)}
+            </div>
           </div>
         </div>
       </section>

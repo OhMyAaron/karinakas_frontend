@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Breadcrumb from '../components/Breadcrumb'
 import CTA from '../components/CTA'
+import ConfirmDelete from './admin/shared/ConfirmDelete'
 import { STATUS_DONASI, STATUS_RELAWAN, fmtRp, fmtTanggal } from '../data/store'
 import { donasiService, relawanService, notifikasiService } from '../services/resources'
 
@@ -27,6 +28,14 @@ function Profil() {
   const [myDonasi, setMyDonasi]   = useState([])
   const [myRelawan, setMyRelawan] = useState([])
   const [myNotif, setMyNotif]     = useState([])
+
+  // Aksi pada riwayat: batalkan pendaftaran relawan & unggah bukti pembayaran susulan
+  const [aksiInfo, setAksiInfo]       = useState(null)   // { tipe: 'ok' | 'err', teks }
+  const [batalTarget, setBatalTarget] = useState(null)   // pendaftaran relawan yang akan dibatalkan
+  const [buktiTarget, setBuktiTarget] = useState(null)   // donasi yang akan diberi bukti
+  const [buktiFile, setBuktiFile]     = useState(null)
+  const [buktiBusy, setBuktiBusy]     = useState(false)
+  const [buktiErr, setBuktiErr]       = useState('')
 
   useEffect(() => {
     if (!user) { navigate('/login'); return }
@@ -64,6 +73,48 @@ function Profil() {
   }
 
   const handleLogout = () => { logout(); navigate('/') }
+
+  const tampilInfo = (tipe, teks) => {
+    setAksiInfo({ tipe, teks })
+    setTimeout(() => setAksiInfo(null), 4000)
+  }
+
+  const bukaBukti = (d) => { setBuktiTarget(d); setBuktiFile(null); setBuktiErr('') }
+
+  const kirimBukti = async () => {
+    if (!buktiFile) { setBuktiErr('Pilih berkas gambar bukti pembayaran terlebih dahulu.'); return }
+    if (!buktiFile.type.startsWith('image/')) { setBuktiErr('Berkas harus berupa gambar (JPG/PNG).'); return }
+    if (buktiFile.size > 4 * 1024 * 1024) { setBuktiErr('Ukuran berkas maksimal 4 MB.'); return }
+    setBuktiBusy(true); setBuktiErr('')
+    try {
+      await donasiService.uploadBukti(buktiTarget.id, buktiFile)
+      setMyDonasi(await donasiService.myDonations())
+      setBuktiTarget(null)
+      tampilInfo('ok', 'Bukti pembayaran berhasil dikirim. Menunggu verifikasi admin.')
+    } catch (err) {
+      setBuktiErr(err.message || 'Gagal mengunggah bukti pembayaran.')
+    } finally {
+      setBuktiBusy(false)
+    }
+  }
+
+  const batalkanRelawan = async () => {
+    try {
+      await relawanService.cancel(batalTarget.id)
+      setMyRelawan(await relawanService.myRegistrations())
+      tampilInfo('ok', 'Pendaftaran relawan berhasil dibatalkan.')
+    } catch (err) {
+      tampilInfo('err', err.message || 'Gagal membatalkan pendaftaran.')
+    } finally {
+      setBatalTarget(null)
+    }
+  }
+
+  const infoAksi = aksiInfo && (
+    <div className={aksiInfo.tipe === 'ok' ? 'pf-alert-success' : 'lg-error mb-3'}>
+      <i className={`bi ${aksiInfo.tipe === 'ok' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'} me-2`}></i>{aksiInfo.teks}
+    </div>
+  )
 
   const tabs = [
     { id: 'info',    icon: 'bi-person-fill',  label: 'Info Pribadi' },
@@ -243,6 +294,7 @@ function Profil() {
               {/* ══ Riwayat Donasi ══ */}
               {activeTab === 'donasi' && (
                 <div key="donasi" className="pf-panel">
+                  {infoAksi}
                   <div className="pf-summary-row mb-3">
                     {[
                       ['bi-cash-coin',          '#C0392B', '#FFEBEE', myDonasi.length + ' Donasi', 'Total transaksi'],
@@ -266,7 +318,7 @@ function Profil() {
                     ) : (
                       <div className="pf-table-wrap">
                         <table className="pf-table">
-                          <thead><tr><th>Tanggal</th><th>Tujuan</th><th>Nominal</th><th>Metode</th><th>Status</th></tr></thead>
+                          <thead><tr><th>Tanggal</th><th>Tujuan</th><th>Nominal</th><th>Metode</th><th>Status</th><th>Bukti</th></tr></thead>
                           <tbody>
                             {myDonasi.map(d => (
                               <tr key={d.id}>
@@ -275,6 +327,21 @@ function Profil() {
                                 <td><span className="pf-amount">{fmtRp(d.nominal)}</span></td>
                                 <td className="pf-td-muted">{d.metode}</td>
                                 <td><span className={`pf-badge-status ${STATUS_DONASI[d.status]?.cls || 'orange'}`}>{STATUS_DONASI[d.status]?.label || d.status}</span></td>
+                                <td>
+                                  <div className="d-flex align-items-center gap-2 flex-wrap">
+                                    {d.bukti && (
+                                      <a href={d.bukti} target="_blank" rel="noreferrer" className="pf-action-link">
+                                        <i className="bi bi-receipt me-1"></i>Lihat
+                                      </a>
+                                    )}
+                                    {d.status === 'pending' && (
+                                      <button type="button" className="pf-edit-btn" onClick={() => bukaBukti(d)}>
+                                        <i className="bi bi-cloud-arrow-up-fill me-1"></i>{d.bukti ? 'Ganti' : 'Unggah bukti'}
+                                      </button>
+                                    )}
+                                    {!d.bukti && d.status !== 'pending' && <span className="pf-td-muted">—</span>}
+                                  </div>
+                                </td>
                               </tr>
                             ))}
                           </tbody>
@@ -288,6 +355,7 @@ function Profil() {
               {/* ══ Kegiatan Relawan ══ */}
               {activeTab === 'relawan' && (
                 <div key="relawan" className="pf-panel">
+                  {infoAksi}
                   <div className="pf-summary-row mb-3">
                     {[
                       ['bi-people-fill',         '#6d28d9', '#F3E8FF', myRelawan.filter(r => r.status === 'diterima').length + ' Diterima', 'Disetujui'],
@@ -316,9 +384,17 @@ function Profil() {
                             <div className="pf-activity-body">
                               <div className="pf-activity-top">
                                 <p className="pf-activity-name">Relawan {r.jenis} — {r.minat || 'Umum'}</p>
-                                <span className={`pf-badge-status ${STATUS_RELAWAN[r.status]?.cls || 'orange'}`}>{STATUS_RELAWAN[r.status]?.label || r.status}</span>
+                                <div className="d-flex align-items-center gap-2 flex-wrap">
+                                  <span className={`pf-badge-status ${STATUS_RELAWAN[r.status]?.cls || 'orange'}`}>{STATUS_RELAWAN[r.status]?.label || r.status}</span>
+                                  {r.status === 'pending' && (
+                                    <button type="button" className="pf-edit-btn" onClick={() => setBatalTarget(r)}>
+                                      <i className="bi bi-x-circle me-1"></i>Batalkan
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                               <div className="pf-activity-meta">
+                                {r.kegiatan && <span><i className="bi bi-flag-fill me-1"></i>{r.kegiatan}</span>}
                                 <span><i className="bi bi-calendar3 me-1"></i>{r.tanggal}</span>
                                 <span><i className="bi bi-tag-fill me-1"></i>{r.jenis}</span>
                                 {r.kemampuan && r.kemampuan !== '-' && <span><i className="bi bi-stars me-1"></i>{r.kemampuan}</span>}
@@ -370,6 +446,48 @@ function Profil() {
           </div>
         </div>
       </section>
+
+      {/* ── Konfirmasi batalkan pendaftaran relawan ── */}
+      {batalTarget && (
+        <ConfirmDelete
+          title="Batalkan Pendaftaran?"
+          text={<>Pendaftaran relawan {batalTarget.jenis}{batalTarget.kegiatan ? <> untuk kegiatan <strong>{batalTarget.kegiatan}</strong></> : ''} akan dibatalkan dan dihapus. Anda tetap dapat mendaftar kembali nanti.</>}
+          cancelLabel="Kembali"
+          confirmLabel="Ya, Batalkan"
+          busyLabel="Membatalkan..."
+          confirmIcon="bi-x-circle-fill"
+          onConfirm={batalkanRelawan}
+          onCancel={() => setBatalTarget(null)}
+        />
+      )}
+
+      {/* ── Unggah bukti pembayaran susulan ── */}
+      {buktiTarget && (
+        <div className="ad-modal-overlay" onClick={buktiBusy ? undefined : () => setBuktiTarget(null)}>
+          <div className="ad-confirm" style={{ textAlign: 'left' }} onClick={e => e.stopPropagation()}>
+            <h3 className="ad-confirm-title" style={{ textAlign: 'center' }}>
+              {buktiTarget.bukti ? 'Ganti Bukti Pembayaran' : 'Unggah Bukti Pembayaran'}
+            </h3>
+            <p className="ad-confirm-text">
+              Donasi <strong>{buktiTarget.tujuan}</strong> sebesar <strong>{fmtRp(buktiTarget.nominal)}</strong>
+              {buktiTarget.kegiatan ? <> untuk kegiatan <strong>{buktiTarget.kegiatan}</strong></> : ''}.
+            </p>
+            <input type="file" accept="image/*" className="kt-input"
+              onChange={e => { setBuktiFile(e.target.files?.[0] || null); setBuktiErr('') }} />
+            {buktiFile && <p className="dn-form-hint mt-1"><i className="bi bi-paperclip me-1"></i>{buktiFile.name}</p>}
+            <p className="dn-form-hint mt-1">Format gambar (JPG/PNG), maksimal 4 MB. Status baru berubah setelah diverifikasi admin.</p>
+            {buktiErr && <div className="lg-error mt-2"><i className="bi bi-exclamation-circle-fill me-2"></i>{buktiErr}</div>}
+            <div className="ad-confirm-actions mt-3">
+              <button type="button" className="btn btn-outline-secondary rounded-pill px-4" onClick={() => setBuktiTarget(null)} disabled={buktiBusy}>Batal</button>
+              <button type="button" className="btn btn-danger rounded-pill px-4" onClick={kirimBukti} disabled={buktiBusy || !buktiFile}>
+                {buktiBusy
+                  ? <><span className="lg-spinner" /> Mengunggah...</>
+                  : <><i className="bi bi-cloud-arrow-up-fill me-1"></i>Kirim Bukti</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <CTA />
     </>

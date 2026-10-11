@@ -1,7 +1,7 @@
 # 📋 Progress & Todo — Website Yayasan Karinakas
 
 **Proyek:** Sistem Informasi Yayasan Karinakas (Skripsi/TA)
-**Update terakhir:** 7 Agustus 2026 · **Status:** fungsional end-to-end, semua modul data sudah ke API
+**Update terakhir:** 11 Oktober 2026 · **Status:** fungsional end-to-end, semua modul data sudah ke API · live di karinakas.com (**deploy perubahan 7–9 Okt belum terverifikasi**) · folder `docs/` kini di luar repo (`..\docs\`)
 
 | Bagian | Teknologi | Lokasi folder |
 |---|---|---|
@@ -91,6 +91,13 @@ php artisan storage:link     # agar foto galeri & bukti transfer tampil
 - [x] **Export rekapan jadi tabel Excel rapi** — helper bersama `src/utils/excel.js`: lebar kolom diatur (teks tak terpotong), header tebal berwarna & dibekukan, angka berformat ribuan tapi tetap bisa di-SUM, No. KTP/No. HP dipaksa teks (16 digit tidak jadi notasi ilmiah, angka 0 di depan tidak hilang), status diberi warna, plus blok RINGKASAN & CATATAN. Dipakai rekap **Donasi**, **Relawan** (Super Admin), dan **Laporan Dashboard**; semuanya mengikuti filter & pencarian yang aktif
 - [x] **Dokumentasi** — CONTEXT.md, HANDOFF.md, DEPLOY.md, PROGRESS.md
 
+### Penyempurnaan fitur (Oktober 2026) — di-commit 7–9 Okt, **deploy belum terverifikasi**
+- [x] **Surel donasi terverifikasi** — `app/Mail/DonasiDiverifikasi.php` + `emails/donasi-diverifikasi.blade.php`; `NotifikasiController::kirimEmail` kini benar-benar mengirim (sebelumnya `Mail::send` dikomentari tetapi riwayat mencatat "terkirim"); riwayat `terkirim`/`gagal` sesuai hasil nyata. Teruji lokal (render + transport `array`); **SMTP produksi belum terbukti**
+- [x] **Paging + urutan Terbaru/Terlama** di 8 bagian dasbor admin (`usePaging.js`, `AdminPager.jsx`); semua daftar admin kini memuat **seluruh halaman** (dulu terpotong 100/20 baris); ekspor rekap tetap memakai seluruh data tersaring
+- [x] **Rekap donasi per kegiatan** (menu Donasi, hanya super admin) — transaksi, menunggu, berhasil, total diterima, tombol "Lihat" menyaring tabel
+- [x] **Filter publik Berita** tanpa tombol "Kegiatan" (Semua, Sosial, Pendidikan, Kesehatan, Pengumuman)
+- [x] **Dokumen final** di `..\docs\final\` — panduan perbaikan `.docx` berhalaman Word nyata, `SKPL/DPPL/PDHUPL-LENGKAP.md`, siap-tempel 11 butir PDHUPL, penempatan use case + PDM (revisi dosen), slide sidang, `_PROGRES.md` (titik simpan). Rincian: HANDOFF §4.21–§4.26
+
 ---
 
 ## ⏳ BELUM SELESAI (Todo berikutnya)
@@ -98,7 +105,9 @@ php artisan storage:link     # agar foto galeri & bukti transfer tampil
 ### Layanan eksternal (perlu keputusan/akun)
 - [x] **Aktifkan email nyata** ✅ — selesai 16 September 2026. Memakai SMTP kotak surel hosting `noreply@karinakas.com` (`mail.karinakas.com`, porta 587 STARTTLS); autentikasi dan pengiriman sudah diuji.
 - [x] ~~**WhatsApp nyata**~~ — **ditiadakan 16 September 2026.** Seluruh pemberitahuan otomatis dikirim lewat surel, sehingga gateway WhatsApp tidak lagi diperlukan
-- [ ] *(opsional)* Email/WA **donasi berhasil** mengikuti pola relawan → `DonasiController.updateStatus`
+- [x] Surel **donasi berhasil** mengikuti pola relawan → `DonasiController.updateStatus` ✅ kode selesai 7 Okt 2026 (WA ditiadakan) · ⬜ **uji kirim dari peladen** belum
+- [ ] **Perbaikan keamanan data relawan di `GET /kegiatan` & `GET /kegiatan/{id}`** (publik memuat relasi relawan termasuk KTP — HANDOFF §4.22-1) · belum diuji/diperbaiki
+- [ ] Layar Notifikasi admin: tampilkan `status` asli (bukan "✓ Terkirim" statis) · menunggu keputusan penyusun
 - [x] **Forgot password** ✅ — sejak 16 September 2026 memakai **tautan sekali pakai** yang dikirim ke surel, berlaku 60 menit, dan membatalkan tautan sebelumnya; token sesi lama dicabut setelah sandi diganti
 - [ ] **Payment gateway** otomatis (QRIS dinamis / Virtual Account dengan verifikasi otomatis) — saat ini QRIS statis & transfer, keduanya manual + upload bukti
 

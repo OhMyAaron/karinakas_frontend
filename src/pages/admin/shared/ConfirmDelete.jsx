@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 
 /** Dialog konfirmasi hapus yang dipakai semua section admin.
- *  Menampilkan spinner "Menghapus..." selama proses berjalan. */
-function ConfirmDelete({ onConfirm, onCancel, label = 'data ini' }) {
+ *  Menampilkan spinner "Menghapus..." selama proses berjalan.
+ *  Teks dapat diganti lewat `title`, `text`, `cancelLabel`, `confirmLabel`, `busyLabel`, dan `confirmIcon`
+ *  (dipakai juga untuk pembatalan pendaftaran relawan di halaman Profil);
+ *  tanpa props tersebut tampilannya sama seperti semula. */
+function ConfirmDelete({
+  onConfirm, onCancel, label = 'data ini',
+  title = 'Hapus Data?', text, cancelLabel = 'Batal',
+  confirmLabel = 'Hapus', busyLabel = 'Menghapus...', confirmIcon = 'bi-trash-fill',
+}) {
   const [busy, setBusy] = useState(false)
   const mounted = useRef(true)
 
@@ -32,16 +39,16 @@ function ConfirmDelete({ onConfirm, onCancel, label = 'data ini' }) {
     <div className="ad-modal-overlay" onClick={busy ? undefined : onCancel}>
       <div className="ad-confirm" onClick={e => e.stopPropagation()}>
         <div className="ad-confirm-icon"><i className="bi bi-exclamation-triangle-fill"></i></div>
-        <h3 className="ad-confirm-title">Hapus Data?</h3>
+        <h3 className="ad-confirm-title">{title}</h3>
         <p className="ad-confirm-text">
-          Apakah Anda yakin ingin menghapus {label}? Tindakan ini tidak dapat dibatalkan.
+          {text ?? <>Apakah Anda yakin ingin menghapus {label}? Tindakan ini tidak dapat dibatalkan.</>}
         </p>
         <div className="ad-confirm-actions">
-          <button className="btn btn-outline-secondary rounded-pill px-4" onClick={onCancel} disabled={busy}>Batal</button>
+          <button className="btn btn-outline-secondary rounded-pill px-4" onClick={onCancel} disabled={busy}>{cancelLabel}</button>
           <button className="btn btn-danger rounded-pill px-4" onClick={handleConfirm} disabled={busy}>
             {busy
-              ? <><span className="lg-spinner" /> Menghapus...</>
-              : <><i className="bi bi-trash-fill me-1"></i>Hapus</>}
+              ? <><span className="lg-spinner" /> {busyLabel}</>
+              : <><i className={`bi ${confirmIcon} me-1`}></i>{confirmLabel}</>}
           </button>
         </div>
       </div>
