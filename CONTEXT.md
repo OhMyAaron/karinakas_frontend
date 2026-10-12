@@ -3,16 +3,21 @@
 Referensi **keadaan sistem saat ini** (frontend + backend). Isi berkas ini menjawab *"sistemnya seperti apa"*.
 Untuk riwayat pengerjaan, masalah terbuka, dan langkah berikutnya, baca **[HANDOFF.md](HANDOFF.md)**.
 
-**Diperbarui:** 11 Oktober 2026
+**Diperbarui:** 12 Oktober 2026
 
-> **Untuk AI / room chat baru:** baca berkas ini lalu `HANDOFF.md` (blok 🆕 di awalnya merangkum sesi 6–11 Okt) lalu
+> **Untuk AI / room chat baru:** baca berkas ini lalu `HANDOFF.md` (blok 🆕🆕 "STATUS TERBARU 12 Okt" di awalnya, §4.27–§4.29, dan §6 "Menunggu tindakan 12 Okt"), lalu
 > `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\final\_PROGRES.md`. Semua pernyataan teknis di sini
 > sudah diverifikasi langsung ke kode, basis data, atau situs yang berjalan — bukan dari ingatan.
 > Bila berbeda dengan kode, **kode yang benar**; laporkan perbedaannya.
 >
+> 🆕 **12 Okt:** naskah `.docx` final = `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\FINAL\220711818_*.docx`. Bahan belajar sidang + **daftar 165 perbaikan terpadu**
+> (laporan/SKPL/DPPL/PDHUPL, dengan halaman & teks pengganti) = `docs\final\BAHAN-BELAJAR-SIDANG.md` (§13). Keputusan penyusun 11–12 Okt: **"ubah kata sandi" ditiadakan** (hanya pemulihan lewat tautan surel),
+> tombol **Batalkan relawan** dan **Unggah bukti susulan** dibuat, visi–misi & pengurus Tentang Kami memakai data resmi, angka statistik Beranda dibiarkan, judul laporan dipertahankan.
+> ⚠️ **Frontend live (karinakas.com) masih bundel lama** (`index-C4RUnKxG.js`); kode terbaru (commit frontend `c3de860`) belum terpasang. Backend `0a55219` sudah terbukti aktif.
 > 📁 **Folder `docs/` tidak lagi di repo ini** (dipindah penyusun 9 Okt) — kini `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\`.
 > Semua jalur `docs/...` di berkas ini berarti lokasi baru itu.
-> ⚠️ Hal yang ditulis di sini adalah **kode di repo (commit 9 Okt)**; **apakah sudah aktif di karinakas.com belum terverifikasi**.
+> ⚠️ Hal yang ditulis di sini adalah **kode di repo (frontend `c3de860`, backend `0a55219`, 12 Okt)**. Backend terbukti aktif di karinakas.com (12 Okt: `/kegiatan` tanpa relawan);
+> **frontend live belum memuat** tombol Batalkan/Unggah bukti, organigram resmi, dan rekap donasi per kegiatan — cek bundel yang dirujuk `index.html` sebelum menyatakan "sudah live".
 
 ---
 
@@ -78,6 +83,8 @@ Laravel ──► mail.karinakas.com (SMTP) ──► kotak masuk pengguna
   (`DonasiController`). **Perbaikan `users()`/`deleteUser()` sudah diuji lokal tapi belum di-deploy** — lihat
   HANDOFF §4.7/§5.
 - **Kata sandi minimal 8 karakter** di seluruh jalur.
+- 🆕 **Tidak ada fitur "ubah kata sandi" di antarmuka** (keputusan penyusun 11 Okt: ditiadakan). Jalur satu-satunya = **pemulihan lewat tautan surel** (tanpa sandi lama) dan reset oleh Super Admin.
+  Rute `POST /change-password` + `AuthController::changePassword` **masih ada di kode tetapi tidak dipanggil klien**; rencana K-2 = menghapusnya (titik akhir 66 → 65). Lihat HANDOFF §4.28.
 
 ### Pembatasan laju (pembatas bernama di `AppServiceProvider`)
 | Nama | Rute | Batas per IP |
@@ -122,6 +129,13 @@ public/
 
 - **Halaman publik:** Home, TentangKami, Galeri, Kegiatan, Berita, BeritaDetail, Kontak, Login, Register,
   **ForgotPassword**, **ResetPassword**, Donasi, DaftarRelawan, Profil.
+- 🆕 **Profil.jsx (11 Okt):** tab riwayat donasi punya kolom **Bukti** (tautan "Lihat"; tombol **Unggah bukti/Ganti** hanya untuk donasi `pending`, validasi gambar ≤ 4 MB →
+  `donasiService.uploadBukti` → muat ulang `myDonations`) sehingga unggah bukti boleh dilewati saat berdonasi dan **disusulkan lewat Riwayat**. Tab relawan punya tombol **Batalkan**
+  (hanya status `pending`, dialog `ConfirmDelete` → `relawanService.cancel` → muat ulang `myRegistrations`). Label tab masih "Kegiatan Relawan" (rencana K-8: "Riwayat Relawan").
+- 🆕 **`admin/shared/ConfirmDelete.jsx`** kini memiliki props opsional `title, text, cancelLabel='Batal', confirmLabel='Hapus', busyLabel, confirmIcon` (default = perilaku lama untuk admin; Profil memakai label sendiri).
+- 🆕 **TentangKami.jsx:** visi + 4 misi resmi; `pengurusYayasan` (Pembina Uskup Agung KAS; Ketua Rm. Robertus Budi Haryana Pr; Sekretaris; Bendahara; Pengawas/Ekonom KAS) dan
+  `pelaksanaHarian` (Direktur Rm. Bernardus Himawan Pr + 4 staf), diambil dari PDF organigram 2026; kartu inisial lewat `KartuOrang`/`inisialNama()`. **Angka statistik Beranda/Intro/Tentang Kami sengaja statis** (keputusan 11 Okt).
+- Sisa kode lama: `data/store.js` (selain konstanta) dan `admin/shared/useCrud.js` adalah peninggalan localStorage; **tidak dipakai** alur data nyata.
 - **Panel admin:** `AdminDashboard.jsx` merender `Section{Berita,Kegiatan,Relawan,Galeri,Donasi,Pengguna,Notifikasi,Audit}.jsx`.
 - **Service:** `kegiatanService`, `beritaService`, `galeriService`, `donasiService`, `relawanService`,
   `penggunaService`, `notifikasiService`, `auditService`, `adminService`.
@@ -155,8 +169,8 @@ tugas_akhir/
 ### Controller & fungsi
 | Controller | Fungsi |
 |---|---|
-| **AuthController** | `register, login, logout, me, updateProfile, changePassword, forgotPassword, checkResetToken, resetPassword` + privat `kunciToken, kunciTokenPengguna, ambilDataTautan` |
-| **KegiatanController** | `index, show, store, update, destroy, search, availableForVolunteer, updateStatus` |
+| **AuthController** | `register, login, logout, me, updateProfile, changePassword` *(tak dipakai klien; rencana dihapus, K-2)*, `forgotPassword, checkResetToken, resetPassword` + privat `kunciToken, kunciTokenPengguna, ambilDataTautan`. Email tak terdaftar pada `forgotPassword` dijawab 422 (keputusan penyusun: tidak diubah) |
+| **KegiatanController** | `index, show, store, update, destroy, search, availableForVolunteer, updateStatus` — **publik tidak memuat relasi `relawan`** (perbaikan `0a55219`, tes regresi `KegiatanPublikTidakMembocorkanRelawanTest`) |
 | **KampanyeController** | `index, show, store, update, destroy, search, byKategori, recent` |
 | **GaleriController** | `index, byKegiatan, latest, store, bulkUpload, update, destroy, search` |
 | **DonasiController** | `store, uploadBukti, myDonations, index, report, update, destroy, updateStatus, search` + privat `sembunyikanKeuangan, wajibSuperAdmin` |
@@ -194,7 +208,9 @@ add_relawan_options_to_kegiatan, + cache & jobs. **Jangan pernah `migrate:fresh`
 ## 7. Endpoint (`/api/v1`)
 
 > 🔒 **Rute publik `/kegiatan` dan `/kegiatan/{id}` tidak boleh memuat relasi `relawan`** (nomor KTP, telepon, surel, alamat). Sebelum 11 Okt keduanya memuatnya (terbukti di situs live);
-> diperbaiki di kode 11 Okt (belum di-commit/deploy) dengan tes regresi `tests/Feature/KegiatanPublikTidakMembocorkanRelawanTest.php`. Jumlah relawan publik = kolom `jumlah_relawan_terdaftar`.
+> sudah diperbaiki di commit `0a55219` **dan terbukti aktif di live 12 Okt**, dengan tes regresi `tests/Feature/KegiatanPublikTidakMembocorkanRelawanTest.php`. Jumlah relawan publik = kolom `jumlah_relawan_terdaftar`.
+>
+> 🔢 **Jumlah titik akhir:** 66 di kode saat ini (64 fungsional + 2 webhook). Dokumen final memakai **65** dengan asumsi `POST /change-password` dihapus (K-2, belum dikerjakan). Bila rute dipertahankan, ubah angka dokumen menjadi 66.
 
 ### Publik
 | Method | Path | Keterangan |
@@ -208,7 +224,7 @@ add_relawan_options_to_kegiatan, + cache & jobs. **Jangan pernah `migrate:fresh`
 | GET | `/galeri`, `/galeri/kegiatan/{id}`, `/galeri/latest/list` | |
 
 ### Pengguna terdaftar (`auth:sanctum`)
-`GET /me` *(balikan `{success, user}`)* · `POST /logout` · `PUT /profile` · `POST /change-password` ·
+`GET /me` *(balikan `{success, user}`)* · `POST /logout` · `PUT /profile` · `POST /change-password` *(tak dipakai klien; rencana dihapus)* ·
 `POST /donasi` · `POST /donasi/{id}/bukti` · `GET /donasi/my-donations` · `POST /relawan` ·
 `GET /relawan/my-registrations` · `GET /relawan/{id}/status` · `DELETE /relawan/{id}/cancel` ·
 `GET /notifikasi/my-notifications`
@@ -238,6 +254,9 @@ Webhook: `POST /v1/webhook/payment/callback`, `POST /v1/webhook/notifikasi/donas
   `/reset-password/check` dulu → `POST /reset-password {token, email, new_password, new_password_confirmation}`
   → sandi diganti, tautan dihapus, **semua token sesi dicabut**. Layar selalu menjawab "tautan telah dikirim"
   walau surel gagal (disengaja); kegagalan tercatat di `notifikasi_logs` dan `laravel.log`.
+- 🆕 **Unggah bukti & pembatalan oleh pengguna (11 Okt, hanya antarmuka; backend sudah ada):** bukti transfer **boleh dilewati** saat berdonasi (donasi tetap `pending`) dan disusulkan
+  lewat Profil → Riwayat (`POST /donasi/{id}/bukti`, hanya pemilik, status `pending`); pendaftaran relawan berstatus `pending` boleh **dibatalkan pengguna** (`DELETE /relawan/{id}/cancel`).
+  Alasan desain & rasional untuk sidang: `BAHAN-BELAJAR-SIDANG.md` §6.9. Lencana status pada layar Notifikasi admin masih statis (rencana K-9).
 - **Kunci data keuangan donasi (Opsi A):** verifikasi, ubah, hapus donasi **khusus super admin**
   (`wajibSuperAdmin()` → 403). Untuk admin biasa, `index` dan `search` menyembunyikan `jumlah`,
   `biaya_transfer`, `kode_transaksi`, `rekening_pengirim`, `bukti_transfer` (`sembunyikanKeuangan()`).
@@ -319,7 +338,8 @@ Hosting = **cPanel**, satu domain `karinakas.com` (API di `/api/index.php/api/v1
    (klik kanan *Compress*, bukan `Compress-Archive` PS 5.1) → unggah & Extract ke web root, **jangan timpa folder `api`**; **`.htaccess` (tersembunyi, dari
    `public/`) wajib ikut**. `dist` ada di `.gitignore` (tapi `dist.zip` terlacak).
 3. **Urutan:** backend dulu, baru frontend.
-4. **Cek:** `https://karinakas.com/reset-password` harus menampilkan "Tautan Tidak Berlaku" (bukan 404);
+4. **Cek bundel:** buka `https://karinakas.com/`, lihat berkas `assets/index-*.js` yang dirujuk, pastikan memuat teks fitur terbaru ("Unggah bukti", "Batalkan", "Peradaban Kasih"). 12 Okt: masih `index-C4RUnKxG.js` (lama).
+5. **Cek:** `https://karinakas.com/reset-password` harus menampilkan "Tautan Tidak Berlaku" (bukan 404);
    `.../api/index.php/api/v1/kegiatan` harus JSON; ubah satu donasi uji ke Berhasil → surel diterima donatur.
 - ⚠️ `DEPLOY.md` memakai contoh domain terpisah (`api.karinakas.org`) — **bukan** konfigurasi produksi sebenarnya (satu domain); ikuti bagian ini.
 
@@ -338,14 +358,16 @@ Hosting = **cPanel**, satu domain `karinakas.com` (API di `/api/index.php/api/v1
 ## 12. Dokumen proyek
 
 > 📁 **Sejak 9 Okt 2026 folder `docs/` ada di `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\`** (di luar repo; Git frontend tidak melacaknya). Baris bertanda `docs/...`
-> di bawah merujuk ke sana. **Naskah aktif:** laporan = `Laporan Tugas Akhir\Terbaru Lagi\LAPORAN_TUGAS_AKHIR_Rev2.docx`; pendukung =
-> `Dokumentasi Selama TA\{SKPL,DPPL,PDHUPL}_Aaron.docx` — baris `TERBARU.docx`/`REVISI\` di bawah **usang**.
+> di bawah merujuk ke sana. **Naskah aktif (per 12 Okt): `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\FINAL\220711818_{Laporan Tugas Akhir,SKPL,DPPL,PDHUPL}.docx`** (+ `.pdf` laporan; diubah 7 Okt 17:34–17:42).
+> `Rev2.docx`, `Rev3.docx`, `*_Aaron.docx`, `TERBARU.docx`, `REVISI\` **usang**. Dokumen pendukung FINAL belum sinkron dengan laporan — perbaikannya ada di
+> **`docs\final\BAHAN-BELAJAR-SIDANG.md` §13 (165 butir: laporan 121, SKPL 18, DPPL 10, PDHUPL 16)**; berkas itu juga bahan belajar sidang (kartu angka §1, metode §4, pustaka §5, realisasi kebutuhan §6, kode §7–§8, titik rawan §9, Q&A §10).
 > Dokumen `.md` lama (`SKPL.md`, `DPPL.md`, `docs/PDHUPL.md`, `docs/skpl|dppl|laporan/*`) **tidak diubah** sesi 6–11 Okt dan sebagian sudah usang terhadap versi final di `docs\final\`.
 
 ### 🆕 Dokumen final sesi 6–11 Okt — `D:\...\TUGAS AKHIR\docs\final\`
 | Berkas | Isi |
 |---|---|
-| `_PROGRES.md` | **titik simpan** pekerjaan: fakta/keputusan penyusun, status tiap berkas, pertanyaan terbuka, cara melanjutkan |
+| `BAHAN-BELAJAR-SIDANG.md` | 🆕 **12 Okt** (±300 KB): bahan belajar sidang + **§13 Daftar Perbaikan Terpadu 165 butir** untuk keempat `.docx` FINAL (halaman Word, teks pengganti, angka final, daftar periksa Ctrl+F); asumsi keputusan K-1…K-9 di §13.0 |
+| `_PROGRES.md` | **titik simpan** pekerjaan: fakta/keputusan penyusun, status tiap berkas, pertanyaan terbuka, cara melanjutkan (⚠️ belum memuat sesi 11–12 Okt; HANDOFF lebih baru) |
 | `PANDUAN-PERBAIKAN-LAPORAN.md` (421 butir), `-SKPL.md` (304), `-DPPL.md` (219), `-PDHUPL.md` (243) | panduan edit `.docx`: penanda, **halaman Word nyata**, kutipan Ctrl+F, saran, penjelasan kesesuaian kode, pertanyaan konfirmasi, teks siap tempel. Sebagian butir usang akibat surel donasi (HANDOFF §6) |
 | `SKPL-LENGKAP.md` | SKPL final: 80 FR, 24 UC, **21 NFR**, 28 antarmuka bernomor, 66 titik akhir, Lampiran A (keterunutan) & B (Catatan Kesesuaian, 33 butir) |
 | `DPPL-LENGKAP.md` | DPPL final: 2.1.3 deployment, 78 fungsi/9 kontroler, 39 kelas, 9 tabel/116 kolom, **2.4 28 antarmuka** (A1–A13, B1–B6, C9), keterunutan, Lampiran A (29 butir) |

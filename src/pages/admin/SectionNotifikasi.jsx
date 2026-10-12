@@ -3,20 +3,17 @@ import { notifikasiService } from '../../services/resources'
 import usePaging from './shared/usePaging'
 import { AdminSort, AdminPager } from './shared/AdminPager'
 
-const DEFAULT_TEMPLATES = {
-  relawan: {
-    judul: 'Selamat Datang Relawan Karinakas',
-    isi: 'Halo [nama],\n\nSelamat! Pendaftaran Anda sebagai relawan [jenis] telah disetujui. Data Anda sudah terdaftar di sistem kami.\n\nSalam hangat,\nTim Karinakas',
-  },
-  donatur: {
-    judul: 'Terima Kasih atas Donasi Anda',
-    isi: 'Halo [nama],\n\nTerima kasih atas donasi sebesar [nominal] untuk [tujuan]. Kontribusi Anda sangat berarti bagi mereka yang membutuhkan.\n\nSalam hormat,\nTim Karinakas',
-  },
-}
+// Kartu templat: kunci = kunci di backend (TemplateNotifikasi), variabel = yang diganti saat surel dikirim
+const TEMPLATE_KARTU = [
+  { key: 'relawan', title: 'Template Relawan Disetujui', icon: 'bi-person-heart',
+    variabel: '[nama], [jenis], [kegiatan]' },
+  { key: 'donatur', title: 'Template Terima Kasih Donatur', icon: 'bi-cash-coin',
+    variabel: '[nama], [nominal], [tujuan], [kegiatan], [tanggal], [metode], [id_transaksi]' },
+]
 
-function loadTemplates() {
-  try { return { ...DEFAULT_TEMPLATES, ...JSON.parse(localStorage.getItem('kk_notif_templates')) } }
-  catch { return DEFAULT_TEMPLATES }
+const STATUS_NOTIF = {
+  terkirim: { cls: 'green', label: '✓ Terkirim' },
+  gagal:    { cls: 'red',   label: '✕ Gagal' },
 }
 
 function SectionNotifikasi() {
@@ -24,7 +21,10 @@ function SectionNotifikasi() {
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState('')
-  const [tpl, setTpl] = useState(loadTemplates)
+  const [tpl, setTpl] = useState(null)              // null = belum dimuat dari server
+  const [tplLoading, setTplLoading] = useState(false)
+  const [tplError, setTplError] = useState('')
+  const [saving, setSaving] = useState(false)
   const [savedMsg, setSavedMsg] = useState(false)
 
   const loadHistory = useCallback(async () => {
@@ -37,10 +37,27 @@ function SectionNotifikasi() {
 
   const pg = usePaging(history, n => n.createdAt)
 
-  const saveTpl = () => {
-    localStorage.setItem('kk_notif_templates', JSON.stringify(tpl))
-    setSavedMsg(true)
-    setTimeout(() => setSavedMsg(false), 2500)
+  // Templat dibaca dari server saat tab Template dibuka pertama kali
+  const loadTpl = useCallback(async () => {
+    setTplLoading(true); setTplError('')
+    try { setTpl(await notifikasiService.getTemplates()) }
+    catch (e) { setTplError(e.message || 'Gagal memuat template dari server.') }
+    finally { setTplLoading(false) }
+  }, [])
+  const bukaTemplate = () => {
+    setTab('template')
+    if (tpl === null && !tplLoading) loadTpl()
+  }
+
+  const saveTpl = async () => {
+    setSaving(true); setTplError('')
+    try {
+      setTpl(await notifikasiService.saveTemplates(tpl))
+      setSavedMsg(true)
+      setTimeout(() => setSavedMsg(false), 2500)
+    } catch (e) {
+      setTplError(e.message || 'Gagal menyimpan template.')
+    } finally { setSaving(false) }
   }
 
   return (
@@ -54,7 +71,7 @@ function SectionNotifikasi() {
 
       <div className="ad-subtabs">
         <button className={`ad-subtab${tab === 'history' ? ' active' : ''}`} onClick={() => setTab('history')}><i className="bi bi-clock-history me-1"></i>Riwayat Terkirim</button>
-        <button className={`ad-subtab${tab === 'template' ? ' active' : ''}`} onClick={() => setTab('template')}><i className="bi bi-file-text me-1"></i>Template</button>
+        <button className={`ad-subtab${tab === 'template' ? ' active' : ''}`} onClick={bukaTemplate}><i className="bi bi-file-text me-1"></i>Template</button>
       </div>
 
       {tab === 'history' && (
@@ -85,7 +102,11 @@ function SectionNotifikasi() {
                       <td className="ad-td-muted">{n.judul}</td>
                       <td className="ad-td-muted">{n.trigger === 'donasi_verified' ? 'Donasi diverifikasi' : 'Relawan disetujui'}</td>
                       <td className="ad-td-muted">{n.tanggal}</td>
-                      <td><span className="ad-badge green">✓ Terkirim</span></td>
+                      <td>
+                        <span className={`ad-badge ${(STATUS_NOTIF[n.status] || STATUS_NOTIF.terkirim).cls}`}>
+                          {(STATUS_NOTIF[n.status] || STATUS_NOTIF.terkirim).label}
+                        </span>
+                      </td>
                     </tr>
                   ))}
               </tbody>
@@ -99,27 +120,36 @@ function SectionNotifikasi() {
 
       {tab === 'template' && (
         <div>
-          {savedMsg && <div className="pf-alert-success mb-3"><i className="bi bi-check-circle-fill me-2"></i>Template berhasil disimpan!</div>}
-          <div className="row g-3">
-            {[
-              ['relawan', 'Template Relawan Disetujui', 'bi-person-heart'],
-              ['donatur', 'Template Terima Kasih Donatur', 'bi-cash-coin'],
-            ].map(([key, title, icon]) => (
-              <div key={key} className="col-md-6">
-                <div className="ad-card" style={{ padding: '1.25rem' }}>
-                  <h3 className="pf-card-title mb-3"><i className={`bi ${icon} me-2 text-danger`}></i>{title}</h3>
-                  <label className="ad-form-label">Judul</label>
-                  <input className="ad-form-input mb-2" value={tpl[key].judul}
-                    onChange={e => setTpl(t => ({ ...t, [key]: { ...t[key], judul: e.target.value } }))} />
-                  <label className="ad-form-label">Isi Pesan</label>
-                  <textarea rows={7} className="ad-form-input ad-form-textarea" value={tpl[key].isi}
-                    onChange={e => setTpl(t => ({ ...t, [key]: { ...t[key], isi: e.target.value } }))} />
-                  <p className="ad-form-hint">Variabel: [nama], [jenis], [nominal], [tujuan]</p>
-                </div>
+          {savedMsg && <div className="pf-alert-success mb-3"><i className="bi bi-check-circle-fill me-2"></i>Template berhasil disimpan dan langsung dipakai pada surel berikutnya.</div>}
+          {tplError && <div className="alert alert-danger mb-3"><i className="bi bi-exclamation-triangle-fill me-2"></i>{tplError}</div>}
+          {tplLoading || !tpl ? (
+            tplError
+              ? <button className="ad-add-btn" onClick={loadTpl}><i className="bi bi-arrow-clockwise me-1"></i>Coba lagi</button>
+              : <p className="ad-empty-row">Memuat template dari server...</p>
+          ) : (
+            <>
+              <p className="ad-table-note mb-3"><i className="bi bi-info-circle me-1"></i>Isi di bawah ini yang dikirim ke penerima. Tulis variabel dengan kurung siku, misalnya <strong>[nama]</strong>; sistem menggantinya dengan data nyata saat surel dikirim. Untuk donasi, rincian transaksi tetap ditampilkan otomatis di bawah pesan.</p>
+              <div className="row g-3">
+                {TEMPLATE_KARTU.map(({ key, title, icon, variabel }) => (
+                  <div key={key} className="col-md-6">
+                    <div className="ad-card" style={{ padding: '1.25rem' }}>
+                      <h3 className="pf-card-title mb-3"><i className={`bi ${icon} me-2 text-danger`}></i>{title}</h3>
+                      <label className="ad-form-label">Judul</label>
+                      <input className="ad-form-input mb-2" value={tpl[key].judul} maxLength={150}
+                        onChange={e => setTpl(t => ({ ...t, [key]: { ...t[key], judul: e.target.value } }))} />
+                      <label className="ad-form-label">Isi Pesan</label>
+                      <textarea rows={10} className="ad-form-input ad-form-textarea" value={tpl[key].isi} maxLength={5000}
+                        onChange={e => setTpl(t => ({ ...t, [key]: { ...t[key], isi: e.target.value } }))} />
+                      <p className="ad-form-hint">Variabel: {variabel}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <button className="ad-add-btn mt-3" onClick={saveTpl}><i className="bi bi-check2 me-1"></i>Simpan Template</button>
+              <button className="ad-add-btn mt-3" onClick={saveTpl} disabled={saving}>
+                <i className="bi bi-check2 me-1"></i>{saving ? 'Menyimpan...' : 'Simpan Template'}
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

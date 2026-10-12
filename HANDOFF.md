@@ -3,19 +3,42 @@
 Berkas ini menjawab *"sudah sampai mana, apa yang masih bermasalah, dan apa langkah berikutnya"*.
 Gambaran sistem (arsitektur, endpoint, konfigurasi) ada di **[CONTEXT.md](CONTEXT.md)** — baca itu lebih dulu.
 
-**Diperbarui:** 11 Oktober 2026
+**Diperbarui:** 12 Oktober 2026
 
-> **Untuk AI / room chat baru:** baca `CONTEXT.md` → berkas ini → **`D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\final\_PROGRES.md`**
-> (titik simpan pekerjaan dokumen 6–11 Okt) → bila menyentuh DPPL, `docs\dppl\CHECKLIST.md` (lokasi baru, lihat di bawah).
+> **Untuk AI / room chat baru:** baca `CONTEXT.md` → berkas ini (**blok "STATUS TERBARU 12 Okt" tepat di bawah ini dulu**, lalu §4.27–§4.29, §6 blok 12 Okt)
+> → **`D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\final\BAHAN-BELAJAR-SIDANG.md`** (bahan sidang + **§13 daftar perbaikan terpadu** untuk laporan/SKPL/DPPL/PDHUPL)
+> → `D:\...\docs\final\_PROGRES.md` (titik simpan 6–11 Okt) → bila menyentuh DPPL, `docs\dppl\CHECKLIST.md` (lokasi baru, lihat di bawah).
 > Bagian §7 menjelaskan cara bekerja yang disukai penyusun — ikuti itu.
+
+> 🆕🆕 **STATUS TERBARU 12 Okt 2026 (sesi 11–12 Okt; rincian §4.27–§4.29)** — ringkasan 1 layar untuk room baru:
+> 1. **Naskah final yang akan diserahkan = folder `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\FINAL\`**: `220711818_Laporan Tugas Akhir.docx` (+ `.pdf`),
+>    `220711818_SKPL.docx`, `220711818_DPPL.docx`, `220711818_PDHUPL.docx` (diubah 7 Okt 17:34–17:42). **Rev2, Rev3, `*_Aaron.docx`, `TERBARU.docx`, `REVISI\` semuanya usang**
+>    (pernyataan "naskah aktif = Rev2" di blok bawah **sudah tidak berlaku**). Isi laporan FINAL = Rev3 + perbandingan SUS ke Kitabisa [14] dan PAON [15].
+> 2. **Dokumen pendukung final belum sinkron dengan laporan/kode** (65 vs 66 titik akhir; SKPL masih 72 FR/32 NFR; PDHUPL sampul `Tgl: <isi tanggal>` dan sisa `[K-6]`;
+>    DPPL masih menulis "kode OTP"; dst.). **Daftar perbaikan lengkap (165 butir, dengan halaman Word hasil ukur, teks pengganti, angka final, daftar periksa) =
+>    `docs\final\BAHAN-BELAJAR-SIDANG.md` §13.** Pengeditan `.docx` dikerjakan penyusun sendiri; AI hanya memberi panduan.
+> 3. **Keputusan penyusun 11–12 Okt:** judul "…Meningkatkan Konversi…" **dipertahankan** (tak bisa diubah); angka statistik Beranda/Intro/Tentang Kami **dibiarkan**;
+>    visi–misi dan pengurus Tentang Kami **diganti ke data resmi** (PDF organigram Karinakas 2026); tombol **Batalkan pendaftaran relawan** dan **Unggah bukti susulan
+>    (tab Riwayat Donasi)** **dibuat**; **fitur "ubah kata sandi" ditiadakan** — diganti **pemulihan/reset kata sandi tanpa sandi lama** (hanya tautan surel + reset oleh Super Admin).
+> 4. **Kode yang berubah (sudah di-commit penyusun):** frontend `c3de860` (11 Okt 13:52: `TentangKami.jsx`, `Profil.jsx`, `admin/shared/ConfirmDelete.jsx`, dan dokumen ini);
+>    backend `0a55219` (11 Okt 11:55: `KegiatanController` tak lagi memuat relawan + tes regresi). **Tidak ada migrasi.**
+> 5. 🔴 **Temuan live 12 Okt 01:04 (diperiksa AI, read-only):** (a) `GET /kegiatan` publik **0 relawan** — kebocoran KTP **sudah tertutup di produksi**; (b) **frontend yang
+>    aktif di karinakas.com (`/assets/index-C4RUnKxG.js`) LEBIH LAMA daripada `c3de860`**: tidak memuat "Batalkan", "Unggah bukti", visi–misi resmi, maupun rekap
+>    "Donasi per Kegiatan"/"Tampilkan semua", dan masih memuat pengurus contoh `randomuser.me`. Bundel yang sempat aktif sebelumnya (`index-DoJwPbZ6.js`, memuat rekap) masih ada di
+>    peladen tetapi tidak dirujuk `index.html`. **→ Build ulang dari `c3de860` dan unggah `dist/` (tanpa menimpa folder `api`, sertakan `.htaccess`).**
+> 6. **Yang masih menunggu (urut):** deploy frontend terbaru → ubah label tab "Kegiatan Relawan" → **"Riwayat Relawan"** (K-8, 1 baris `Profil.jsx`) → lencana status Notifikasi admin membaca
+>    status asli (K-9, `SectionNotifikasi.jsx`) → putuskan K-2 (**hapus rute `POST /change-password` + `AuthController::changePassword`**; kini masih ada di kode dan live, membalas 401 tanpa token)
+>    → **uji ulang di situs**: UT-04, UT-05, UT-08 (dua jalur unggah), AD-10 (draft berita di panel admin), NL-01, surel donasi & reset sandi ke kotak surel nyata → terapkan §13 pada `.docx`.
+> 7. **Hal yang dilarang diisi dengan asumsi:** hasil uji (Handal/Tidak Handal), tanggal pasti black-box (hanya "September 2026"), nama perwakilan Karinakas, sumber Tabel 6.8 PDHUPL, skor PAON (80).
 
 > 🆕 **BACA INI DULU — sesi 6–11 Okt 2026 mengubah banyak hal (rincian §4.21–§4.26):**
 > 1. **Folder `docs/` dipindahkan penyusun keluar repo** ke `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\`
 >    (isi utuh, termasuk `docs\final\`). Sejak commit frontend `090c107` (9 Okt) `docs/` **tidak lagi dilacak Git**.
 >    **Semua jalur `docs/...` di berkas ini kini berarti `D:\...\TUGAS AKHIR\docs\...`.**
-> 2. **Naskah aktif sekarang (bukan lagi `TERBARU.docx`):** laporan `D:\...\TUGAS AKHIR\Laporan Tugas Akhir\Terbaru Lagi\LAPORAN_TUGAS_AKHIR_Rev2.docx`
->    (5 Okt 10:02) dan dokumen pendukung `D:\...\TUGAS AKHIR\Dokumentasi Selama TA\{SKPL,DPPL,PDHUPL}_Aaron.docx`.
->    Blok 🔴 di bawah (soal `TERBARU.docx`, `REVISI\`) **sebagian usang** — pertanyaan "mana yang aktif" sudah terjawab: Rev2.
+> 2. ~~**Naskah aktif sekarang:** `Laporan Tugas Akhir\Terbaru Lagi\LAPORAN_TUGAS_AKHIR_Rev2.docx` + `Dokumentasi Selama TA\{SKPL,DPPL,PDHUPL}_Aaron.docx`.~~
+>    **⚠️ USANG per 12 Okt:** naskah final = folder `D:\...\TUGAS AKHIR\FINAL\` (lihat blok STATUS TERBARU di atas). Rev2 (5 Okt), Rev3 (7 Okt 14:51), dan `_Aaron.docx` adalah
+>    versi lebih lama; nomor halaman pada `docs\final\PANDUAN-PERBAIKAN-*.md` dihitung pada `_Aaron.docx` dan **tidak berlaku** untuk FINAL (pakai `BAHAN-BELAJAR-SIDANG.md` §13).
+>    Blok 🔴 di bawah (soal `TERBARU.docx`, `REVISI\`) adalah **sejarah** dan tidak perlu dikerjakan.
 > 3. **Fakta yang DIKONFIRMASI penyusun (anggap benar):** responden kuesioner kebutuhan = **35**; SUS **n=40 tetap**
 >    (wawancara super admin = 1 orang yang sama dengan responden pengelola); **OTP dan WhatsApp tidak dipakai**;
 >    **black-box dilakukan nyata oleh penyusun + pihak Karinakas, semua Handal** (jangan menulis "penelusuran kode");
@@ -27,10 +50,10 @@ Gambaran sistem (arsitektur, endpoint, konfigurasi) ada di **[CONTEXT.md](CONTEX
 > 5. **Kode baru, sudah di-commit & ter-push 9 Okt:** surel donasi terverifikasi (backend), paging + urutan Terbaru/Terlama
 >    di semua daftar admin, rekap donasi per kegiatan, filter berita tanpa "Kegiatan" (frontend). **Deploy ke karinakas.com belum
 >    terverifikasi.**
-> 6. 🔴 **Dua hal paling berisiko:** (a) `GET /kegiatan` dan `GET /kegiatan/{id}` publik memuat relasi relawan (data pribadi,
->    termasuk KTP) — **belum diuji di situs, belum diperbaiki** (§4.22); (b) nilai kata sandi bawaan reset-sandi masih tertulis di
->    `docs\PDHUPL.md` baris ±687 dan kemungkinan di `PDHUPL_Aaron.docx` (AD-32) — hapus sebelum diserahkan.
+> 6. 🔴 **Dua hal paling berisiko (status 12 Okt):** (a) ~~`GET /kegiatan` publik memuat relasi relawan (KTP)~~ — **TERTUTUP di produksi** (diverifikasi 11 dan 12 Okt: 0 relawan);
+>    (b) nilai kata sandi bawaan reset-sandi **masih tertulis di `PDHUPL.docx` FINAL (butir AD-32, baris hasil, halaman 49)** dan di `docs\PDHUPL.md` ±baris 687 — **hapus nilainya** (PDHUPL P-12 di §13).
 
+> ⚠️ **[SEJARAH 2–5 Okt — USANG, jangan dikerjakan]** Blok di bawah mencatat keadaan sebelum naskah final ada di `FINAL\`.
 > 🔴 **PENTING — baca sebelum menyentuh Bab IV/V/VI laporan TA:** ada **dua naskah Bab V/VI yang
 > kini tidak identik**, masing-masing lebih maju di sisi berbeda — jangan asumsikan salah satunya
 > usang begitu saja:
@@ -73,11 +96,15 @@ Gambaran sistem (arsitektur, endpoint, konfigurasi) ada di **[CONTEXT.md](CONTEX
 | **TESTING.md** | ✅ 181 kasus tersusun · ⬜ belum dijalankan/diisi |
 | **Uji kebergunaan (SUS)** | ✅ **Sudah dijalankan — 40 responden nyata, skor rata-rata 72,56** (Baik/*Acceptable*), lihat §4.10 |
 | **Laporan TA (.docx)** | ⚠️ Belum selaras dengan SKPL/DPPL — draf perbaikan sudah siap di `docs/laporan/`, tinggal dipindahkan |
-| 🆕 **Naskah aktif (11 Okt)** | `Laporan Tugas Akhir\Terbaru Lagi\LAPORAN_TUGAS_AKHIR_Rev2.docx` + `Dokumentasi Selama TA\{SKPL,DPPL,PDHUPL}_Aaron.docx`. Audit 6 Okt menemukan sisa pekerjaan: lihat §4.21 dan `docs\final\PANDUAN-PERBAIKAN-*.md` (halaman Word nyata per butir). **Perbaikan di `.docx` dikerjakan penyusun sendiri** (AI hanya memberi panduan) |
+| 🆕🆕 **Naskah FINAL (12 Okt)** | `D:\...\TUGAS AKHIR\FINAL\220711818_{Laporan Tugas Akhir,SKPL,DPPL,PDHUPL}.docx` (7 Okt 17:3x–17:4x; laporan 122 hal., SKPL 59, DPPL 64, PDHUPL 63). Menggantikan Rev2/`_Aaron`. **165 perbaikan terdaftar** (laporan 121, SKPL 18, DPPL 10, PDHUPL 16) di `docs\final\BAHAN-BELAJAR-SIDANG.md` §13, lengkap halaman Word dan teks pengganti. **Pengeditan `.docx` dikerjakan penyusun sendiri** (AI hanya memberi panduan) |
+| 🆕🆕 **Bahan belajar sidang** | `docs\final\BAHAN-BELAJAR-SIDANG.md` (±300 KB): kartu angka, ringkasan laporan, metode (Waterfall/HCD/black-box/SUS) + kelebihan–kekurangan, penjelasan pustaka [1]–[15], pemetaan kebutuhan→fitur, penjelasan kode BE/FE, titik rawan T-01…T-28, bank Q&A (Q1–Q63), §6.9 rasional unggah bukti susulan & pembatalan relawan, §6.10 koreksi dokumen ubah-sandi, **§13 daftar perbaikan terpadu** |
+| 🆕🆕 **Frontend (12 Okt)** | Kode: `c3de860` memuat Tentang Kami (organigram + visi–misi resmi, kartu berinisial), Profil (tombol **Batalkan** pendaftaran relawan, **Unggah/Ganti bukti** donasi pending), `ConfirmDelete` (props teks opsional). ⚠️ **Live masih bundel lama `index-C4RUnKxG.js`** (tanpa fitur-fitur itu dan tanpa rekap per kegiatan) → perlu build + unggah ulang |
+| 🆕🆕 **Backend (12 Okt)** | `0a55219`: `KegiatanController` tidak lagi memuat relawan (publik) + tes `KegiatanPublikTidakMembocorkanRelawanTest` (4 tes). **Aktif di live (0 relawan terkirim).** `POST /change-password` masih ada (tak dipakai klien; direkomendasikan dihapus) |
+| 🆕🆕 **Ubah kata sandi** | **Ditiadakan** (keputusan 11 Okt). Satu-satunya jalur pengguna = pemulihan kata sandi (tautan surel). Dokumen yang masih menyebutnya: SKPL FR 209/UC-07/NFR 3.4.4.1/F-07/antarmuka, DPPL 2.1/AuthController/`changePassword`/B5, PDHUPL SR-10 & SR-11, laporan 4.4.5 & 5.2.1.11 — semuanya di §13 |
 | 🆕 **Dokumen final `.md`** | `docs\final\{SKPL,DPPL,PDHUPL}-LENGKAP.md` selesai 7 Okt (SKPL: 80 FR, 24 UC, **21 NFR** setelah penghapusan 11 NFR pengukuran; DPPL: 78 fungsi/9 kontroler, 39 kelas, 9 tabel, 28 antarmuka; PDHUPL: 87 Handal + 1 Tidak Berlaku). Berisi penanda `[KONFIRMASI K-n]`/`[diisi penyusun]` yang harus dijawab (§6). **Belum ditempel ke `.docx`** |
 | 🆕 **Surel donasi terverifikasi** | ✅ Kode selesai, teruji **lokal** (render + transport `array`); commit backend `41071cc` (7 Okt) + `46c940c` (9 Okt, fallback kegiatan kosong → "-") sudah ter-push · ⚠️ **belum terbukti terkirim dari peladen** (SMTP produksi + alur DB belum diuji) |
 | 🆕 **Dasbor admin** | ✅ Paging + urutan Terbaru/Terlama di 8 bagian, **semua daftar kini memuat seluruh halaman** (dulu terpotong 100/20 baris), rekap donasi per kegiatan (Super Admin) · commit frontend `090c107` + `0632105` (9 Okt) · ⚠️ belum diuji di peramban oleh AI; deploy belum terverifikasi |
-| **Git (11 Okt)** | Backend `main` = `origin/main` @ `46c940c`; frontend `main` = `origin/main` @ `0632105`. `.gitignore` frontend memuat `dist`, tetapi `dist.zip` **ikut terlacak**. Catatan: `git fetch` dari komputer ini gagal (SSL "unable to get local issuer certificate") sehingga status "ter-push" hanya dari penanda lokal |
+| **Git (12 Okt)** | Backend `main` @ `0a55219` (kerja bersih); frontend `main` @ `c3de860` (kerja bersih). Status "ter-push"/aktif di cPanel **tidak dapat diverifikasi dari komputer ini** — pakai pemeriksaan live (§4.27). _Catatan lama 11 Okt:_ backend `46c940c`, frontend `0632105`. `.gitignore` frontend memuat `dist`, tetapi `dist.zip` **ikut terlacak**. Catatan: `git fetch` dari komputer ini gagal (SSL "unable to get local issuer certificate") sehingga status "ter-push" hanya dari penanda lokal |
 
 **Yang paling mendesak:** (1) **konfirmasi angka 35 vs 27 responden** (§4.17/§6) — satu-satunya
 inkonsistensi `TERBARU.docx` yang masih tersisa; (2) **putuskan apakah `docs/laporan/BAB-V/VI-LENGKAP.md`
@@ -774,6 +801,46 @@ Urut prioritas. Semua dari pembacaan kode kecuali dinyatakan teruji:
   memeriksa — `docs/` tampil terhapus; (3) komputer ini tidak punya Python, draw.io, pandoc, soffice; Node dan Word (COM) ada; (4) `git fetch` gagal SSL; (5) batas sesi API
   bisa memutus agen — pakai `_PROGRES.md`; (6) agen sempat menulis "penyimpangan karena instruksi Anda" untuk keputusan yang sebenarnya pilihannya sendiri (Q-8/23/24/25) — tinjau.
 
+### 4.27 Audit klaim laporan vs kode, keputusan penyusun, dan pemeriksaan live (11–12 Okt)
+- **Sumber yang dibaca AI:** naskah `FINAL\*.docx` (teks diekstrak lewat unzip + Node; halaman diukur lewat Word COM pada **salinan** berkas), seluruh kode backend dan frontend,
+  `Hasil diskusi 13 April 2026.txt` (masukan Karinakas), catatan bimbingan Dosen II 12 Maret (aturan sitasi/penulisan), dan PDF "Mengenal Karinakas" (visi, misi, program, organigram 2026).
+- **Temuan utama (rincian T-01…T-28 di `BAHAN-BELAJAR-SIDANG.md` §9):** (1) Beranda: bagian Kegiatan (3 kartu), Stats, Values, dan Intro berisi **data tetap**, hanya Galeri (6 foto) dinamis — laporan 5.2.1.1
+  menulis sebaliknya; (2) Tentang Kami sebelumnya berisi **pengurus fiktif + foto `randomuser.me`**; (3) tidak ada UI **ubah kata sandi** maupun tombol **batal relawan**, dan unggah bukti hanya dari layar pembayaran
+  (padahal SKPL FR 307, UC-09, DPPL B2/B4, dan teks di `Donasi.jsx` sudah menjanjikan jalur susulan); (4) `forgotPassword` memvalidasi `exists:users,email` → email tak terdaftar dibalas **422** (laporan 5.2.1.8 menyebut "selalu berhasil");
+  (5) penulis/waktu baca Berita **manual** (laporan menyebut otomatis); (6) lencana status di tabel Notifikasi admin selalu "Terkirim"; templat notifikasi hanya `localStorage`; (7) angka responden **35/27/25** tercampur;
+  (8) 65 vs 66 titik akhir; (9) PDHUPL AD-10 hasilnya bertentangan dengan keluarannya; AD-32 memuat nilai kata sandi bawaan; (10) SKPL final masih 32 NFR (penghapusan 11 NFR pengukuran **belum diterapkan**);
+  (11) DPPL menulis "pemulihan kata sandi melalui kode OTP"; B3/B4 menyebut "kode transaksi" (tidak ada); B5 menyebut username dapat disunting (tidak); (12) Bab III menjanjikan task success rate/error rate/UEQ/responsivitas tanpa hasil;
+  (13) citasi: Kurniawan [5] (84,5% = respons baik, bukan efektivitas), Husseniy [2] (angka 94% tak terverifikasi; tiga deskripsi berbeda), Lichas [6] sudah memakai SUS, nomor sitasi tertukar di 2.3.4/2.3.6, entri [1][4][7][11][12][13][15] rusak,
+  Brooke/Bangor/Sauro/Royce/ISO tidak ada di Daftar Pustaka; (14) paragraf "Keterbatasan" (5.3) hampir identik dengan "Kelebihan"; paragraf 3.13 masih instruksi templat kampus.
+- **Keputusan penyusun:** lihat blok STATUS TERBARU butir 3. Jawaban lain: "deploy sudah" (diverifikasi sebagian, lihat di bawah); black-box "dapat dilihat dari PDHUPL" — PDHUPL hanya menulis *September 2026*, penguji fungsional "pengembang sistem";
+  tanggal pasti dan nama perwakilan Karinakas **belum ada** di dokumen mana pun.
+- **Fakta lembaga resmi (PDF):** Visi "Terwujudnya Peradaban Kasih di Indonesia yang Sejahtera, Bermartabat dan Beriman"; 4 misi (belarasa/kemanusiaan-keadilan-keutuhan ciptaan; jejaring pelayanan lokal–internasional;
+  galang sumber daya; pelayanan terpadu untuk kemandirian). Program: Kesiapsiagaan (Paroki Tangguh KAS, Wreda Loka), Tanggap Darurat (relawan), Pascabencana (ketahanan pangan). **Organigram 2026:** Pembina Uskup Agung KAS;
+  Pengawas Ekonom KAS Ibu Njiauw Janti; Pengurus: Rm. Robertus Budi Haryana, Pr (Ketua), Ibu E. Imma Indra Dewi W. (Sekretaris), Ibu F. Reni Retno A. (Bendahara); **Direktur Rm. Bernardus Himawan, Pr**; Elderly Project Manager
+  Pramono Murdoko; Finance Manager/HR/GA Felicitas Gita Andriyani; Vinsensius Sudrajat; Ag. Heri Purwadi. ⚠️ Penandatangan Pernyataan Instansi di laporan = **Dionisius Adi Prabu Pamungkas** (tidak ada di organigram; di catatan diskusi ada kontak "Mas Dion").
+- **Pemeriksaan live (read-only, 11 dan 12 Okt):** `GET /kegiatan?per_page=100` tanpa token → 4 kegiatan, **0 kunci/baris relawan**; `POST /change-password` tanpa token → 401 (rute masih ada);
+  `index.html` merujuk `/assets/index-C4RUnKxG.js` (591 KB) yang **tidak** memuat "Batalkan", "Unggah bukti", "Peradaban Kasih", "Donasi per Kegiatan", "Tampilkan semua", tetapi memuat `randomuser.me` (pengurus contoh).
+  Bundel `index-DoJwPbZ6.js` (598 KB; memuat rekap per kegiatan) masih ada di peladen. Kesimpulan: **yang aktif adalah build lama** — cara pemeriksaan ulang: unduh bundel yang dirujuk `index.html` lalu cari penanda di atas.
+
+### 4.28 Perubahan kode 11 Okt (frontend; sudah di-commit `c3de860`; belum diuji di peramban oleh AI, belum terbukti dideploy)
+- **`src/pages/TentangKami.jsx`:** `pengurus` (5 data contoh) diganti `pengurusYayasan` (Pembina, Ketua, Sekretaris, Bendahara, Pengawas) + `pelaksanaHarian` (Direktur, Elderly PM, Finance/HR/GA, Vinsensius Sudrajat, Ag. Heri Purwadi);
+  komponen `KartuOrang` + `inisialNama()` memakai **inisial** (tanpa foto; tambahkan properti `foto` bila ada); **visi dan 4 misi diganti ke versi resmi**. Statistik (25+/100+/15.000+/500+) **sengaja dibiarkan** (keputusan penyusun).
+- **`src/pages/Profil.jsx`:** tab **Kegiatan Relawan** — pendaftaran `pending` punya tombol **Batalkan** (dialog konfirmasi `ConfirmDelete`, memanggil `relawanService.cancel` → `DELETE /relawan/{id}/cancel`, lalu muat ulang);
+  tab **Riwayat Donasi** — kolom baru **Bukti**: link "Lihat" bila sudah ada, tombol **Unggah bukti/Ganti** hanya untuk `pending` (dialog pilih berkas, validasi gambar ≤ 4 MB di klien, `donasiService.uploadBukti` → `POST /donasi/{id}/bukti`); pesan sukses/galat via `aksiInfo`.
+  **Backend tidak diubah.** ⚠️ Label tab masih **"Kegiatan Relawan"** padahal DPPL/PDHUPL/laporan memakai "Riwayat Relawan" (K-8; SKPL UC-11 memakai "Kegiatan Relawan").
+- **`src/pages/admin/shared/ConfirmDelete.jsx`:** props opsional `title`, `text`, `cancelLabel`, `confirmLabel`, `busyLabel`, `confirmIcon` (default sama seperti semula → panel admin tidak berubah).
+- **Verifikasi AI:** `eslint` pada berkas yang diubah tidak menambah galat (satu galat lama `react-hooks/set-state-in-effect` di `Profil.jsx` baris ±43 sudah ada sebelumnya); `vite build` ke folder sementara sukses.
+- **Fitur yang SENGAJA tidak dibuat:** ubah kata sandi di UI. **Masih ada di kode (diketahui):** rute/fungsi `changePassword`; `forgotPassword` dengan `exists:users,email`; Beranda/Stats/Intro statis; kotak "Cari sesuatu…" dan lonceng di topbar admin tak berfungsi; kotak "Ingat saya" di Login tak berefek;
+  lencana "✓ Terkirim" statis di Notifikasi admin; templat notifikasi hanya `localStorage`; penulis Berita manual; kegiatan hanya satu isian Tanggal; menu "Pengaturan" admin placeholder; CORS `*`; KTP tersimpan teks biasa; fallback kata sandi bawaan pada reset oleh Super Admin (`AdminController::resetUserPassword`; **nilainya jangan ditulis di dokumen mana pun**; cari di PDHUPL dengan kata kunci nilai itu, hasil yang benar 0);
+  dua webhook tanpa autentikasi; `store.js`/`useCrud.js` berisi sisa kode localStorage.
+
+### 4.29 Bahan belajar sidang dan daftar perbaikan terpadu (12 Okt)
+- Dibuat `docs\final\BAHAN-BELAJAR-SIDANG.md` (13 bagian; lihat tabel §1). Isi penting yang tidak ada di tempat lain: perhitungan ulang SUS dari tabel skor (mean 71,38/75,68/72,56; median 71,25; SD 12,85; **14 dari 40 (35%) < 68**; selang kepercayaan 95% ≈ 68,5–76,7;
+  tanpa R19 = 73,14; selisih pengelola vs pengunjung tidak signifikan, t≈1,16); rasio kontras warna (`#FFD700` pada putih **1,40:1**; `#C0392B` pada putih 5,44:1); skala grade Sauro–Lewis (72,56 = batas C+/B−) vs Tabel 6.8 PDHUPL ("Grade B"); hasil verifikasi web atas sumber [1],[2],[5],[6],[8],[9],[10],[14].
+- **§13** memuat 165 butir perbaikan (A wajib 72 / B 58 / C 35) dengan kutipan Ctrl+F, **halaman Word hasil ukur**, dan teks siap tempel, plus tabel **angka final** yang harus sama di semua dokumen dan asumsi keputusan **K-1…K-9**.
+  Angka final yang berlaku bila K-2 dilakukan: butir uji **86** (Handal **85**, Tidak Berlaku 1 = AD-34, "85 dari 85"), titik akhir **65**, antarmuka **24 (+4 pendukung = 28)**, responden kebutuhan **35**, SUS n=**40**, NFR SKPL **21** (setelah penghapusan 11 NFR pengukuran), FR SKPL: FR 209 dikosongkan + **FR 313 (pembatalan relawan) ditambahkan**.
+- Cara mengukur halaman Word: `docs\final\tools\find-pages.ps1` (Word COM, salinan berkas). **Kutipan harus ASCII murni** (tanda pisah "–" dan spasi tak-putus U+00A0 membuat pencarian gagal); nomor di kaki halaman SKPL berbeda 5 dari halaman fisik, DPPL tidak berurutan.
+
 ---
 
 ## 5. Masalah terbuka (diurutkan menurut prioritas)
@@ -857,7 +924,26 @@ Urut prioritas. Semua dari pembacaan kode kecuali dinyatakan teruji:
 
 ## 6. Menunggu tindakan penyusun
 
-### 🆕 Menunggu tindakan 11 Okt (baru; yang di bawah blok ini sebagian sudah terjawab/usang)
+### 🆕🆕 Menunggu tindakan 12 Okt (TERBARU; blok-blok di bawahnya sebagian sudah terjawab/usang)
+**Kode dan deploy (AI dapat mengerjakan kodenya bila diminta; commit/push/deploy tetap penyusun):**
+- [ ] 🔴 **Deploy frontend dari `c3de860`**: `npm ci` → `npm run build` (`.env`: `VITE_API_URL=/api/index.php/api/v1`, `VITE_STORAGE_URL=/api/storage`) → ZIP **isi** `dist/` (klik kanan *Compress*) → unggah & Extract ke web root, **jangan timpa `api`**, sertakan `.htaccess`.
+  Cek: bundel yang dirujuk `index.html` memuat "Batalkan", "Unggah bukti", "Peradaban Kasih", "Donasi per Kegiatan" (§4.27). Live saat ini = bundel lama.
+- [ ] **K-8** ubah label tab `Kegiatan Relawan` → `Riwayat Relawan` di `src/pages/Profil.jsx` (±baris 122 dan komentar ±355) dan di SKPL UC-11.
+- [ ] **K-9** lencana status Notifikasi admin membaca `status` asli (terkirim/gagal) di `SectionNotifikasi.jsx` (saat ini selalu "✓ Terkirim"; ±baris 88).
+- [ ] **K-2** hapus `Route::post('/change-password' …)` (`routes/api.php` baris 60) + `AuthController::changePassword` + tes bahwa rute itu 404 → titik akhir 66 → **65** (63 fungsional + 2 webhook). Bila rute dipertahankan, semua "65" di §13 menjadi "66" dan SKPL/DPPL yang diubah.
+- [ ] (opsional) K-3: ubah `forgotPassword`/`resetPassword` agar email tak terdaftar tidak dibalas 422 (menutup enumerasi akun) → lalu ubah laporan 5.2.1.8 dan PDHUPL RP-04.
+**Uji nyata di situs setelah deploy (hasilnya harus ditulis apa adanya di PDHUPL):** UT-04, UT-05 (Batalkan), UT-08 (dua jalur unggah), AD-10 (berita Draft tampil di panel admin atau tidak),
+  NL-01, AD-14 (surel donasi diterima donatur), RP-01–03 (surel reset diterima), `GET /kegiatan` tanpa token = 0 relawan, admin → `GET /admin/users` = 403, KTP < 16 digit → 422.
+**Dokumen (`.docx` FINAL — dikerjakan penyusun):**
+- [ ] Terapkan `BAHAN-BELAJAR-SIDANG.md` **§13** (165 butir; urutan kerja di §13.0: PDHUPL → SKPL → DPPL → laporan → Daftar Pustaka → perbarui Daftar Isi/Gambar/Tabel → daftar periksa §13.8).
+- [ ] Hapus nilai kata sandi bawaan pada PDHUPL AD-32 (hal. 49); hapus `[K-6]` dan isi `Tgl:` pada PDHUPL; hapus "kode OTP" di DPPL 2.1.
+- [ ] Terapkan penghapusan 11 NFR pengukuran + K-20 pada SKPL FINAL (belum; panduan: `docs\final\PANDUAN-HAPUS-NFR-SKPL-DOCX.md`, tetapi halaman pakai §13 S-20).
+- [ ] Isi data yang hanya penyusun ketahui: tanggal pasti black-box + nama/jabatan perwakilan Karinakas; nama penguji I/II dan Dekan; tanggal Lembar Pengesahan; penandatangan Pernyataan Instansi (Direktur vs Dionisius); sumber Tabel 6.8; skor/penulis PAON [15];
+  judul lengkap Kurniawan [5]; penulis [11][12][13]; ekspor ulang diagram (use case UC-24, PDM, kelas tanpa `changePassword`, wireframe B5).
+- [ ] Perbarui `docs\final\SLIDE-PRESENTASI-TA.md` (88→86 butir, 87→85, "85 dari 85", 65 titik akhir, slide 14 "Pengembangan Terbaru" hanya bila deploy terbukti) dan siapkan video demo cadangan.
+- [ ] Hafalkan kartu angka (`BAHAN-BELAJAR-SIDANG.md` §1) dan latih Q1–Q63 (§10).
+
+### 🆕 Menunggu tindakan 11 Okt (sebagian sudah terjawab/usang — data relawan: TERTUTUP; deploy backend: terbukti; lainnya lihat blok 12 Okt di atas)
 **Keputusan (jawab ya/tidak/pilihan — rincian pertanyaan lengkap ada di tiap `PANDUAN-PERBAIKAN-*.md` §Konfirmasi dan `[KONFIRMASI K-n]` di `*-LENGKAP.md`):**
 - [ ] **Data relawan di `GET /kegiatan`** — uji dulu di peramban (`/api/index.php/api/v1/kegiatan`), lalu putuskan perbaikan kode (§4.22 butir 1). 🔴
 - [ ] **Uji surel donasi di situs** setelah deploy (§4.23); bila gagal, periksa `.env` MAIL_* (porta 465/`smtps` per CONTEXT §10; `DEPLOY.md` masih menulis 587).
@@ -956,10 +1042,19 @@ Urut prioritas. Semua dari pembacaan kode kecuali dinyatakan teruji:
   TESTING (termasuk hitungan total), SKENARIO-TUGAS, CONTEXT, HANDOFF, DEPLOY.
 - **Jangan menyalin kata sandi atau kunci rahasia ke dokumen.** Tempatnya hanya `.env`.
 - Uji perubahan backend langsung lewat API bila memungkinkan, dan gunakan ID palsu agar data tidak rusak.
+- 🆕 **Jawaban harus konsisten dan valid:** sebut asumsi secara eksplisit (kode K-1…K-9 di `BAHAN-BELAJAR-SIDANG.md` §13.0), cocokkan kutipan ke teks sumber, dan ukur halaman Word dengan `find-pages.ps1`; jangan menebak.
+- 🆕 **Jangan mengarang hasil uji, tanggal, nama, skor, atau isi jurnal.** Tulis `[diisi]`/`[CEK]` bila datanya tidak ada; isi jurnal hanya dari sumber yang diverifikasi (ditandai ✅/🟡/❓ di §5 bahan belajar).
+- 🆕 **Penyusun suka penjelasan alasan** (kelebihan/kekurangan metode dan keputusan desain, mis. `BAHAN-BELAJAR-SIDANG.md` §4, §6.9, §6.10) dan bahan yang langsung bisa ditempel (teks pengganti + halaman).
+- 🆕 **Ubah kode lokal hanya bila diminta**; setelah mengubah, jalankan `eslint` pada berkas yang diubah dan `vite build --outDir "$TEMP\..." ` (jangan menimpa `dist/`). Tanyakan dulu keputusan yang memengaruhi dokumen (K-2, K-8, K-9, fitur baru/dihapus).
+- 🆕 **Jangan menulis nilai kata sandi bawaan/demo ke dokumen yang dikumpulkan atau berkas yang di-commit.**
 
 ---
 
 ## 8. Langkah berikutnya (saran urutan)
+
+> 🆕🆕 **Per 12 Okt, urutan yang disarankan:** (1) K-8, K-9, K-2 (kode kecil) → (2) **build & deploy frontend dari `c3de860`** (live masih bundel lama) → (3) **uji nyata** UT-04/05/08, AD-10, NL-01, surel donasi & reset →
+> (4) terapkan `BAHAN-BELAJAR-SIDANG.md` §13 ke `FINAL\*.docx` (PDHUPL → SKPL → DPPL → laporan → pustaka; perbarui daftar isi/gambar/tabel) → (5) perbarui slide → (6) latihan sidang (§10) dan video demo cadangan.
+> Daftar bernomor di bawah (dan blok 11 Okt) **sebagian besar usang**: butir 5, 6, 9 menyangkut `TERBARU.docx`/draf `.md` lama; butir 1–2 dan 7 hanya bila belum dikerjakan.
 
 > 🆕 **Per 11 Okt, urutan yang disarankan:** (1) uji & putuskan temuan keamanan data relawan (§4.22-1); (2) deploy backend lalu frontend + uji surel donasi (§4.26);
 > (3) tempel use case + PDM ke Rev2 (revisi dosen, §4.25); (4) kerjakan `.docx` mengikuti panduan, mulai dari PDHUPL/Laporan (butir kritis: metode uji, 35 responden,
@@ -986,6 +1081,11 @@ Urut prioritas. Semua dari pembacaan kode kecuali dinyatakan teruji:
 
 ## 9. Gotcha (mudah bikin bingung)
 
+- 🆕 **Situs live bisa memuat build lama** meski kode sudah di-commit: cek berkas JS yang dirujuk `https://karinakas.com/` (`index.html`) dan cari teks fitur baru di dalamnya. Per 12 Okt = `index-C4RUnKxG.js` (lama).
+- 🆕 **Heredoc Bash dengan backslash/backtick sering gagal** ("unexpected EOF"): tulis skrip dengan tool Write lalu jalankan. Di tabel `.md`, pipe dalam code span ditulis `\|` (hati-hati tool menyunting backslash).
+- 🆕 **Mengukur halaman Word:** `docs\final\tools\find-pages.ps1` (Word COM, salinan). Kutipan pencarian harus **ASCII polos** (en dash, NBSP, dan penomoran otomatis membuat Find gagal). Halaman SKPL yang tercetak di footer ≠ halaman fisik; pakai halaman fisik.
+- 🆕 **`Remove-Item -Recurse` bisa ditolak** ("protected path"); ekstrak `.docx` ke nama folder baru, jangan menghapus.
+- 🆕 **Nama-nama tipis yang mudah tertukar:** "ubah kata sandi" (ditiadakan; hanya pemulihan lewat tautan surel) vs "reset oleh Super Admin" (tetap ada, `POST /admin/users/{id}/reset-password`); "Kegiatan Relawan" (label tab sekarang) vs "Riwayat Relawan" (rencana K-8).
 - **404 vs 500:** rute tidak cocok → 404; kelas tidak ditemukan → 500. Bila tercampur, ada dua masalah.
 - **Nama berkas PHP harus sama persis dengan kelas** — di Windows tidak terasa, di Linux langsung 500.
   Ganti kapitalisasi pakai `git mv` dua langkah (`core.ignorecase=true`).

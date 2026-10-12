@@ -1,5 +1,17 @@
 // Data resmi lembaga yang tampil di lebih dari satu halaman.
-// Ubah di sini saja — Footer dan halaman Kontak membaca dari berkas ini.
+// Ubah di sini saja — Footer, halaman Kontak, dan semua tampilan statistik membaca dari berkas ini.
+
+// Angka dampak (statis, sengaja tidak dihitung dari basis data). Dipakai seragam di
+// Beranda, Tentang Kami, layar Intro, serta panel Masuk dan Daftar.
+export const STATISTIK = {
+  penerimaManfaat: { nilai: 5000, label: 'Penerima Manfaat', icon: 'bi-people-fill' },
+  kegiatan:        { nilai: 120,  label: 'Kegiatan Sosial',  icon: 'bi-calendar-check-fill' },
+  relawan:         { nilai: 800,  label: 'Relawan Aktif',    icon: 'bi-heart-fill' },
+  tahun:           { nilai: 15,   label: 'Tahun Berkarya',   icon: 'bi-award-fill' },
+}
+
+// Bentuk tampilan statis, mis. "5.000+"
+export const fmtStatistik = (s) => `${s.nilai.toLocaleString('id-ID')}+`
 
 export const ALAMAT = {
   jalan:    'Jl. Empu Panuluh No.377A, Pringwulung',

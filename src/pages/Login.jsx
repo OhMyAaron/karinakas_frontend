@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import KarinakasLogo from '../components/KarinakasLogo'
 import { useAuth } from '../context/AuthContext'
+import { STATISTIK, fmtStatistik } from '../data/lembaga'
 
 const features = [
   ['bi-heart-fill',             'Donasi Online Mudah'],
@@ -83,20 +84,15 @@ function Login() {
           </ul>
 
           <div className="lg-left-stats">
-            <div className="lg-stat">
-              <span className="lg-stat-num">5.000+</span>
-              <span className="lg-stat-lbl">Penerima Manfaat</span>
-            </div>
-            <div className="lg-stat-sep" />
-            <div className="lg-stat">
-              <span className="lg-stat-num">120+</span>
-              <span className="lg-stat-lbl">Program Aktif</span>
-            </div>
-            <div className="lg-stat-sep" />
-            <div className="lg-stat">
-              <span className="lg-stat-num">15+</span>
-              <span className="lg-stat-lbl">Tahun Berdiri</span>
-            </div>
+            {[STATISTIK.penerimaManfaat, STATISTIK.kegiatan, STATISTIK.tahun].map((s, i) => (
+              <Fragment key={s.label}>
+                {i > 0 && <div className="lg-stat-sep" />}
+                <div className="lg-stat">
+                  <span className="lg-stat-num">{fmtStatistik(s)}</span>
+                  <span className="lg-stat-lbl">{s.label}</span>
+                </div>
+              </Fragment>
+            ))}
           </div>
         </div>
       </div>

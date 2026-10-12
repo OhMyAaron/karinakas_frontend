@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import heroImg from '../assets/hero.jpeg'
+import { STATISTIK, fmtStatistik } from '../data/lembaga'
 
 // Foto Karinakas — letakkan di public/intro/ dengan nama berikut.
 // Selama file belum ada, otomatis memakai foto hero bawaan.
@@ -18,11 +19,8 @@ const STORY = [
     text: 'Dari merawat kebersihan hingga kebutuhan sehari-hari, kami hadir memberi perhatian tulus bagi para lansia.' },
 ]
 
-const STATS = [
-  ['bi-people-fill', '500+', 'Relawan'],
-  ['bi-heart-fill', '1.200+', 'Penerima Manfaat'],
-  ['bi-calendar2-check-fill', '80+', 'Kegiatan Sosial'],
-]
+const STATS = [STATISTIK.relawan, STATISTIK.penerimaManfaat, STATISTIK.kegiatan]
+  .map(s => [s.icon, fmtStatistik(s), s.label])
 
 const onImgError = (e) => {
   if (!e.currentTarget.src.endsWith(heroImg)) e.currentTarget.src = heroImg

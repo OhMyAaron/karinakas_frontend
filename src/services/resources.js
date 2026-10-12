@@ -269,6 +269,13 @@ export const notifikasiService = {
   async myNotifications() {
     return unwrapList(await api.get('/notifikasi/my-notifications')).map(notifikasiFE)
   },
+  // Templat surel (relawan diterima & donasi terverifikasi) — dipakai nyata saat surel dikirim
+  async getTemplates() {
+    return unwrapOne(await api.get('/admin/notifikasi/template'))
+  },
+  async saveTemplates(tpl) {
+    return unwrapOne(await api.put('/admin/notifikasi/template', tpl))
+  },
 }
 
 // ── AUDIT LOG ───────────────────────────────────────────────

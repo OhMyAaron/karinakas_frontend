@@ -1,46 +1,37 @@
-﻿import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { kegiatanService } from '../services/resources'
+import { KATEGORI_LABEL, KATEGORI_STYLE, fmtTanggal } from '../data/store'
 
-const kegiatan = [
-  {
-    img: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=500&h=300&fit=crop',
-    category: 'Pendidikan',
-    categoryColor: '#b07d00',
-    categoryBg: '#FFF8DC',
-    title: 'Bimbingan Belajar Anak',
-    desc: 'Membantu anak-anak kurang mampu dalam pendidikan dan pembelajaran agar masa depan mereka lebih cerah.',
-    date: '12 Mei 2026',
-    location: 'Semarang',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=500&h=300&fit=crop',
-    category: 'Sosial',
-    categoryColor: '#1a6b3a',
-    categoryBg: '#E8F5E9',
-    title: 'Bakti Sosial',
-    desc: 'Kegiatan sosial untuk membantu masyarakat yang membutuhkan melalui pembagian sembako dan layanan.',
-    date: '28 April 2026',
-    location: 'Yogyakarta',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500&h=300&fit=crop',
-    category: 'Kesehatan',
-    categoryColor: '#C0392B',
-    categoryBg: '#FFEBEE',
-    title: 'Layanan Kesehatan Gratis',
-    desc: 'Pemeriksaan kesehatan gratis untuk masyarakat umum yang kurang mampu mengakses fasilitas medis.',
-    date: '17 Juni 2026',
-    location: 'Klaten',
-  },
-]
+const JUMLAH_TAMPIL = 3
+
+// Placeholder saat gambar kosong atau gagal dimuat
+const IMG_FALLBACK =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='300'%3E%3Crect width='100%25' height='100%25' fill='%23f0eeea'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='20' fill='%23b6b0a8' text-anchor='middle' dominant-baseline='middle'%3EFoto tidak tersedia%3C/text%3E%3C/svg%3E"
+const onImgError = (e) => { if (!e.currentTarget.src.startsWith('data:')) e.currentTarget.src = IMG_FALLBACK }
+
+const ringkas = (teks, maks = 120) => (teks.length > maks ? `${teks.slice(0, maks).trimEnd()}…` : teks)
 
 function Kegiatan() {
   const ref = useRef(null)
+  const [items, setItems]     = useState([])
+  const [loading, setLoading] = useState(true)
 
+  // Kegiatan yang sedang berjalan (status aktif), tanggal terbaru lebih dulu
+  useEffect(() => {
+    let alive = true
+    kegiatanService.list({ status: 'aktif', sort_by: 'tanggal_mulai', sort_order: 'desc' })
+      .then(list => { if (alive) setItems(list.slice(0, JUMLAH_TAMPIL)) })
+      .catch(() => { if (alive) setItems([]) })
+      .finally(() => { if (alive) setLoading(false) })
+    return () => { alive = false }
+  }, [])
+
+  // Reveal animasi setelah kartu termuat
   useEffect(() => {
     const container = ref.current
     if (!container) return
-    const items = container.querySelectorAll('.reveal-item')
+    const els = container.querySelectorAll('.reveal-item')
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
@@ -49,9 +40,9 @@ function Kegiatan() {
       },
       { threshold: 0.1 }
     )
-    items.forEach(item => observer.observe(item))
+    els.forEach(el => observer.observe(el))
     return () => observer.disconnect()
-  }, [])
+  }, [items])
 
   return (
     <section className="kegiatan-section">
@@ -69,37 +60,54 @@ function Kegiatan() {
         </div>
 
         <div className="row g-4" ref={ref}>
-          {kegiatan.map((item, i) => (
-            <div
-              className="col-md-4 reveal-item"
-              key={item.title}
-              style={{ transitionDelay: `${i * 0.12}s` }}
-            >
-              <div className="card h-100 kegiatan-card">
-                <div className="kegiatan-img-wrapper">
-                  <img
-                    src={item.img}
-                    className="card-img-top kegiatan-img"
-                    alt={item.title}
-                  />
-                  <span
-                    className="category-badge"
-                    style={{ color: item.categoryColor, background: item.categoryBg }}
-                  >
-                    {item.category}
-                  </span>
-                </div>
-                <div className="card-body">
-                  <h6 className="card-title">{item.title}</h6>
-                  <p className="card-text text-muted">{item.desc}</p>
-                  <div className="d-flex gap-3 text-muted small">
-                    <span><i className="bi bi-calendar3 me-1"></i>{item.date}</span>
-                    <span><i className="bi bi-geo-alt-fill me-1"></i>{item.location}</span>
-                  </div>
-                </div>
-              </div>
+          {loading ? (
+            <div className="col-12 text-center py-5">
+              <div className="lg-spinner" style={{ borderTopColor: '#C0392B', width: 32, height: 32, borderWidth: 3, margin: '0 auto' }} />
             </div>
-          ))}
+          ) : items.length === 0 ? (
+            <div className="col-12 text-center py-4 text-muted">
+              <i className="bi bi-calendar-x me-2"></i>Belum ada kegiatan yang sedang berjalan.
+            </div>
+          ) : (
+            items.map((item, i) => {
+              const badge = KATEGORI_STYLE[item.kategori] || KATEGORI_STYLE.lainnya
+              return (
+                <div
+                  className="col-md-4 reveal-item"
+                  key={item.id}
+                  style={{ transitionDelay: `${i * 0.12}s` }}
+                >
+                  <Link to="/kegiatan" className="text-decoration-none d-block h-100">
+                    <div className="card h-100 kegiatan-card">
+                      <div className="kegiatan-img-wrapper">
+                        <img
+                          src={item.img || IMG_FALLBACK}
+                          className="card-img-top kegiatan-img"
+                          alt={item.judul}
+                          loading="lazy"
+                          onError={onImgError}
+                        />
+                        <span
+                          className="category-badge"
+                          style={{ color: badge.color, background: badge.bg }}
+                        >
+                          {KATEGORI_LABEL[item.kategori] || KATEGORI_LABEL.lainnya}
+                        </span>
+                      </div>
+                      <div className="card-body">
+                        <h6 className="card-title">{item.judul}</h6>
+                        <p className="card-text text-muted">{ringkas(item.deskripsi)}</p>
+                        <div className="d-flex gap-3 text-muted small">
+                          <span><i className="bi bi-calendar3 me-1"></i>{fmtTanggal(item.tanggal)}</span>
+                          {item.lokasi && <span><i className="bi bi-geo-alt-fill me-1"></i>{item.lokasi}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
     </section>

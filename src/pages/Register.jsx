@@ -1,7 +1,8 @@
-﻿import { useState, useEffect } from 'react'
+﻿import { useState, useEffect, Fragment } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import KarinakasLogo from '../components/KarinakasLogo'
 import { useAuth } from '../context/AuthContext'
+import { STATISTIK, fmtStatistik } from '../data/lembaga'
 
 const features = [
   ['bi-heart-fill',        'Donasi ke program pilihan'],
@@ -136,11 +137,12 @@ function Register() {
           </ul>
 
           <div className="lg-left-stats">
-            <div className="lg-stat"><span className="lg-stat-num">847+</span><span className="lg-stat-lbl">Relawan Aktif</span></div>
-            <div className="lg-stat-sep" />
-            <div className="lg-stat"><span className="lg-stat-num">120+</span><span className="lg-stat-lbl">Program Aktif</span></div>
-            <div className="lg-stat-sep" />
-            <div className="lg-stat"><span className="lg-stat-num">5K+</span><span className="lg-stat-lbl">Penerima Manfaat</span></div>
+            {[STATISTIK.relawan, STATISTIK.kegiatan, STATISTIK.penerimaManfaat].map((s, i) => (
+              <Fragment key={s.label}>
+                {i > 0 && <div className="lg-stat-sep" />}
+                <div className="lg-stat"><span className="lg-stat-num">{fmtStatistik(s)}</span><span className="lg-stat-lbl">{s.label}</span></div>
+              </Fragment>
+            ))}
           </div>
         </div>
       </div>
