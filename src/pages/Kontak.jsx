@@ -137,11 +137,6 @@ function Kontak() {
                     </a>
                   ))}
                 </div>
-
-                <p className="kt-contact-item-value mt-4 mb-0">
-                  Lebih nyaman lewat surel? Kirim ke{' '}
-                  <a href="mailto:karinakas.office@gmail.com" className="kt-link">karinakas.office@gmail.com</a>.
-                </p>
               </div>
             </div>
 

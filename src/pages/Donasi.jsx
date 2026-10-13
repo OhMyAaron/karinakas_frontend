@@ -452,7 +452,7 @@ function Donasi() {
 
                 <div className="dn-trust-badges">
                   {[
-                    ['bi-shield-check-fill', 'Transaksi Aman'],
+                    ['bi-shield-fill-check', 'Transaksi Aman'],
                     ['bi-patch-check-fill',  'Terverifikasi'],
                     ['bi-eye-slash-fill',    'Data Terlindungi'],
                   ].map(([icon, label]) => (

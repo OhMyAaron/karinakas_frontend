@@ -55,7 +55,7 @@ const coreValues = [
   { icon: 'bi-heart-fill', color: '#C0392B', bg: '#FFF0F0', title: 'Humanis', desc: 'Mengutamakan nilai kemanusiaan dalam setiap pelayanan' },
   { icon: 'bi-people-fill', color: '#b07d00', bg: '#FFF8DC', title: 'Kebersamaan', desc: 'Bersinergi dan bekerja sama untuk kebaikan bersama' },
   { icon: 'bi-shield-check', color: '#1a6b3a', bg: '#E8F5E9', title: 'Terpercaya', desc: 'Menjaga integritas, transparansi, dan akuntabilitas' },
-  { icon: 'bi-hand-heart', color: '#d97000', bg: '#FFF3E6', title: 'Kepedulian', desc: 'Peka terhadap kebutuhan sesama dan lingkungan sekitar' },
+  { icon: 'bi-chat-heart-fill', color: '#d97000', bg: '#FFF3E6', title: 'Kepedulian', desc: 'Peka terhadap kebutuhan sesama dan lingkungan sekitar' },
 ]
 
 // Angka sama dengan Beranda, Intro, Masuk, dan Daftar (satu sumber: data/lembaga.js)

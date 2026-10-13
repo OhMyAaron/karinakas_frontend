@@ -3,17 +3,19 @@
 Referensi **keadaan sistem saat ini** (frontend + backend). Isi berkas ini menjawab *"sistemnya seperti apa"*.
 Untuk riwayat pengerjaan, masalah terbuka, dan langkah berikutnya, baca **[HANDOFF.md](HANDOFF.md)**.
 
-**Diperbarui:** 12 Oktober 2026
+**Diperbarui:** 14 Oktober 2026 (memuat pekerjaan 13 Okt)
 
 > **Untuk AI / room chat baru:** baca berkas ini lalu `HANDOFF.md` (blok 🆕🆕 "STATUS TERBARU 12 Okt" di awalnya, §4.27–§4.29, dan §6 "Menunggu tindakan 12 Okt"), lalu
 > `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\final\_PROGRES.md`. Semua pernyataan teknis di sini
 > sudah diverifikasi langsung ke kode, basis data, atau situs yang berjalan — bukan dari ingatan.
 > Bila berbeda dengan kode, **kode yang benar**; laporkan perbedaannya.
 >
+> 🆕🆕 **13 Okt:** template notifikasi admin **nyata** (disimpan di server, dipakai pada surel), Beranda "Kegiatan Kami" **dinamis**, statistik **seragam** (5.000/120/800/15, `data/lembaga.js`), pesan 429 Indonesia, paksa HTTPS (`.htaccess`),
+> pengecekan fungsional menyeluruh (semua lulus kecuali **webhook payment 500**). **Frontend live = `index-CoFZiLO3.js` (terbukti 13 Okt)**; backend aktif (rute template → 401). Titik akhir kini **68**. Rincian: `HANDOFF.md` §4.30.
 > 🆕 **12 Okt:** naskah `.docx` final = `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\FINAL\220711818_*.docx`. Bahan belajar sidang + **daftar 165 perbaikan terpadu**
 > (laporan/SKPL/DPPL/PDHUPL, dengan halaman & teks pengganti) = `docs\final\BAHAN-BELAJAR-SIDANG.md` (§13). Keputusan penyusun 11–12 Okt: **"ubah kata sandi" ditiadakan** (hanya pemulihan lewat tautan surel),
 > tombol **Batalkan relawan** dan **Unggah bukti susulan** dibuat, visi–misi & pengurus Tentang Kami memakai data resmi, angka statistik Beranda dibiarkan, judul laporan dipertahankan.
-> ⚠️ **Frontend live (karinakas.com) masih bundel lama** (`index-C4RUnKxG.js`); kode terbaru (commit frontend `c3de860`) belum terpasang. Backend `0a55219` sudah terbukti aktif.
+> ~~⚠️ Frontend live masih bundel lama `index-C4RUnKxG.js`~~ — **usang: sejak 13 Okt live memakai `index-CoFZiLO3.js`** (commit frontend `a2507d1`; backend `aca6136`).
 > 📁 **Folder `docs/` tidak lagi di repo ini** (dipindah penyusun 9 Okt) — kini `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\`.
 > Semua jalur `docs/...` di berkas ini berarti lokasi baru itu.
 > ⚠️ Hal yang ditulis di sini adalah **kode di repo (frontend `c3de860`, backend `0a55219`, 12 Okt)**. Backend terbukti aktif di karinakas.com (12 Okt: `/kegiatan` tanpa relawan);
@@ -135,6 +137,10 @@ public/
 - 🆕 **`admin/shared/ConfirmDelete.jsx`** kini memiliki props opsional `title, text, cancelLabel='Batal', confirmLabel='Hapus', busyLabel, confirmIcon` (default = perilaku lama untuk admin; Profil memakai label sendiri).
 - 🆕 **TentangKami.jsx:** visi + 4 misi resmi; `pengurusYayasan` (Pembina Uskup Agung KAS; Ketua Rm. Robertus Budi Haryana Pr; Sekretaris; Bendahara; Pengawas/Ekonom KAS) dan
   `pelaksanaHarian` (Direktur Rm. Bernardus Himawan Pr + 4 staf), diambil dari PDF organigram 2026; kartu inisial lewat `KartuOrang`/`inisialNama()`. **Angka statistik Beranda/Intro/Tentang Kami sengaja statis** (keputusan 11 Okt).
+- 🆕 **`data/lembaga.js` (13 Okt):** selain alamat/peta, memuat `STATISTIK` (penerimaManfaat 5000, kegiatan 120, relawan 800, tahun 15), `DAFTAR_STATISTIK` (urutan tetap 4 angka) dan `fmtStatistik()`. **Statis, sengaja tidak dari basis data.** Dipakai `Stats.jsx` (Beranda), `TentangKami.jsx`, `IntroScreen.jsx`, `Login.jsx`, `Register.jsx` → ubah angka di satu tempat saja.
+- 🆕 **`components/Kegiatan.jsx` (Beranda):** 3 kegiatan **aktif** terbaru dari API; kartu menaut ke `/kegiatan?detail=<id>`; `pages/Kegiatan.jsx` membuka modal detail dari parameter `detail` (`useSearchParams`).
+- 🆕 **`services/api.js`:** `pesanGalat()` — 429 → pesan Indonesia; pesan validasi/`message` server tetap dipakai untuk status lain.
+- 🆕 **`admin/SectionNotifikasi.jsx`:** tab Template membaca/menyimpan ke server (`notifikasiService.getTemplates/saveTemplates`); lencana status riwayat membaca `status` asli (terkirim/gagal).
 - Sisa kode lama: `data/store.js` (selain konstanta) dan `admin/shared/useCrud.js` adalah peninggalan localStorage; **tidak dipakai** alur data nyata.
 - **Panel admin:** `AdminDashboard.jsx` merender `Section{Berita,Kegiatan,Relawan,Galeri,Donasi,Pengguna,Notifikasi,Audit}.jsx`.
 - **Service:** `kegiatanService`, `beritaService`, `galeriService`, `donasiService`, `relawanService`,
@@ -155,7 +161,8 @@ tugas_akhir/
 ├── app/Models/              # User, Kegiatan, Kampanye, Galeri, Donasi, Relawan, AuditLog, NotifikasiLog
 ├── app/Http/Controllers/    # Auth, Kegiatan, Kampanye, Galeri, Donasi, Relawan, Admin, Notifikasi
 ├── app/Http/Middleware/     # RoleMiddleware (alias `role` di bootstrap/app.php)
-├── app/Mail/                # RelawanDiterima, TautanResetSandi, DonasiDiverifikasi (baru 7 Okt)
+├── app/Mail/                # RelawanDiterima, TautanResetSandi, DonasiDiverifikasi (baru 7 Okt); dua yang pertama ber-judul/isi dari templat (13 Okt)
+├── app/Support/             # TemplateNotifikasi (templat surel yang bisa disunting admin; berkas JSON di storage)
 ├── app/Providers/           # AppServiceProvider: Gate::before + pembatas laju bernama
 ├── resources/views/emails/  # relawan-diterima, tautan-reset-sandi, donasi-diverifikasi
 ├── config/app.php           # frontend_url ← FRONTEND_URL
@@ -176,7 +183,7 @@ tugas_akhir/
 | **DonasiController** | `store, uploadBukti, myDonations, index, report, update, destroy, updateStatus, search` + privat `sembunyikanKeuangan, wajibSuperAdmin` |
 | **RelawanController** | `store, myRegistrations, status, cancel, index, pending, byKegiatan, updateStatus, destroy` |
 | **AdminController** | `dashboard, users, storeUser, updateUser, resetUserPassword, deleteUser, auditLogs, notifikasiLogs, rekapanRelawan, rekapanKegiatan, rekapanDonasi, exportRekapan` |
-| **NotifikasiController** | `myNotifications, kirimNotifikasiDonasi` (**kini mengirim surel nyata** sejak 7 Okt; `null` bila sudah terkirim, 422 bila status bukan `berhasil`) + privat `kirimEmail` (`Mail::to()->send(DonasiDiverifikasi)`), `getTemplate` (tak dipanggil lagi), `logNotifikasi` (kanal log `notifikasi`) + kerangka `kirimNotifikasiRegistrasi/Relawan/PembatalanKegiatan/KeAdmin` (masih TODO) |
+| **NotifikasiController** | `myNotifications, templates, simpanTemplates` (13 Okt), `kirimNotifikasiDonasi` (**kini mengirim surel nyata** sejak 7 Okt; `null` bila sudah terkirim, 422 bila status bukan `berhasil`) + privat `kirimEmail` (`Mail::to()->send(DonasiDiverifikasi)`), `getTemplate` (tak dipanggil lagi), `logNotifikasi` (kanal log `notifikasi`) + kerangka `kirimNotifikasiRegistrasi/Relawan/PembatalanKegiatan/KeAdmin` (masih TODO) |
 
 ---
 
@@ -210,7 +217,8 @@ add_relawan_options_to_kegiatan, + cache & jobs. **Jangan pernah `migrate:fresh`
 > 🔒 **Rute publik `/kegiatan` dan `/kegiatan/{id}` tidak boleh memuat relasi `relawan`** (nomor KTP, telepon, surel, alamat). Sebelum 11 Okt keduanya memuatnya (terbukti di situs live);
 > sudah diperbaiki di commit `0a55219` **dan terbukti aktif di live 12 Okt**, dengan tes regresi `tests/Feature/KegiatanPublikTidakMembocorkanRelawanTest.php`. Jumlah relawan publik = kolom `jumlah_relawan_terdaftar`.
 >
-> 🔢 **Jumlah titik akhir:** 66 di kode saat ini (64 fungsional + 2 webhook). Dokumen final memakai **65** dengan asumsi `POST /change-password` dihapus (K-2, belum dikerjakan). Bila rute dipertahankan, ubah angka dokumen menjadi 66.
+> 🔢 **Jumlah titik akhir (13 Okt): 68 di kode** (66 sebelumnya + 2 rute template; 64 fungsional + 2 rute template + 2 webhook). **67 bila K-2** (hapus `/change-password`). Catatan 12 Okt di bawah ("66 di kode") mengacu pada keadaan sebelum rute template.
+> ~~🔢 66 di kode saat ini (64 fungsional + 2 webhook).~~ Dokumen final memakai **65** dengan asumsi `POST /change-password` dihapus (K-2, belum dikerjakan). Bila rute dipertahankan, ubah angka dokumen menjadi 66.
 
 ### Publik
 | Method | Path | Keterangan |
@@ -238,6 +246,7 @@ add_relawan_options_to_kegiatan, + cache & jobs. **Jangan pernah `migrate:fresh`
 | `PUT/DELETE /admin/donasi/{id}`, `PATCH /{id}/status` | **khusus super admin** (403 untuk admin) |
 | `/admin/relawan`, `/pending`, `/kegiatan/{id}`, `PATCH /{id}/status`, `DELETE /{id}` | kelola relawan |
 | `/admin/notifikasi`, `/admin/audit` | riwayat notifikasi · jejak audit *(audit khusus super admin)* |
+| `GET/PUT /admin/notifikasi/template` | 🆕 13 Okt — baca/simpan templat surel `relawan` & `donatur` (admin + super admin; mencatat audit) |
 | `/admin/users`, `/{id}`, `POST /{id}/reset-password` | manajemen pengguna, **khusus super admin** — `users()`/`deleteUser()` diberi `isSuperAdmin()` 19 Sept (kode lokal; belum di-deploy, lihat HANDOFF §4.7) |
 | `/admin/rekapan/{relawan,kegiatan,donasi}`, `POST /export` | **tidak dipakai klien**; `export` masih kerangka |
 
@@ -274,6 +283,9 @@ Webhook: `POST /v1/webhook/payment/callback`, `POST /v1/webhook/notifikasi/donas
   berhasil, total diterima = status `berhasil`), semua periode; tombol "Lihat" menyaring tabel.
 - **Relawan diterima** → `jumlah_relawan_terdaftar` dijaga event model `Relawan` (`created`, `updated`,
   `deleted`) + surel `RelawanDiterima` + catat `NotifikasiLog`. Opsi jenis/minat ditentukan per kegiatan.
+- 🆕 **Template surel nyata (13 Okt):** `TemplateNotifikasi` (berkas `storage/app/private/notifikasi_template.json`, bawaan bila belum ada) → `DonasiDiverifikasi`/`RelawanDiterima` menyusun **judul + isi** dari templat dengan variabel `[nama]`, dst.
+  (relawan: `[nama] [jenis] [kegiatan]`; donatur: `[nama] [nominal] [tujuan] [kegiatan] [tanggal] [metode] [id_transaksi]`); isi tampil lewat `nl2br(e())` (HTML tak dieksekusi); judul `notifikasi_logs` mengikuti templat; rincian donasi tetap otomatis. Admin dan Super Admin sama-sama dapat mengedit.
+  Lencana status di layar Notifikasi admin kini membaca status asli (K-9 selesai).
 - **Pemberitahuan hanya lewat surel.** Kanal WhatsApp **ditiadakan** (16 September 2026).
 - **Jejak audit** otomatis lewat `AuditLog::record()` pada verifikasi/hapus donasi & relawan dan pengelolaan akun
   (9 titik pemanggilan). **Tidak** mencatat perubahan kegiatan, berita, dan galeri — ini sesuai cakupan FR SIKAS
@@ -292,6 +304,7 @@ Webhook: `POST /v1/webhook/payment/callback`, `POST /v1/webhook/notifikasi/donas
 
 | Hal | Nilai | Letak |
 |---|---|---|
+| **Statistik dampak** (13 Okt) | 5.000+ Penerima Manfaat · 120+ Kegiatan Sosial · 800+ Relawan Aktif · 15+ Tahun Berkarya (statis; seragam di Beranda, Tentang Kami, Intro, Login, Register) | `src/data/lembaga.js` (`STATISTIK`, `DAFTAR_STATISTIK`) |
 | **Alamat** | Jl. Empu Panuluh No.377A, Pringwulung, Condongcatur, Kec. Depok, Kab. Sleman, DIY | `src/data/lembaga.js` (terpusat) |
 | **WhatsApp / telepon** | +62 813-9277-7710 (`wa.me/6281392777710`) | Footer, Kontak, DaftarRelawan *(belum terpusat)* |
 | **Surel kontak** | karinakas.office@gmail.com | idem |
@@ -338,7 +351,8 @@ Hosting = **cPanel**, satu domain `karinakas.com` (API di `/api/index.php/api/v1
    (klik kanan *Compress*, bukan `Compress-Archive` PS 5.1) → unggah & Extract ke web root, **jangan timpa folder `api`**; **`.htaccess` (tersembunyi, dari
    `public/`) wajib ikut**. `dist` ada di `.gitignore` (tapi `dist.zip` terlacak).
 3. **Urutan:** backend dulu, baru frontend.
-4. **Cek bundel:** buka `https://karinakas.com/`, lihat berkas `assets/index-*.js` yang dirujuk, pastikan memuat teks fitur terbaru ("Unggah bukti", "Batalkan", "Peradaban Kasih"). 12 Okt: masih `index-C4RUnKxG.js` (lama).
+3b. 🆕 **`.htaccess` (13 Okt)** kini memaksa HTTPS (301). Bila terjadi "terlalu banyak pengalihan", hapus blok *Paksa HTTPS* di `.htaccess` server. Ekstrak **isi** `dist/` ke akar yang berisi `api` (bukan foldernya); sesudahnya **cek `index.html` server** (bundel & SHA-256) — pernah tertimpa versi lama.
+4. **Cek bundel:** buka `https://karinakas.com/`, lihat berkas `assets/index-*.js` yang dirujuk, pastikan memuat teks fitur terbaru ("Unggah bukti", "Batalkan", "Peradaban Kasih"). 13 Okt: live `index-CoFZiLO3.js` (terbukti; sebelumnya `index-C4RUnKxG.js` lama).
 5. **Cek:** `https://karinakas.com/reset-password` harus menampilkan "Tautan Tidak Berlaku" (bukan 404);
    `.../api/index.php/api/v1/kegiatan` harus JSON; ubah satu donasi uji ke Berhasil → surel diterima donatur.
 - ⚠️ `DEPLOY.md` memakai contoh domain terpisah (`api.karinakas.org`) — **bukan** konfigurasi produksi sebenarnya (satu domain); ikuti bagian ini.
@@ -400,3 +414,10 @@ Hosting = **cPanel**, satu domain `karinakas.com` (API di `/api/index.php/api/v1
 **Konvensi kode dokumen:** `F-01…F-21` fungsi produk · `K-01…K-20` kekangan · `A-01…A-08` asumsi ·
 `D-01…D-06` kebergantungan · `FR SIKAS 101…608` (71 total) · `NFR 3.4.x.y` · `UC-01…UC-24` (24 total,
 UC-24 Memulihkan Kata Sandi ditambahkan 19 Sept) · `AK-01…AK-05`.
+
+---
+
+## 13. Uji & verifikasi (13 Okt)
+- Tes backend: `php -d extension=pdo_sqlite -d extension=sqlite3 vendor/bin/phpunit` → **13 tes/52 asersi lulus** (7 di `TemplateNotifikasiTest`, 4 di `KegiatanPublikTidakMembocorkanRelawanTest`, 2 contoh). `php artisan test` polos gagal di komputer ini (tanpa driver SQLite).
+- Pengecekan menyeluruh 13 Okt (API 50 skenario + Chrome, MySQL sementara): semua fungsi lulus kecuali **`POST /webhook/payment/callback` → 500** (rute tanpa `{id}` ke `DonasiController::updateStatus`; tak dipakai klien; belum diperbaiki). Rincian: `HANDOFF.md` §4.30.
+- Belum terbukti: pengiriman surel **SMTP asli** ke kotak masuk (hanya sampai log). Alamat API via `http://` belum dialihkan ke HTTPS.

@@ -8,7 +8,7 @@ const features = [
   ['bi-heart-fill',        'Donasi ke program pilihan'],
   ['bi-person-heart',      'Daftar jadi relawan aktif'],
   ['bi-bell-fill',         'Notifikasi kegiatan terbaru'],
-  ['bi-shield-check-fill', 'Data pribadi aman terlindungi'],
+  ['bi-shield-fill-check', 'Data pribadi aman terlindungi'],
 ]
 
 function getStrength(p) {

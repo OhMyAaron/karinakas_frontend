@@ -234,10 +234,12 @@ function DaftarRelawan() {
             <div className="col-lg-4">
               <div className="kt-contact-detail-card mb-3">
                 <h2 className="kt-contact-detail-title">Keuntungan Jadi Relawan</h2>
+                {/* Daftar ini umum untuk semua kegiatan; tidak dijamin sama pada tiap kegiatan */}
+                <p className="dn-form-hint mb-2">Bergantung pada kegiatan, relawan dapat memperoleh:</p>
                 <ul className="list-unstyled m-0">
                   {[
                     ['bi-mortarboard-fill',  '#1d4ed8', '#EFF6FF', 'Pelatihan & pembekalan dasar'],
-                    ['bi-patch-check-fill',  '#1a6b3a', '#E8F5E9', 'Sertifikat kerelawanan resmi'],
+                    ['bi-patch-check-fill',  '#1a6b3a', '#E8F5E9', 'Sertifikat kerelawanan (jika disediakan kegiatan)'],
                     ['bi-people-fill',       '#6d28d9', '#F3E8FF', 'Jaringan komunitas sosial'],
                     ['bi-briefcase-fill',    '#d97000', '#FFF3E6', 'Pengalaman kerja sosial nyata'],
                     ['bi-heart-fill',        '#C0392B', '#FFEBEE', 'Kepuasan membantu sesama'],

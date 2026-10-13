@@ -474,6 +474,16 @@ function SectionDonasi() {
               ))}
             </div>
 
+            {/* Pesan dukungan dari donatur (opsional; teks biasa, HTML tidak dieksekusi) */}
+            <p className="ad-form-label mt-3 mb-1">Pesan Donatur</p>
+            {detailTarget.pesan ? (
+              <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', background: '#FBF6EF', borderRadius: 12, padding: '0.75rem 1rem', fontSize: '0.95rem', color: '#2b2b2b' }}>
+                {detailTarget.pesan}
+              </div>
+            ) : (
+              <p className="dn-form-hint mb-0">Donatur tidak menuliskan pesan.</p>
+            )}
+
             {/* Bukti transfer */}
             <p className="ad-form-label mt-3 mb-1">Bukti Transfer</p>
             {detailTarget.bukti ? (

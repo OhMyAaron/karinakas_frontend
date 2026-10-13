@@ -23,7 +23,7 @@ function Login() {
   const [loading,     setLoading]     = useState(false)
   const [error,       setError]       = useState('')
   const [noAccount,   setNoAccount]   = useState(false)
-  const [form, setForm] = useState({ email: '', password: '', remember: false })
+  const [form, setForm] = useState({ email: '', password: '' })
 
   useEffect(() => {
     if (user) navigate(isAdmin ? '/admin' : from, { replace: true })
@@ -163,19 +163,7 @@ function Login() {
               </div>
             )}
 
-            <div className="lg-opts-row" style={{ animationDelay: '0.23s' }}>
-              <label className="lg-check-label">
-                <input
-                  type="checkbox"
-                  className="lg-checkbox"
-                  checked={form.remember}
-                  onChange={e => setForm(f => ({ ...f, remember: e.target.checked }))}
-                />
-                <span className={`lg-checkmark${form.remember ? ' checked' : ''}`}>
-                  {form.remember && <i className="bi bi-check2"></i>}
-                </span>
-                <span>Ingat saya</span>
-              </label>
+            <div className="lg-opts-row" style={{ animationDelay: '0.23s', justifyContent: 'flex-end' }}>
               <Link to="/forgot-password" className="lg-forgot">Lupa kata sandi?</Link>
             </div>
 

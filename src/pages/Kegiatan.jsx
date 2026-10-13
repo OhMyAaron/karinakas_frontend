@@ -8,6 +8,7 @@ import {
 } from '../data/store'
 import useResource from '../hooks/useResource'
 import { kegiatanService } from '../services/resources'
+import { useAuth } from '../context/AuthContext'
 
 const ITEMS_PER_PAGE = 6
 
@@ -84,6 +85,7 @@ function Pagination({ current, total, onChange }) {
 
 function Kegiatan() {
   const { items: allKegiatan, loading, error } = useResource(kegiatanService)
+  const { user, loading: authLoading } = useAuth()
 
   const [search,      setSearch]      = useState('')
   const [catFilter,   setCatFilter]   = useState('semua')
@@ -151,9 +153,12 @@ function Kegiatan() {
         label="DAFTAR KEGIATAN"
         desc="Berbagai kegiatan sosial Karinakas. Klik kegiatan untuk ikut sebagai relawan atau berdonasi bagi yang membutuhkan."
       >
-        <Link to="/login" className="btn btn-danger rounded-pill px-4 fw-semibold">
-          Gabung/Login
-        </Link>
+        {/* Ajakan masuk hanya untuk pengunjung; disembunyikan saat sudah login (dan selama status login dimuat) */}
+        {!authLoading && !user && (
+          <Link to="/login" className="btn btn-danger rounded-pill px-4 fw-semibold">
+            Gabung/Login
+          </Link>
+        )}
       </PageHero>
 
       <section className="gl-section" ref={topRef}>

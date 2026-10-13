@@ -3,12 +3,25 @@
 Berkas ini menjawab *"sudah sampai mana, apa yang masih bermasalah, dan apa langkah berikutnya"*.
 Gambaran sistem (arsitektur, endpoint, konfigurasi) ada di **[CONTEXT.md](CONTEXT.md)** — baca itu lebih dulu.
 
-**Diperbarui:** 12 Oktober 2026
+**Diperbarui:** 14 Oktober 2026 (memuat pekerjaan 13 Okt)
 
-> **Untuk AI / room chat baru:** baca `CONTEXT.md` → berkas ini (**blok "STATUS TERBARU 12 Okt" tepat di bawah ini dulu**, lalu §4.27–§4.29, §6 blok 12 Okt)
+> **Untuk AI / room chat baru:** baca `CONTEXT.md` → berkas ini (**blok "STATUS TERBARU 13 Okt" lalu "12 Okt" tepat di bawah ini dulu**, lalu §4.27–§4.30, §6 blok 13 Okt)
 > → **`D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\docs\final\BAHAN-BELAJAR-SIDANG.md`** (bahan sidang + **§13 daftar perbaikan terpadu** untuk laporan/SKPL/DPPL/PDHUPL)
 > → `D:\...\docs\final\_PROGRES.md` (titik simpan 6–11 Okt) → bila menyentuh DPPL, `docs\dppl\CHECKLIST.md` (lokasi baru, lihat di bawah).
 > Bagian §7 menjelaskan cara bekerja yang disukai penyusun — ikuti itu.
+
+> 🆕🆕🆕 **STATUS TERBARU 13 Okt 2026 (rincian §4.30)** — ringkasan 1 layar untuk room baru:
+> 1. **Template notifikasi admin kini NYATA:** isi yang diedit Admin/Super Admin disimpan di server dan dipakai pada surel relawan-diterima & donasi-terverifikasi (dulu hanya `localStorage`, tidak berpengaruh).
+>    Lencana status di Riwayat Notifikasi membaca status asli (Terkirim/Gagal) → **K-9 selesai**.
+> 2. **Beranda → "Kegiatan Kami" dinamis** (3 kegiatan berstatus aktif dari API, kartu bisa diklik ke `/kegiatan?detail=<id>`, halaman Kegiatan membuka modal detail dari parameter itu).
+> 3. **Statistik diseragamkan** (sumber tunggal `src/data/lembaga.js`): **5.000+ Penerima Manfaat · 120+ Kegiatan Sosial · 800+ Relawan Aktif · 15+ Tahun Berkarya** di Beranda, Tentang Kami, layar Intro, Login, Register.
+>    ⚠️ Ini **menggantikan** keputusan 11 Okt "angka statistik dibiarkan" (permintaan penyusun 13 Okt).
+> 4. **Perbaikan hasil pengecekan menyeluruh:** pesan 429 berbahasa Indonesia (`api.js`), pengalihan HTTP→HTTPS (`public/.htaccess`), impor tak terpakai di `Berita.jsx`.
+> 5. **Pengecekan fungsional menyeluruh 13 Okt** (API 50 skenario + Chrome sungguhan, backend MySQL sementara): semua fungsi lulus kecuali **webhook `/webhook/payment/callback` → 500** (cacat nyata, belum diperbaiki; tak dipakai klien).
+> 6. **Commit:** frontend `3c1381a`, `ebe0c0b`, `a2507d1`; backend `aca6136`. Working tree frontend: `dist.zip` terhapus (belum di-commit).
+> 7. ✅ **Deploy frontend TERBUKTI** (13 Okt): live memuat `index-CoFZiLO3.js`, identik SHA-256 dengan `dist/` lokal; HTTP→HTTPS aktif; 10/10 pemeriksaan Chrome pada situs live lulus. Backend (template notifikasi) juga aktif (rute template → 401 tanpa token).
+> 8. **Yang masih menunggu:** uji **surel SMTP asli** ke kotak masuk (hanya terbukti sampai log) → putuskan webhook (501 / hapus) → alamat API via `http://` belum dialihkan → K-8 (label tab), K-2 (`/change-password`) →
+>    **titik akhir kini 68 di kode** (66 + 2 rute template; 67 bila K-2) → angka 65 di SKPL/DPPL/§13 perlu diputuskan ulang → terapkan §13 ke `.docx`.
 
 > 🆕🆕 **STATUS TERBARU 12 Okt 2026 (sesi 11–12 Okt; rincian §4.27–§4.29)** — ringkasan 1 layar untuk room baru:
 > 1. **Naskah final yang akan diserahkan = folder `D:\KULIAH\Sems 7\SKRIPSI\TUGAS AKHIR\FINAL\`**: `220711818_Laporan Tugas Akhir.docx` (+ `.pdf`),
@@ -196,6 +209,9 @@ php artisan storage:link
 | 39 | 7–9 Okt | **Revisi dosen:** laporan belum punya diagram use case dan PDM → panduan penempatan `PENEMPATAN-USECASE-DAN-PDM-LAPORAN.md` (4.3.7 dan 4.4.6, penomoran gambar Bab IV bergeser, "Dua relasi kunci tamu" harus jadi lima) (§4.25) |
 | 40 | 9 Okt | **Frontend:** paging + urutan Terbaru/Terlama semua daftar admin, rekap donasi per kegiatan, filter berita tanpa "Kegiatan", label "tanpa kegiatan"; **commit & push** frontend `090c107`/`0632105`, backend `46c940c`; **`docs/` dipindah keluar repo** (§4.22, §4.26) |
 | 41 | 9–11 Okt | Prosedur deploy backend+frontend (cPanel `git pull` + unggah `dist/`), `SLIDE-PRESENTASI-TA.md` (22 slide + Q&A + daftar periksa), pembaruan HANDOFF/CONTEXT ini (§4.26) |
+| 42 | 12–13 Okt | **Template notifikasi nyata** (backend `TemplateNotifikasi` + 2 rute + view surel dari templat; frontend tab Template memakai server), **K-9** lencana status asli; tes `TemplateNotifikasiTest` (§4.30) |
+| 43 | 13 Okt | **Beranda kegiatan dinamis + tautan detail**, **statistik diseragamkan** (`lembaga.js`), deploy frontend (insiden `index.html` tertimpa & zip ke subfolder `dist/`) (§4.30) |
+| 44 | 13 Okt | **Pengecekan fungsional menyeluruh** (API 50 skenario, Chrome, MySQL sementara) + perbaikan 429/HTTPS/impor; verifikasi situs live 10/10 (§4.30) |
 
 ---
 
@@ -841,6 +857,32 @@ Urut prioritas. Semua dari pembacaan kode kecuali dinyatakan teruji:
   Angka final yang berlaku bila K-2 dilakukan: butir uji **86** (Handal **85**, Tidak Berlaku 1 = AD-34, "85 dari 85"), titik akhir **65**, antarmuka **24 (+4 pendukung = 28)**, responden kebutuhan **35**, SUS n=**40**, NFR SKPL **21** (setelah penghapusan 11 NFR pengukuran), FR SKPL: FR 209 dikosongkan + **FR 313 (pembatalan relawan) ditambahkan**.
 - Cara mengukur halaman Word: `docs\final\tools\find-pages.ps1` (Word COM, salinan berkas). **Kutipan harus ASCII murni** (tanda pisah "–" dan spasi tak-putus U+00A0 membuat pencarian gagal); nomor di kaki halaman SKPL berbeda 5 dari halaman fisik, DPPL tidak berurutan.
 
+### 4.30 Template notifikasi nyata, Beranda dinamis, statistik seragam, pengecekan menyeluruh (12–13 Okt)
+**A. Template notifikasi (backend `aca6136`, frontend `3c1381a`)**
+- **Penyimpanan:** `app/Support/TemplateNotifikasi.php` menyimpan satu berkas JSON `notifikasi_template.json` di disk `local` (`storage/app/private/`). **Tanpa tabel/migrasi baru** (tabel tetap 9) dan tidak tertimpa `git pull`.
+  Bila berkas belum ada/rusak/kolom kosong → templat bawaan dipakai. Kunci: `relawan`, `donatur`. Variabel ditulis `[nama]` (tak dikenal dibiarkan apa adanya).
+- **Variabel:** relawan `[nama] [jenis] [kegiatan]`; donatur `[nama] [nominal] [tujuan] [kegiatan] [tanggal] [metode] [id_transaksi]`.
+- **Rute baru (admin + super admin, middleware `role`):** `GET /admin/notifikasi/template`, `PUT /admin/notifikasi/template` (validasi: judul ≤150, isi ≤5000, tak boleh kosong; mencatat audit "Mengubah template notifikasi").
+- **Surel:** `DonasiDiverifikasi::dari($donasi)` dan `RelawanDiterima::dari($relawan)` menyusun judul+isi dari templat (`tersusun()`, `judulSurel()`); view Blade memakai `{!! nl2br(e($isiSurel)) !!}` sehingga **HTML yang diketik di templat tampil sebagai teks** (tak dieksekusi).
+  Tabel rincian donasi tetap otomatis di bawah pesan; kotak "Berkah Dalem" kini bagian dari teks templat. Kolom Judul `notifikasi_logs` ikut mengikuti templat. Frontend: `notifikasiService.getTemplates/saveTemplates`; tab Template memuat dari server (saat tab dibuka), tombol Simpan ke server, lencana status riwayat membaca `status`.
+- **Tes:** `tests/Feature/TemplateNotifikasiTest.php` (**7 tes baru**; total suite 13 tes/52 asersi lulus). ⚠️ `php artisan test` di komputer ini gagal "could not find driver" karena `php.ini` Laragon tak mengaktifkan SQLite → jalankan
+  `php -d extension=pdo_sqlite -d extension=sqlite3 vendor/bin/phpunit`. (Tes lama `KegiatanPublik…` juga ikut gagal tanpa opsi itu.)
+**B. Frontend**
+- `components/Kegiatan.jsx`: `kegiatanService.list({status:'aktif', sort_by:'tanggal_mulai', sort_order:'desc'})` → 3 kartu, tautan `/kegiatan?detail=<id>`, status memuat/kosong, fallback gambar. `pages/Kegiatan.jsx`: `useSearchParams` membuka modal detail dari `?detail=`; menutup modal membersihkan parameter.
+- `data/lembaga.js`: `STATISTIK` + `DAFTAR_STATISTIK` + `fmtStatistik()` (5000/120/800/15). Dipakai `Stats.jsx`, `TentangKami.jsx`, `IntroScreen.jsx`, `Login.jsx`, `Register.jsx`. CSS `.lg-left-stats` diberi `justify-content:center; flex-wrap:wrap; gap:1.1rem` (empat angka). Label seragam ("Program Aktif/Tahun Berdiri/Tahun Melayani" dihapus).
+  ⚠️ Penyusun menulis "+5000 relawan"; yang dipakai angka Beranda (5000 = Penerima Manfaat, relawan 800). Ubah satu baris `relawan` bila ingin lain.
+- `services/api.js`: `pesanGalat()` — status **429 → "Terlalu banyak percobaan. Silakan tunggu sekitar satu menit, lalu coba lagi."** (dulu "Too Many Attempts."). `public/.htaccess`: blok **Paksa HTTPS** (301, kecuali `/.well-known/`, penangkal loop `X-Forwarded-Proto`). `Berita.jsx`: impor `Link` dihapus.
+**C. Pengecekan fungsional menyeluruh (13 Okt)** — lingkungan terpisah: backend `php -S` dari `public/` dengan MySQL sementara `karinakas_e2e_tmp` (+ `LARAVEL_STORAGE_PATH` sementara, `MAIL_MAILER=log`), Vite dev, Chrome (`puppeteer-core`). Basis data dev `karinakas` tak tersentuh (15 tabel/14 pengguna/4 kegiatan sebelum dan sesudah); DB sementara dan server dihapus/dihentikan.
+- **API 50 skenario:** 48 lulus pada percobaan pertama; 2 sisanya = (a) **webhook `/webhook/payment/callback` → 500** karena rute `/payment/callback` mengarah ke `DonasiController::updateStatus($request, $id)` yang butuh `{id}` (cacat nyata; ada juga di produksi; tak membahayakan data karena gagal sebelum mengubah apa pun) dan (b) pendaftaran relawan ganda dijawab **400** (ekspektasi tes saya 409/422 → bukan cacat).
+  Terbukti benar: matriks peran (user 403 di `/admin/*`; admin 403 di users/audit; admin tak melihat nominal/bukti & tak boleh verifikasi), donasi + bukti, relawan (KTP 16 digit, batal, setujui → penghitung ±1), CRUD kegiatan/berita(draf tak tampil publik)/galeri(massal), pemulihan sandi sekali pakai (token sesi lama dicabut), template → isi surel berubah, surel tak terkirim dua kali, audit tercatat, pembatas laju 429.
+- **Chrome:** halaman publik, registrasi (wizard 2 langkah), lupa/reset sandi, donasi + unggah bukti, bukti susulan, daftar & **batalkan relawan**, edit profil, logout, panel admin & super admin (semua menu, tambah kegiatan/akun, template persisten setelah muat ulang, ubah status donasi → surel, ekspor Excel 28 KB). Kegagalan awal uji peramban adalah **kesalahan skrip uji** (pemilihan elemen, wizard, pembatas laju, admin dialihkan `BlockAdmin` dari halaman publik), dibuktikan satu per satu — bukan cacat aplikasi.
+- **Lint:** 10 galat gaya React lama (`react-hooks/set-state-in-effect`, `only-export-components`) tanpa dampak fungsi; sintaks PHP semua valid; build sukses.
+**D. Deploy & insiden `index.html` (13 Okt)** — pertama kali `dist/` diekstrak **bersama foldernya** sehingga masuk `public_html/dist/`; akar tetap `index-C4RUnKxG.js`. Setelah diperbaiki, `index.html` sempat **tertimpa versi lama** (diduga zip lama diekstrak lagi). Perbaikan: unggah hanya `dist/index.html` dan `dist/.htaccess` ke akar (berkas `assets/*` sudah identik). Verifikasi akhir: SHA-256 `index.html` server = lokal; bundel `index-CoFZiLO3.js`;
+  `http→https` 301 satu kali (tanpa loop, sertifikat valid); 13 rute SPA 200; API 200; rute terlindungi 401; Chrome pada situs live 10/10 (Beranda dinamis, klik kartu → modal detail, statistik 4 angka di 4 halaman). **Aturan emas:** cek `index.html` server, bukan hanya keberadaan berkas.
+  Folder `dist/` sisa di server sebaiknya dihapus (cek `https://karinakas.com/dist/`).
+**E. Temuan terbuka dari pengecekan:** (1) webhook payment 500 — pilihan: jawab `501` (jumlah titik akhir tetap) atau hapus rute; **belum dikerjakan**; (2) alamat API lewat `http://` masih 200 (folder `api` kemungkinan punya `.htaccess` sendiri) — frontend tak terdampak (alamat relatif HTTPS);
+  (3) **surel SMTP asli** belum terbukti sampai kotak masuk; (4) `POST /change-password` masih ada (K-2); (5) titik akhir **68** di kode → perbarui dokumen.
+
 ---
 
 ## 5. Masalah terbuka (diurutkan menurut prioritas)
@@ -924,7 +966,17 @@ Urut prioritas. Semua dari pembacaan kode kecuali dinyatakan teruji:
 
 ## 6. Menunggu tindakan penyusun
 
-### 🆕🆕 Menunggu tindakan 12 Okt (TERBARU; blok-blok di bawahnya sebagian sudah terjawab/usang)
+### 🆕🆕🆕 Menunggu tindakan 13 Okt (TERBARU; blok 12 Okt di bawahnya masih berlaku kecuali yang dicoret di sini)
+- [x] ~~Deploy frontend~~ — **terbukti 13 Okt** (`index-CoFZiLO3.js`). [x] ~~K-9 lencana status Notifikasi~~ — selesai.
+- [ ] 🔴 **Uji SMTP asli di situs live:** ubah satu template, setujui 1 relawan uji & verifikasi 1 donasi uji → pastikan surel masuk ke kotak masuk dan isinya mengikuti template (hasilnya jangan diisi dengan asumsi).
+- [ ] Putuskan **webhook `/webhook/payment/callback`** (500): `501 Belum tersedia` (titik akhir tetap) atau hapus rute.
+- [ ] (opsional) pengalihan `http→https` untuk alamat API (`.htaccess` di folder `api`).
+- [ ] **Perbarui angka titik akhir** di SKPL/DPPL/laporan/§13: kode = **68** (66 + 2 template); **67** bila K-2 dikerjakan; angka 65 pada §13 tidak berlaku lagi tanpa keputusan ulang. Tambahkan 2 rute template ke SKPL (FR notifikasi) dan DPPL (NotifikasiController: `templates`, `simpanTemplates`; `TemplateNotifikasi`; surel memakai templat) — ini mengubah angka fungsi/kelas di DPPL.
+- [ ] K-8 (label tab → "Riwayat Relawan"), K-2 (hapus `/change-password`) — masih terbuka dari 12 Okt.
+- [ ] Hapus folder sisa `dist/` di server bila ada; hapus `dist.zip` terlacak dari Git bila ingin (kini terhapus di working tree, belum di-commit).
+- [ ] Uji ulang di situs live butir PDHUPL yang menunggu (UT-04/05/08, AD-10, NL-01, surel donasi & reset) bersama uji template.
+
+### 🆕🆕 Menunggu tindakan 12 Okt (blok-blok di bawahnya sebagian sudah terjawab/usang)
 **Kode dan deploy (AI dapat mengerjakan kodenya bila diminta; commit/push/deploy tetap penyusun):**
 - [ ] 🔴 **Deploy frontend dari `c3de860`**: `npm ci` → `npm run build` (`.env`: `VITE_API_URL=/api/index.php/api/v1`, `VITE_STORAGE_URL=/api/storage`) → ZIP **isi** `dist/` (klik kanan *Compress*) → unggah & Extract ke web root, **jangan timpa `api`**, sertakan `.htaccess`.
   Cek: bundel yang dirujuk `index.html` memuat "Batalkan", "Unggah bukti", "Peradaban Kasih", "Donasi per Kegiatan" (§4.27). Live saat ini = bundel lama.
@@ -1052,6 +1104,7 @@ Urut prioritas. Semua dari pembacaan kode kecuali dinyatakan teruji:
 
 ## 8. Langkah berikutnya (saran urutan)
 
+> 🆕🆕🆕 **Per 13 Okt, urutan yang disarankan:** (1) **uji SMTP asli + template di situs live** → (2) putuskan webhook & K-2/K-8 (kode kecil) → (3) perbarui angka titik akhir (68/67) & fitur template di SKPL/DPPL/laporan → (4) terapkan §13 ke `.docx` → (5) latihan sidang.
 > 🆕🆕 **Per 12 Okt, urutan yang disarankan:** (1) K-8, K-9, K-2 (kode kecil) → (2) **build & deploy frontend dari `c3de860`** (live masih bundel lama) → (3) **uji nyata** UT-04/05/08, AD-10, NL-01, surel donasi & reset →
 > (4) terapkan `BAHAN-BELAJAR-SIDANG.md` §13 ke `FINAL\*.docx` (PDHUPL → SKPL → DPPL → laporan → pustaka; perbarui daftar isi/gambar/tabel) → (5) perbarui slide → (6) latihan sidang (§10) dan video demo cadangan.
 > Daftar bernomor di bawah (dan blok 11 Okt) **sebagian besar usang**: butir 5, 6, 9 menyangkut `TERBARU.docx`/draf `.md` lama; butir 1–2 dan 7 hanya bila belum dikerjakan.
@@ -1122,3 +1175,8 @@ Urut prioritas. Semua dari pembacaan kode kecuali dinyatakan teruji:
   `karinakas.com` — kedua metode itu berbeda dan penyusun perlu tahu bedanya bila ditanya dosen pembimbing.
   Verifikasi nyata di situs live tetap wajib sebelum dianggap final, khususnya untuk hal yang tidak bisa
   dipastikan dari kode saja (tampilan visual, surel sungguhan, unggah berkas nyata).
+
+- 🆕 **(13 Okt)** Mengunggah `dist/`: ekstrak **isinya**, bukan foldernya, ke akar yang berisi `api`; sesudah itu cek `index.html` server (bundel & SHA-256) — pernah tertimpa versi lama. `.htaccess` tersembunyi (aktifkan *Show Hidden Files*).
+- 🆕 **(13 Okt)** Pembatas laju `masuk` (5/menit/IP) ikut memblokir uji otomatis dan pengguna yang mencoba berulang; uji harus mengatur kecepatan login.
+- 🆕 **(13 Okt)** PHP CLI Laragon tanpa driver SQLite → jalankan tes dengan `-d extension=pdo_sqlite -d extension=sqlite3`. `php -S` untuk Laravel harus dijalankan **dari folder `public/`** dengan router `server.php`.
+- 🆕 **(13 Okt)** Isi template notifikasi ada di `storage/app/private/notifikasi_template.json` di peladen (bukan di Git/DB); cadangkan bersama `.env` bila perlu.
