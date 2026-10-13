@@ -2,7 +2,7 @@ import { useState, useEffect, Fragment } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import KarinakasLogo from '../components/KarinakasLogo'
 import { useAuth } from '../context/AuthContext'
-import { STATISTIK, fmtStatistik } from '../data/lembaga'
+import { DAFTAR_STATISTIK, fmtStatistik } from '../data/lembaga'
 
 const features = [
   ['bi-heart-fill',             'Donasi Online Mudah'],
@@ -84,7 +84,7 @@ function Login() {
           </ul>
 
           <div className="lg-left-stats">
-            {[STATISTIK.penerimaManfaat, STATISTIK.kegiatan, STATISTIK.tahun].map((s, i) => (
+            {DAFTAR_STATISTIK.map((s, i) => (
               <Fragment key={s.label}>
                 {i > 0 && <div className="lg-stat-sep" />}
                 <div className="lg-stat">

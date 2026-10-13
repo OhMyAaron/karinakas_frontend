@@ -10,6 +10,9 @@ export const STATISTIK = {
   tahun:           { nilai: 15,   label: 'Tahun Berkarya',   icon: 'bi-award-fill' },
 }
 
+// Keempat angka dalam urutan tetap; semua tempat menampilkan seluruhnya, tanpa memilih sebagian
+export const DAFTAR_STATISTIK = [STATISTIK.penerimaManfaat, STATISTIK.kegiatan, STATISTIK.relawan, STATISTIK.tahun]
+
 // Bentuk tampilan statis, mis. "5.000+"
 export const fmtStatistik = (s) => `${s.nilai.toLocaleString('id-ID')}+`
 

@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { STATISTIK } from '../data/lembaga'
+import { DAFTAR_STATISTIK } from '../data/lembaga'
 
-const stats = [STATISTIK.penerimaManfaat, STATISTIK.kegiatan, STATISTIK.relawan, STATISTIK.tahun]
-  .map(s => ({ end: s.nilai, suffix: '+', label: s.label, icon: s.icon }))
+const stats = DAFTAR_STATISTIK.map(s => ({ end: s.nilai, suffix: '+', label: s.label, icon: s.icon }))
 
 function Counter({ end, suffix, duration = 1800 }) {
   const [count, setCount] = useState(0)

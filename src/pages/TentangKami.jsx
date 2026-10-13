@@ -4,7 +4,7 @@ import Breadcrumb from '../components/Breadcrumb'
 import PageHero from '../components/PageHero'
 import CTA from '../components/CTA'
 import { galeriService } from '../services/resources'
-import { STATISTIK } from '../data/lembaga'
+import { DAFTAR_STATISTIK } from '../data/lembaga'
 
 /* ── Counter (reuse logic) ── */
 function Counter({ end, suffix, duration = 1800 }) {
@@ -59,8 +59,7 @@ const coreValues = [
 ]
 
 // Angka sama dengan Beranda, Intro, Masuk, dan Daftar (satu sumber: data/lembaga.js)
-const orgStats = [STATISTIK.penerimaManfaat, STATISTIK.kegiatan, STATISTIK.relawan, STATISTIK.tahun]
-  .map(s => ({ end: s.nilai, suffix: '+', label: s.label, icon: s.icon }))
+const orgStats = DAFTAR_STATISTIK.map(s => ({ end: s.nilai, suffix: '+', label: s.label, icon: s.icon }))
 
 // Susunan sesuai Organigram Yayasan Karinakas 2026 (materi "Mengenal Karinakas").
 // Belum ada foto resmi, jadi kartu memakai inisial; tambahkan `foto` bila sudah tersedia.
