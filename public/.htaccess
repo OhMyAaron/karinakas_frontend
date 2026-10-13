@@ -13,6 +13,14 @@
   RewriteEngine On
   RewriteBase /
 
+  # Paksa HTTPS: kata sandi dan token masuk tidak boleh lewat HTTP polos.
+  # Pengecualian: /.well-known/ (validasi sertifikat AutoSSL/Let's Encrypt lewat HTTP).
+  # Bila di belakang proxy, X-Forwarded-Proto mencegah pengalihan berulang (loop).
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+  RewriteCond %{REQUEST_URI} !^/\.well-known/ [NC]
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
   # Jangan ganggu permintaan ke backend Laravel yang dilayani di /api
   RewriteCond %{REQUEST_URI} ^/api(/|$) [NC]
   RewriteRule ^ - [L]

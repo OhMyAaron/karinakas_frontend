@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import Breadcrumb from '../components/Breadcrumb'
 import PageHero from '../components/PageHero'
 import CTA from '../components/CTA'
@@ -90,8 +90,17 @@ function Kegiatan() {
   const [statFilter,  setStatFilter]  = useState('semua')
   const [sortBy,      setSortBy]      = useState('terbaru')
   const [currentPage, setCurrentPage] = useState(1)
-  const [selected,    setSelected]    = useState(null)
+  const [dipilih,     setDipilih]     = useState(null)
   const topRef = useRef(null)
+
+  // Tautan langsung ke detail: /kegiatan?detail=<id> (dipakai kartu kegiatan di Beranda)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const detailId = searchParams.get('detail')
+  const selected = dipilih || (detailId ? allKegiatan.find(k => k.id === detailId) || null : null)
+  const setSelected = (item) => {
+    setDipilih(item)
+    if (!item && detailId) setSearchParams({}, { replace: true })
+  }
 
   const counts = categoryList.reduce((acc, cat) => {
     acc[cat.id] = cat.id === 'semua' ? allKegiatan.length : allKegiatan.filter(k => k.kategori === cat.id).length

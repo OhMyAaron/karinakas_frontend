@@ -77,7 +77,7 @@ function Kegiatan() {
                   key={item.id}
                   style={{ transitionDelay: `${i * 0.12}s` }}
                 >
-                  <Link to="/kegiatan" className="text-decoration-none d-block h-100">
+                  <Link to={`/kegiatan?detail=${item.id}`} className="text-decoration-none d-block h-100">
                     <div className="card h-100 kegiatan-card">
                       <div className="kegiatan-img-wrapper">
                         <img

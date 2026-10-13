@@ -13,6 +13,18 @@ export const setToken = (t) => {
   else localStorage.removeItem(TOKEN_KEY)
 }
 
+// Pesan galat untuk pengguna: pertama dari `errors` (validasi), lalu `message`.
+// 429 dari pembatas laju Laravel berbahasa Inggris ("Too Many Attempts."), jadi diganti.
+function pesanGalat(res, data) {
+  if (res.status === 429) return 'Terlalu banyak percobaan. Silakan tunggu sekitar satu menit, lalu coba lagi.'
+  let msg = data?.message
+  if (data?.errors) {
+    const first = Object.values(data.errors)[0]
+    if (Array.isArray(first) && first[0]) msg = first[0]
+  }
+  return msg
+}
+
 async function request(method, path, body) {
   const headers = { Accept: 'application/json' }
   const token = getToken()
@@ -35,13 +47,7 @@ async function request(method, path, body) {
   try { data = await res.json() } catch { /* respons bukan JSON */ }
 
   if (!res.ok) {
-    // Ambil pesan error pertama yang berguna
-    let msg = data?.message
-    if (data?.errors) {
-      const first = Object.values(data.errors)[0]
-      if (Array.isArray(first) && first[0]) msg = first[0]
-    }
-    throw { status: res.status, message: msg || `Terjadi kesalahan (${res.status})`, errors: data?.errors }
+    throw { status: res.status, message: pesanGalat(res, data) || `Terjadi kesalahan (${res.status})`, errors: data?.errors }
   }
 
   return data
@@ -64,12 +70,7 @@ async function upload(path, formData) {
   try { data = await res.json() } catch { /* bukan JSON */ }
 
   if (!res.ok) {
-    let msg = data?.message
-    if (data?.errors) {
-      const first = Object.values(data.errors)[0]
-      if (Array.isArray(first) && first[0]) msg = first[0]
-    }
-    throw { status: res.status, message: msg || `Terjadi kesalahan (${res.status})`, errors: data?.errors }
+    throw { status: res.status, message: pesanGalat(res, data) || `Terjadi kesalahan (${res.status})`, errors: data?.errors }
   }
   return data
 }
