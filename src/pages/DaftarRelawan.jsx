@@ -12,17 +12,36 @@ function DaftarRelawan() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
 
-  // Konteks kegiatan (jika datang dari halaman Kegiatan)
-  const kegId = params.get('kegiatan')
-  const [kegiatan, setKegiatan] = useState(null)
+  // Kegiatan yang dipilih pada formulir. Terisi otomatis bila datang dari halaman Kegiatan
+  // (/daftar-relawan?kegiatan=ID); kosong = pendaftaran UMUM (tidak terikat kegiatan tertentu).
+  const kegIdAwal = params.get('kegiatan') || ''
+  const [pilihId,       setPilihId]       = useState(kegIdAwal)
+  const [daftarKeg,     setDaftarKeg]     = useState([])
+  const [daftarLoading, setDaftarLoading] = useState(true)
+  const [daftarError,   setDaftarError]   = useState(false)
+  const [infoKeg,       setInfoKeg]       = useState('')
+  const [percobaan,     setPercobaan]     = useState(0)
+
+  // Pilihan = kegiatan berstatus aktif yang membuka kebutuhan relawan
   useEffect(() => {
     let alive = true
-    if (!kegId) { setKegiatan(null); return }
-    kegiatanService.get(kegId)
-      .then(k => { if (alive && k?.butuhRelawan) setKegiatan(k) })
-      .catch(() => { if (alive) setKegiatan(null) })
+    kegiatanService.list({ status: 'aktif' })
+      .then(list => {
+        if (!alive) return
+        const opsi = list.filter(k => k.butuhRelawan)
+        setDaftarKeg(opsi); setDaftarError(false)
+        if (kegIdAwal && !opsi.some(k => k.id === kegIdAwal)) {
+          setPilihId('')
+          setInfoKeg('Kegiatan yang Anda pilih tidak lagi membuka pendaftaran relawan. Pilih kegiatan lain, atau daftar sebagai relawan umum.')
+        }
+      })
+      .catch(() => { if (alive) setDaftarError(true) })
+      .finally(() => { if (alive) setDaftarLoading(false) })
     return () => { alive = false }
-  }, [kegId])
+  }, [percobaan, kegIdAwal])
+
+  const kegiatan = daftarKeg.find(k => k.id === pilihId) || null
+  const ulangiMuat = () => { setDaftarLoading(true); setPercobaan(n => n + 1) }
 
   const kuota  = kegiatan ? (Number(kegiatan.kuotaRelawan) || 0) : 0
   const terisi = kegiatan ? (Number(kegiatan.terisi) || 0) : 0
@@ -42,7 +61,7 @@ function DaftarRelawan() {
 
   const handleSubmit = async e => {
     e.preventDefault()
-    if (penuh || saving) return
+    if (penuh || saving || daftarLoading || daftarError) return
     if (form.ktp.length !== 16) {
       setError('Nomor KTP harus diisi tepat 16 digit.')
       return
@@ -83,7 +102,7 @@ function DaftarRelawan() {
                     Silakan masuk atau buat akun terlebih dahulu.
                   </p>
                   <div className="d-flex gap-3 justify-content-center flex-wrap">
-                    <Link to="/login" state={{ from: kegId ? `/daftar-relawan?kegiatan=${kegId}` : '/daftar-relawan' }}
+                    <Link to="/login" state={{ from: kegIdAwal ? `/daftar-relawan?kegiatan=${kegIdAwal}` : '/daftar-relawan' }}
                       className="btn btn-danger rounded-pill px-4"><i className="bi bi-box-arrow-in-right me-2"></i>Masuk</Link>
                     <Link to="/register" className="btn btn-outline-secondary rounded-pill px-4">Buat Akun</Link>
                   </div>
@@ -138,6 +157,33 @@ function DaftarRelawan() {
                   <h2 className="kt-form-title mb-4">
                     <i className="bi bi-person-heart me-2 text-danger"></i>Formulir Pendaftaran Relawan
                   </h2>
+                  {/* Pilihan kegiatan: kosong = relawan umum */}
+                  <div className="mb-3">
+                    <label className="kt-label">Kegiatan yang Anda ikuti</label>
+                    <select className="kt-input kt-select-input" value={pilihId} disabled={daftarLoading}
+                      onChange={e => { setPilihId(e.target.value); setInfoKeg(''); setForm(f => ({ ...f, jenis: '', minat: '' })) }}>
+                      <option value="">Umum — belum memilih kegiatan tertentu</option>
+                      {daftarKeg.map(k => {
+                        const kp = Number(k.kuotaRelawan) || 0
+                        const kn = kp > 0 && (Number(k.terisi) || 0) >= kp
+                        return <option key={k.id} value={k.id} disabled={kn && k.id !== pilihId}>{k.judul}{kn ? ' (kuota penuh)' : ''}</option>
+                      })}
+                    </select>
+                    {daftarLoading && <p className="dn-form-hint mt-1 mb-0">Memuat daftar kegiatan...</p>}
+                    {daftarError && (
+                      <div className="lg-error mt-2">
+                        <i className="bi bi-wifi-off me-2"></i>Daftar kegiatan gagal dimuat.{' '}
+                        <button type="button" className="btn btn-link p-0 align-baseline" onClick={ulangiMuat}>Coba lagi</button>
+                      </div>
+                    )}
+                    {infoKeg && <p className="dn-form-hint mt-1 mb-0 text-danger">{infoKeg}</p>}
+                  </div>
+                  {!kegiatan && !daftarLoading && !daftarError && (
+                    <div className="dr-privacy-note mb-4" style={{ background: '#FFF8E1', borderColor: '#ffe082', color: '#8a6100' }}>
+                      <i className="bi bi-info-circle me-2"></i>
+                      Pendaftaran <strong>umum</strong>: Anda belum memilih kegiatan tertentu. Pengelola akan melihat pendaftaran ini sebagai relawan umum.
+                    </div>
+                  )}
                   {kegiatan && (
                     <div className="dr-keg-context mb-4">
                       <img src={kegiatan.img} alt={kegiatan.judul} />
@@ -218,7 +264,7 @@ function DaftarRelawan() {
                           <i className="bi bi-shield-lock-fill me-2"></i>
                           Data pribadi Anda (alamat, kondisi kesehatan) dilindungi dan hanya diakses oleh admin yang berwenang.
                         </div>
-                        <button type="submit" className="btn btn-danger rounded-pill px-5 py-2 fw-bold kt-submit-btn" disabled={penuh || saving}>
+                        <button type="submit" className="btn btn-danger rounded-pill px-5 py-2 fw-bold kt-submit-btn" disabled={penuh || saving || daftarLoading || daftarError}>
                           {saving
                             ? <><span className="lg-spinner" /> Mengirim...</>
                             : <><i className="bi bi-person-plus me-2"></i>Daftar Sekarang</>}

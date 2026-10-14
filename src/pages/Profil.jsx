@@ -394,7 +394,7 @@ function Profil() {
                                 </div>
                               </div>
                               <div className="pf-activity-meta">
-                                {r.kegiatan && <span><i className="bi bi-flag-fill me-1"></i>{r.kegiatan}</span>}
+                                <span><i className="bi bi-flag-fill me-1"></i>{r.kegiatan || 'Umum'}</span>
                                 <span><i className="bi bi-calendar3 me-1"></i>{r.tanggal}</span>
                                 <span><i className="bi bi-tag-fill me-1"></i>{r.jenis}</span>
                                 {r.kemampuan && r.kemampuan !== '-' && <span><i className="bi bi-stars me-1"></i>{r.kemampuan}</span>}
